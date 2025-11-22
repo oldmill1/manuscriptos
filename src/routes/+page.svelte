@@ -1,7 +1,6 @@
 <script lang="ts">
   import Editor from '$lib/components/Editor.svelte';
-  import DebugBar from '$lib/components/DebugBar.svelte';
-  import { onMount } from 'svelte';
+    import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { Document } from '$lib/models/Document';
   import { DatabaseService } from '$lib/services/DatabaseService';
@@ -46,4 +45,3 @@
 </script>
 
 <Editor />
-<DebugBar onNewDocument={handleNewDocument} />

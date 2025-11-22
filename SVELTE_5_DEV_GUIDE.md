@@ -8,6 +8,8 @@
 
 ## Component Structure
 
+Never put SCSS in the same file as the Svelte component. Always use a separate SCSS file.
+
 ### Basic Template
 
 ```svelte
