@@ -165,5 +165,5 @@ export class DocumentService {
   }
 }
 
-// Export a singleton instance
-export const documentService = new DocumentService();
+// Note: DocumentService should be instantiated only in the browser
+// Use: const documentService = new DocumentService();
