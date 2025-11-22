@@ -8,6 +8,9 @@ declare global {
 		// interface PageState {}
 		// interface Platform {}
 	}
+	
+	// Declare PouchDB as a global variable since it's loaded via CDN
+	var PouchDB: any;
 }
 
 export {};

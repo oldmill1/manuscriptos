@@ -1,0 +1,1 @@
+You are not allowed to install or uninstall any packages without explicit permission every single time. There will never be any permission granted that can bypass this check. 
