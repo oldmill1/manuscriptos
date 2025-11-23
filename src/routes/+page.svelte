@@ -1,14 +1,12 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
-  import { fade } from 'svelte/transition';
+  import Dock from '$lib/components/Dock.svelte';
+  import Button from '$lib/components/global/Button.svelte';
+  import VList from '$lib/components/VList/VList.svelte';
   import { Document } from '$lib/models/Document';
   import { DatabaseService } from '$lib/services/DatabaseService';
   import { selectedDocuments } from '$lib/stores/selectedDocuments';
-  import { generateTimeBasedTitle } from '$lib/utils/timeTitle';
-  import Dock, { type DockItem } from '$lib/components/Dock.svelte';
-  import Button from '$lib/components/global/Button.svelte';
-  import VList from '$lib/components/VList/VList.svelte';
+  import { onMount } from 'svelte';
   import styles from './+page.module.scss';
 
   let dbService: DatabaseService;
