@@ -44,14 +44,9 @@
     icon: '/icons/new.png'
   })));
   
-  // Use documents if available, otherwise fall back to files or default
+  // Use documents if available, otherwise fall back to files
   const displayFiles = $derived(
-    documents.length > 0 ? documentFiles : 
-    files.length > 0 ? files : [
-      { id: '1', name: 'Documents', type: 'folder', icon: '/icons/folder.png' },
-      { id: '2', name: 'Pictures', type: 'folder', icon: '/icons/folder.png' },
-      { id: '3', name: 'Downloads', type: 'folder', icon: '/icons/folder.png' }
-    ]
+    documents.length > 0 ? documentFiles : files
   );
 
   // Track selected documents from the store
@@ -105,11 +100,11 @@
       </div>
       
       {#if hasLoaded && documents.length === 0 && files.length === 0}
-        <div class={styles.empty}>
-          <p>No documents found</p>
+        <div class={styles.centerMessage}>
+          <p>Empty</p>
         </div>
       {/if}
-      
+            
       {#if isSelectionMode}
         <div class={styles.selectButtonPosition}>
           <Button 
@@ -121,9 +116,6 @@
         </div>
       {/if}
       
-      <div class={styles.fileCountLabel}>
-        {displayFiles.length} files
-      </div>
-    </div>
+          </div>
   {/if}
 </div>
