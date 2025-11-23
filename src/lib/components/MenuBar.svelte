@@ -2,7 +2,7 @@
 	import styles from './MenuBar.module.scss';
 	import { createNewDocument } from '$lib/utils/documentUtils';
 
-	const menuItems = ['New'];
+	const menuItems = ['New Document'];
 
 	async function handleNewClick() {
 		await createNewDocument();
