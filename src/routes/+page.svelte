@@ -154,7 +154,8 @@
           onclick={toggleSelectionMode}
           type="button"
         >
-          {isSelectionMode ? 'Cancel' : 'Select'}
+          <img src="/icons/select-all.png" alt="Select" class={styles['select-icon']} />
+          <span>{isSelectionMode ? 'Cancel' : 'Select'}</span>
         </button>
       </div>
     </div>

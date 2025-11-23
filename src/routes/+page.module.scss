@@ -60,36 +60,45 @@ main {
 }
 
 .selection-toggle-btn {
-  background: linear-gradient(180deg, #8a7cc7 0%, #7a6bb7 100%);
-  color: white;
-  border: 1px solid #6a5ba7;
-  border-radius: 4px;
-  padding: 0.25rem 0.75rem;
+  background: linear-gradient(180deg, #fafafa 0%, #e8e8e8 100%);
+  color: #333;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  padding: 0.3rem 0.8rem;
   cursor: pointer;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 500;
+  font-family: 'Editor', sans-serif;
   transition: all 0.1s ease;
   white-space: nowrap;
   box-shadow: 
-    0 2px 4px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+    0 1px 3px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .selection-toggle-btn:hover {
-  background: linear-gradient(180deg, #9a8cd7 0%, #8a7cc7 100%);
-  border-color: #7a6bb7;
+  background: linear-gradient(180deg, #ffffff 0%, #f0f0f0 100%);
+  border-color: #b8b8b8;
   transform: translateY(-1px);
   box-shadow: 
-    0 3px 6px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    0 2px 4px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 .selection-toggle-btn:active {
   transform: translateY(0);
   box-shadow: 
-    0 1px 2px rgba(0, 0, 0, 0.3),
-    inset 0 1px 2px rgba(0, 0, 0, 0.2);
+    0 1px 2px rgba(0, 0, 0, 0.2),
+    inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.select-icon {
+  width: 1rem;
+  height: 1rem;
+  opacity: 0.7;
 }
 
 .selected-count {
@@ -100,7 +109,6 @@ main {
 
 .documents-list {
   flex: 1;
-  padding: 1rem;
 }
 
 .document-item {
@@ -236,7 +244,8 @@ main {
 
 .selection-controls {
   display: flex;
-  justify-content: center;
-  padding: 1rem 0;
-  margin-top: 1rem;
+  justify-content: flex-end;
+  padding: 0;
+  margin: 0;
+  margin-top: 0;
 }
