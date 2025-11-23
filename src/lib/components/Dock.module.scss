@@ -40,6 +40,15 @@
   transform: scale(0.95);
 }
 
+.dock-item.active {
+  background: rgba(74, 158, 255, 0.3);
+  border: 1px solid rgba(74, 158, 255, 0.5);
+}
+
+.dock-item.active:hover {
+  background: rgba(74, 158, 255, 0.4);
+}
+
 .dock-item::before {
   content: attr(title);
   position: absolute;
@@ -77,4 +86,25 @@
 
 .dock-item:hover .dock-icon {
   filter: drop-shadow(0 4px 8px rgba(138, 124, 199, 0.4));
+}
+
+.dock-item.active .dock-icon {
+  filter: drop-shadow(0 4px 8px rgba(74, 158, 255, 0.6));
+}
+
+.selection-count {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #2563eb;
+  color: white;
+  border: 2px solid white;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 7px;
+  border-radius: 12px;
+  min-width: 18px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  line-height: 1;
 }

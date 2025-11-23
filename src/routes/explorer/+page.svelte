@@ -7,7 +7,7 @@
   import { selectedDocuments } from '$lib/stores/selectedDocuments';
   import { generateTimeBasedTitle } from '$lib/utils/timeTitle';
   import Explorer from '$lib/components/Explorer/Explorer.svelte';
-  import ExplorerDock from '$lib/components/ExplorerDock.svelte';
+  import Dock, { type DockItem } from '$lib/components/Dock.svelte';
   import type { PageProps } from './$types';
   
   let { data }: PageProps = $props();
@@ -121,12 +121,29 @@
   />
   
   {#if recentDocs.length > 0}
-    <ExplorerDock 
-      onToggleSelectionMode={toggleSelectionMode}
-      {isSelectionMode}
-      {selectedCount}
-      onNewDocument={handleNewDocument}
-      onFavorites={handleFavorites}
+    <Dock 
+      items={[
+        {
+          id: 'selection-mode',
+          icon: '/icons/select-all.png',
+          title: isSelectionMode ? `Cancel Selection (${selectedCount})` : 'Select Documents',
+          onClick: toggleSelectionMode,
+          active: isSelectionMode,
+          badge: isSelectionMode ? selectedCount : undefined
+        },
+        {
+          id: 'new-document',
+          icon: '/icons/new.png',
+          title: 'New Document',
+          onClick: handleNewDocument
+        },
+        {
+          id: 'favorites',
+          icon: '/icons/heart.png',
+          title: 'Favorites',
+          onClick: handleFavorites
+        }
+      ]}
     />
   {/if}
 </div>

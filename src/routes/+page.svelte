@@ -6,7 +6,7 @@
   import { DatabaseService } from '$lib/services/DatabaseService';
   import { selectedDocuments } from '$lib/stores/selectedDocuments';
   import { generateTimeBasedTitle } from '$lib/utils/timeTitle';
-  import Dock from '$lib/components/Dock.svelte';
+  import Dock, { type DockItem } from '$lib/components/Dock.svelte';
   import Button from '$lib/components/global/Button.svelte';
   import styles from './+page.module.scss';
 
@@ -177,8 +177,25 @@
 
   <!-- Dock -->
   <Dock 
-    onNewDocument={handleNewDocument}
-    onFavorites={handleFavorites}
-    onExplorer={handleExplorer}
+    items={[
+      {
+        id: 'new-document',
+        icon: '/icons/new.png',
+        title: 'New Document',
+        onClick: handleNewDocument
+      },
+      {
+        id: 'favorites',
+        icon: '/icons/heart.png',
+        title: 'Favorites',
+        onClick: handleFavorites
+      },
+      {
+        id: 'explorer',
+        icon: '/icons/folder.png',
+        title: 'Explorer',
+        onClick: handleExplorer
+      }
+    ]}
   />
 </div>

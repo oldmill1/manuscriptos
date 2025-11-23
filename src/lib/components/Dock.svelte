@@ -1,31 +1,35 @@
 <script lang="ts">
   import styles from './Dock.module.scss';
 
-  export let onNewDocument: () => void;
-  export let onFavorites: () => void;
-  export let onExplorer: () => void;
+  export interface DockItem {
+    id: string;
+    icon: string;
+    title: string;
+    onClick: () => void;
+    active?: boolean;
+    badge?: number;
+  }
+
+  export type { DockItem };
+
+  export let items: DockItem[] = [];
 </script>
 
 <div class={styles['dock']}>
-  <button 
-    class={styles['dock-item']} 
-    onclick={onNewDocument}
-    title="New Document"
-  >
-    <img src="/icons/new.png" alt="New Document" class={styles['dock-icon']} />
-  </button>
-  <button 
-    class={styles['dock-item']} 
-    onclick={onFavorites}
-    title="Favorites"
-  >
-    <img src="/icons/heart.png" alt="Favorites" class={styles['dock-icon']} />
-  </button>
-  <button 
-    class={styles['dock-item']} 
-    onclick={onExplorer}
-    title="Explorer"
-  >
-    <img src="/icons/folder.png" alt="Explorer" class={styles['dock-icon']} />
-  </button>
+  {#each items as item (item.id)}
+    <button 
+      class={`${styles['dock-item']} ${item.active ? styles['active'] : ''}`}
+      onclick={item.onClick}
+      title={item.title}
+    >
+      <img 
+        src={item.icon} 
+        alt={item.title} 
+        class={styles['dock-icon']} 
+      />
+      {#if item.badge && item.badge > 0}
+        <span class={styles['selection-count']}>{item.badge}</span>
+      {/if}
+    </button>
+  {/each}
 </div>
