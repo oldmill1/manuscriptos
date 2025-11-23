@@ -6,12 +6,16 @@
   import { ListService } from '$lib/services/ListService';
   import Dock, { type DockItem } from '$lib/components/Dock.svelte';
   import Button from '$lib/components/global/Button.svelte';
+  import Modal from '$lib/components/Modal/Modal.svelte';
+  import VList from '$lib/components/VList/VList.svelte';
   import styles from './+page.module.scss';
 
   let listService: ListService;
   let isBrowser = false;
   let lists: List[] = [];
   let hasLoaded = false;
+  let showNewListModal = false;
+  let newListName = '';
 
   onMount(async () => {
     isBrowser = true;
@@ -44,25 +48,41 @@
     }
   }
 
-  async function handleNewList() {
+  function handleNewList() {
+    newListName = '';
+    showNewListModal = true;
+  }
+
+  async function createNewList() {
+    if (!newListName.trim()) return;
+    
     try {
       if (!isBrowser || !listService) {
         throw new Error('List service not initialized');
       }
       
-      const newList = new List('custom', 'New List');
+      const newList = new List('custom', newListName.trim());
       const savedList = await listService.create(newList);
       
       console.log('New list created:', savedList.id);
       console.log('New list name:', savedList.name);
       
-      // Refresh lists before navigating
-      await loadLists();
+      // Close modal
+      showNewListModal = false;
+      newListName = '';
       
-      // For now, just reload the lists page
-      // TODO: Navigate to list detail page when implemented
+      // Refresh lists
+      await loadLists();
     } catch (error) {
       console.error('Failed to create new list:', error);
+    }
+  }
+
+  function handleNewListKeydown(event: KeyboardEvent) {
+    if (event.key === 'Enter') {
+      createNewList();
+    } else if (event.key === 'Escape') {
+      showNewListModal = false;
     }
   }
 
@@ -97,39 +117,28 @@
         <h1 class={styles['lists-title']}>Lists</h1>
       </div>
       
+      {#snippet listContentSnippet(list: List)}
+        <div class={styles['list-info']}>
+          <h3 class={styles['list-name']}>{list.name || 'Untitled List'}</h3>
+          <p class={styles['list-type']}>
+            {list.type === 'favorites' ? 'Favorites' : 'Custom List'}
+            {list.itemIds.length > 0 ? ` • ${list.itemIds.length} items` : ''}
+          </p>
+        </div>
+      {/snippet}
+
       <div class={styles['lists-list']}>
-        {#each lists as list (list.id)}
-          <button 
-            class={styles['list-item']} 
-            onclick={(e) => handleListClick(list, e)}
-            onkeydown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                handleListClick(list, e as any);
-              }
-            }}
-            type="button"
-            transition:fade={{ duration: 300 }}
-          >
-            <div class={styles['list-info']}>
-              <h3 class={styles['list-name']}>{list.name || 'Untitled List'}</h3>
-              <p class={styles['list-type']}>
-                {list.type === 'favorites' ? 'Favorites' : 'Custom List'}
-                {list.itemIds.length > 0 ? ` • ${list.itemIds.length} items` : ''}
-              </p>
-            </div>
-            <div class={styles['list-arrow']}>→</div>
-          </button>
-        {/each}
-        
-        {#if hasLoaded && lists.length === 0}
-          <div class={styles['empty-state']} transition:fade={{ duration: 300 }}>
-            <p>No lists found</p>
-            <button class={styles['create-first-btn']} onclick={handleNewList}>
-              Create your first list
-            </button>
-          </div>
-        {/if}
+        <VList 
+          items={lists}
+          {hasLoaded}
+          emptyMessage="No lists found"
+          emptyButtonText="Create your first list"
+          onEmptyButtonClick={handleNewList}
+          onItemClick={handleListClick}
+          getItemId={(list) => list.id}
+          isItemSelected={() => false}
+          renderItemContent={listContentSnippet}
+        />
       </div>
       
       <div class={styles['list-controls']}>
@@ -166,4 +175,145 @@
       }
     ]}
   />
+
+  <!-- New List Modal -->
+  <Modal 
+    bind:isOpen={showNewListModal}
+    content={modalContent}
+  />
+
+{#snippet modalContent()}
+  <div style="padding: 2rem; min-width: 400px;">
+    <h2 style="margin: 0 0 1.5rem 0; font-size: 1.5rem; font-weight: 600; color: #333;">
+      Create New List
+    </h2>
+    
+    <div style="margin-bottom: 1.5rem;">
+      <label 
+        for="list-name" 
+        style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #555;"
+      >
+        List Name
+      </label>
+      <input
+        id="list-name"
+        type="text"
+        bind:value={newListName}
+        onkeydown={handleNewListKeydown}
+        placeholder="Enter list name..."
+        style="
+          width: 100%; 
+          padding: 0.75rem; 
+          border: 2px solid #e1e5e9; 
+          border-radius: 8px; 
+          font-size: 1rem;
+          outline: none;
+          transition: border-color 0.2s;
+        "
+        onfocus={(e) => {
+          const target = e.target as HTMLInputElement;
+          if (target) {
+            target.style.borderColor = '#007acc';
+          }
+        }}
+        onblur={(e) => {
+          const target = e.target as HTMLInputElement;
+          if (target) {
+            target.style.borderColor = '#e1e5e9';
+          }
+        }}
+      />
+    </div>
+    
+    <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+      <button
+        onclick={() => showNewListModal = false}
+        style="
+          padding: 0.75rem 1.5rem;
+          border: 2px solid #e1e5e9;
+          background: white;
+          color: #666;
+          border-radius: 8px;
+          font-size: 0.875rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s;
+        "
+        onmouseover={(e) => {
+          const target = e.target as HTMLButtonElement;
+          if (target) {
+            target.style.background = '#f8f9fa';
+            target.style.borderColor = '#d1d5d9';
+          }
+        }}
+        onfocus={(e) => {
+          const target = e.target as HTMLButtonElement;
+          if (target) {
+            target.style.background = '#f8f9fa';
+            target.style.borderColor = '#d1d5d9';
+          }
+        }}
+        onmouseout={(e) => {
+          const target = e.target as HTMLButtonElement;
+          if (target) {
+            target.style.background = 'white';
+            target.style.borderColor = '#e1e5e9';
+          }
+        }}
+        onblur={(e) => {
+          const target = e.target as HTMLButtonElement;
+          if (target) {
+            target.style.background = 'white';
+            target.style.borderColor = '#e1e5e9';
+          }
+        }}
+      >
+        Cancel
+      </button>
+      
+      <button
+        onclick={createNewList}
+        disabled={!newListName.trim()}
+        style="
+          padding: 0.75rem 1.5rem;
+          border: none;
+          background: #007acc;
+          color: white;
+          border-radius: 8px;
+          font-size: 0.875rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s;
+          opacity: {newListName.trim() ? '1' : '0.5'};
+        "
+        onmouseover={(e) => {
+          const target = e.target as HTMLButtonElement;
+          if (target && newListName.trim()) {
+            target.style.background = '#005fa3';
+          }
+        }}
+        onfocus={(e) => {
+          const target = e.target as HTMLButtonElement;
+          if (target && newListName.trim()) {
+            target.style.background = '#005fa3';
+          }
+        }}
+        onmouseout={(e) => {
+          const target = e.target as HTMLButtonElement;
+          if (target) {
+            target.style.background = '#007acc';
+          }
+        }}
+        onblur={(e) => {
+          const target = e.target as HTMLButtonElement;
+          if (target) {
+            target.style.background = '#007acc';
+          }
+        }}
+      >
+        Create
+      </button>
+    </div>
+  </div>
+{/snippet}
 </div>

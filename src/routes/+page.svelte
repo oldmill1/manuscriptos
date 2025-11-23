@@ -79,6 +79,10 @@
     goto('/explorer');
   }
 
+  function handleLists() {
+    goto('/lists');
+  }
+
   async function openDocument(docId: string) {
     await goto(`/docs/${docId}`);
   }
@@ -119,16 +123,28 @@
         <h1 class={styles['recents-title']}>Recents</h1>
       </div>
       
+      {#snippet documentContentSnippet(doc: Document)}
+        <div class={styles['document-info']}>
+          <h3 class={styles['document-title']}>{doc.title || 'Untitled Document'}</h3>
+          <p class={styles['document-preview']}>
+            {doc.content ? doc.content.slice(0, 100) : ''}
+          </p>
+        </div>
+      {/snippet}
+
       <VList 
-      items={recentDocs}
-      {hasLoaded}
-      {isSelectionMode}
-      emptyMessage="No recent documents"
-      emptyButtonText="Create your first document"
-      onEmptyButtonClick={handleNewDocument}
-      onItemClick={handleDocumentClick}
-      onToggleSelection={toggleDocumentSelection}
-    />
+        items={recentDocs}
+        {hasLoaded}
+        {isSelectionMode}
+        emptyMessage="No recent documents"
+        emptyButtonText="Create your first document"
+        onEmptyButtonClick={handleNewDocument}
+        onItemClick={handleDocumentClick}
+        onToggleSelection={toggleDocumentSelection}
+        getItemId={(doc) => doc.id}
+        isItemSelected={(doc) => selectedDocuments.isSelected(doc.id)}
+        renderItemContent={documentContentSnippet}
+      />
       
       <div class={styles['selection-controls']}>
         <Button 
@@ -161,6 +177,12 @@
         icon: '/icons/folder.png',
         title: 'Explorer',
         onClick: handleExplorer
+      },
+      {
+        id: 'lists',
+        icon: '/icons/cabinet.png',
+        title: 'Lists',
+        onClick: handleLists
       }
     ]}
   />

@@ -1,36 +1,47 @@
-<script lang="ts">
+<script lang="ts" generics="T">
   import { fade } from 'svelte/transition';
-  import { Document } from '$lib/models/Document';
   import { selectedDocuments } from '$lib/stores/selectedDocuments';
   import styles from './VList.module.scss';
 
-  export let items: Document[] = [];
+  export let items: T[] = [];
   export let hasLoaded: boolean = false;
   export let isSelectionMode: boolean = false;
-  export let emptyMessage: string = 'No recent documents';
-  export let emptyButtonText: string = 'Create your first document';
+  export let emptyMessage: string = 'No items found';
+  export let emptyButtonText: string = 'Create your first item';
   export let onEmptyButtonClick: () => void = () => {};
-  export let onItemClick: (doc: Document, event: MouseEvent) => void = () => {};
-  export let onToggleSelection: (doc: Document) => void = () => {};
+  export let onItemClick: (item: T, event: MouseEvent) => void = () => {};
+  export let onToggleSelection: (item: T) => void = () => {};
+  export let getItemId: (item: T) => string = (item) => (item as any).id;
+  export let isItemSelected: (item: T) => boolean = (item) => selectedDocuments.isSelected(getItemId(item));
+  export let renderItemContent: import('svelte').Snippet<[T]> = defaultItemContent;
 
-  function handleDocumentClick(doc: Document, event: MouseEvent) {
-    onItemClick(doc, event);
+  function handleItemClick(item: T, event: MouseEvent) {
+    onItemClick(item, event);
   }
 
-  function toggleDocumentSelection(doc: Document) {
-    onToggleSelection(doc);
+  function toggleItemSelection(item: T) {
+    onToggleSelection(item);
   }
 </script>
 
-<div class={styles['documents-list']}>
-  {#each items as doc (doc.id)}
+{#snippet defaultItemContent(item: T)}
+  <div class={styles['item-info']}>
+    <h3 class={styles['item-title']}>{item.title || 'Untitled'}</h3>
+    <p class={styles['item-preview']}>
+      {item.content ? item.content.slice(0, 100) : ''}
+    </p>
+  </div>
+{/snippet}
+
+<div class={styles['items-list']}>
+  {#each items as item (getItemId(item))}
     <button 
-      class={`${styles['document-item']} ${isSelectionMode ? styles['selection-mode'] : ''} ${selectedDocuments.isSelected(doc.id) ? styles['selected'] : ''}`} 
-      onclick={(e) => handleDocumentClick(doc, e)}
+      class={`${styles['item']} ${isSelectionMode ? styles['selection-mode'] : ''} ${isItemSelected(item) ? styles['selected'] : ''}`} 
+      onclick={(e) => handleItemClick(item, e)}
       onkeydown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          handleDocumentClick(doc, e as any);
+          handleItemClick(item, e as any);
         }
       }}
       type="button"
@@ -40,19 +51,14 @@
         <div class={styles['selection-checkbox']}>
           <input 
             type="checkbox" 
-            checked={selectedDocuments.isSelected(doc.id)}
-            onchange={() => toggleDocumentSelection(doc)}
+            checked={isItemSelected(item)}
+            onchange={() => toggleItemSelection(item)}
             onclick={(e) => e.stopPropagation()}
           />
         </div>
       {/if}
-      <div class={styles['document-info']}>
-        <h3 class={styles['document-title']}>{doc.title || 'Untitled Document'}</h3>
-        <p class={styles['document-preview']}>
-          {doc.content ? doc.content.slice(0, 100) : ''}
-        </p>
-      </div>
-      <div class={styles['document-arrow']}>→</div>
+      {@render renderItemContent(item)}
+      <div class={styles['item-arrow']}>→</div>
     </button>
   {/each}
   
