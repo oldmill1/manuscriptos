@@ -47,6 +47,28 @@
   grid-template-rows: repeat(auto-fill, minmax(100px, 1fr));
   gap: 15px;
   align-content: start;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 8px; // Space for scrollbar
+  
+  // Custom scrollbar styling
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #333;
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #666;
+    border-radius: 3px;
+    
+    &:hover {
+      background: #888;
+    }
+  }
 }
 
 .fileItem {

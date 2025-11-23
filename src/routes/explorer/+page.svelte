@@ -38,10 +38,16 @@
       if (!dbService) return;
       
       const docs = await dbService.list();
-      // Sort by updatedAt to get the latest documents and take 10
+      console.log('Raw documents from database:', docs);
+      console.log('Number of documents retrieved:', docs.length);
+      
+      // Sort by updatedAt to get the latest documents and take 100
       recentDocs = docs
         .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
-        .slice(0, 10);
+        .slice(0, 100);
+      
+      console.log('Recent docs after sorting and slicing:', recentDocs);
+      console.log('Recent doc IDs:', recentDocs.map(d => d.id));
       
       // Initialize selected count
       updateSelectedCount();
@@ -109,6 +115,48 @@
     // TODO: Implement favorites functionality
     console.log('Favorites clicked');
   }
+
+  async function handleDeleteSelected(selectedDocs: Document[]) {
+    try {
+      if (!dbService) {
+        throw new Error('Database not initialized');
+      }
+      
+      if (selectedDocs.length === 0) {
+        console.log('No documents selected for deletion');
+        return;
+      }
+      
+      console.log(`Deleting ${selectedDocs.length} documents:`, selectedDocs.map(d => d.id));
+      
+      // Delete each selected document with individual error handling
+      for (const doc of selectedDocs) {
+        try {
+          console.log(`Attempting to delete document: ${doc.id}`);
+          const deleteResult = await dbService.delete(doc.id);
+          console.log(`Delete result for ${doc.id}:`, deleteResult);
+        } catch (deleteError) {
+          console.error(`Failed to delete document ${doc.id}:`, deleteError);
+        }
+      }
+      
+      // Clear selection
+      selectedDocuments.clearSelection();
+      updateSelectedCount();
+      
+      // Add a small delay to ensure database operations complete
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Refresh the document list
+      console.log('Refreshing document list after deletion...');
+      await loadRecentDocs();
+      
+      console.log('Document list refreshed. New count:', recentDocs.length);
+      console.log('Successfully deleted selected documents');
+    } catch (error) {
+      console.error('Failed to delete selected documents:', error);
+    }
+  }
 </script>
 
 <div class="explorer-container">
@@ -118,6 +166,7 @@
     onDocumentClick={handleDocumentClick}
     {isSelectionMode}
     onSelectionChange={updateSelectedCount}
+    onDeleteSelected={handleDeleteSelected}
   />
   
   {#if recentDocs.length > 0}

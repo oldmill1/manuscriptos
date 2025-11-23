@@ -5,6 +5,7 @@
   import Button from '../global/Button.svelte';
   import type { Snippet } from 'svelte';
   import { Document } from '$lib/models/Document';
+  import { selectedDocuments } from '$lib/stores/selectedDocuments';
   
   interface FileItem {
     id: string;
@@ -21,6 +22,7 @@
     onDocumentClick?: (doc: Document, event: MouseEvent) => void;
     isSelectionMode?: boolean;
     onSelectionChange?: () => void;
+    onDeleteSelected?: (selectedDocuments: Document[]) => void;
   }
   
   let { 
@@ -30,7 +32,8 @@
     hasLoaded = true, 
     onDocumentClick,
     isSelectionMode = false,
-    onSelectionChange
+    onSelectionChange,
+    onDeleteSelected
   }: Props = $props();
   
   // Convert documents to file items for display
@@ -50,6 +53,18 @@
       { id: '3', name: 'Downloads', type: 'folder', icon: '/icons/folder.png' }
     ]
   );
+
+  // Track selected documents from the store
+  let selectedDocs = $state<Document[]>([]);
+  
+  // Subscribe to selected documents store
+  $effect(() => {
+    const unsubscribe = selectedDocuments.subscribe(state => {
+      selectedDocs = state.documents;
+    });
+    
+    return unsubscribe;
+  });
 </script>
 
 <div class={styles.container}>
@@ -102,7 +117,7 @@
       {#if isSelectionMode}
         <div class={styles.selectButtonPosition}>
           <Button 
-            onclick={() => {}}
+            onclick={() => onDeleteSelected?.(selectedDocs)}
             text="Delete"
             icon="/icons/new.png"
             alt="Delete"
