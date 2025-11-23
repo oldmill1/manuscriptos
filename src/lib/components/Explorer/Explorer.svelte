@@ -98,6 +98,17 @@
           <p>No documents found</p>
         </div>
       {/if}
+      
+      {#if isSelectionMode}
+        <div class={styles.selectButtonPosition}>
+          <Button 
+            onclick={() => {}}
+            text="Delete"
+            icon="/icons/new.png"
+            alt="Delete"
+          />
+        </div>
+      {/if}
     </div>
   {/if}
 </div>
