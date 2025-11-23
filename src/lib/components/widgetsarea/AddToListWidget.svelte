@@ -121,14 +121,8 @@
 	<div class={styles.widgetHeader}>
 		<div class={styles.widgetTitle}>
 			<img src="/icons/cabinet.png" alt="Lists" class={styles.widgetIcon} />
-			Add to Folder
+			Add to Folder&nbsp;{#if documentListsCount > 0} ({documentListsCount}){/if}
 		</div>
-		{#if documentListsCount > 0}
-			<div class={styles.listCount}>
-				<img src="/icons/cabinet.png" alt="In lists" class={styles.checkmarkIcon} />
-				{documentListsCount}
-			</div>
-		{/if}
 	</div>
 
 	<div class={styles.widgetContent}>

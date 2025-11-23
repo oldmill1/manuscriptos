@@ -29,11 +29,15 @@
 	</div>
 
 	<div class={styles.widgetContent}>
-		<!-- First row: Rewrite button -->
+		<!-- First row: Rewrite and Clean Up buttons -->
 		<div class={styles.rewriterRow}>
 			<button class={styles.rewriteButton} onclick={handleRewrite}>
-				<img src="/icons/widget.png" alt="AI" class={styles.rewriteIcon} />
-				Rewrite
+				<img src="/icons/fantasy.png" alt="AI" class={styles.rewriteIcon} />
+				Re-write
+			</button>
+			<button class={styles.rewriteButton} onclick={handleRewrite}>
+				<img src="/icons/sparkle.png" alt="AI" class={styles.rewriteIcon} />
+				Clean-up 
 			</button>
 		</div>
 
