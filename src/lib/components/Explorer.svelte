@@ -19,8 +19,6 @@
     hasLoaded?: boolean;
     onDocumentClick?: (doc: Document, event: MouseEvent) => void;
     isSelectionMode?: boolean;
-    selectedCount?: number;
-    onToggleSelectionMode?: () => void;
   }
   
   let { 
@@ -29,9 +27,7 @@
     documents = [], 
     hasLoaded = true, 
     onDocumentClick,
-    isSelectionMode = false,
-    selectedCount = 0,
-    onToggleSelectionMode
+    isSelectionMode = false
   }: Props = $props();
   
   // Convert documents to file items for display
@@ -117,17 +113,5 @@
         </div>
       {/if}
     </div>
-    
-    {#if documents.length > 0}
-      <div class={styles.selectionControls}>
-        <button 
-          type="button"
-          class={styles.selectButton}
-          onclick={onToggleSelectionMode}
-        >
-          {isSelectionMode ? `Cancel (${selectedCount})` : 'Select'}
-        </button>
-      </div>
-    {/if}
   {/if}
 </div>

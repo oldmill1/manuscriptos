@@ -2,7 +2,6 @@
   width: 100vw;
   height: 100vh;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   background-color: #1a1a1a;
@@ -23,7 +22,6 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   padding: 40px;
   overflow: auto;
-  flex: 1;
 }
 
 .desktop {
@@ -83,35 +81,6 @@
     width: 16px;
     height: 16px;
     cursor: pointer;
-  }
-}
-
-.selectionControls {
-  margin-top: 20px;
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  max-width: 620px;
-}
-
-.selectButton {
-  background: #333;
-  border: 1px solid #555;
-  color: #fff;
-  padding: 10px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: #444;
-    border-color: #666;
-  }
-
-  &:focus {
-    outline: 2px solid #4a9eff;
-    outline-offset: 2px;
   }
 }
 

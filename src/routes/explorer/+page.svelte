@@ -6,6 +6,7 @@
   import { DatabaseService } from '$lib/services/DatabaseService';
   import { selectedDocuments } from '$lib/stores/selectedDocuments';
   import Explorer from '$lib/components/Explorer.svelte';
+  import ExplorerDock from '$lib/components/ExplorerDock.svelte';
   import type { PageProps } from './$types';
   
   let { data }: PageProps = $props();
@@ -74,11 +75,19 @@
   const selectedCount = $derived(selectedDocuments.getSelectedCount());
 </script>
 
-<Explorer 
-  documents={recentDocs} 
-  {hasLoaded} 
-  onDocumentClick={handleDocumentClick}
-  {isSelectionMode}
-  {selectedCount}
-  onToggleSelectionMode={toggleSelectionMode}
-/>
+<div class="explorer-container">
+  <Explorer 
+    documents={recentDocs} 
+    {hasLoaded} 
+    onDocumentClick={handleDocumentClick}
+    {isSelectionMode}
+  />
+  
+  {#if recentDocs.length > 0}
+    <ExplorerDock 
+      onToggleSelectionMode={toggleSelectionMode}
+      {isSelectionMode}
+      {selectedCount}
+    />
+  {/if}
+</div>
