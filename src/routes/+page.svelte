@@ -147,7 +147,7 @@
             <div class={styles['document-info']}>
               <h3 class={styles['document-title']}>{doc.title || 'Untitled Document'}</h3>
               <p class={styles['document-preview']}>
-                {doc.content.slice(0, 100) || 'Empty document...'}
+                {doc.content ? doc.content.slice(0, 100) : ''}
               </p>
             </div>
             <div class={styles['document-arrow']}>→</div>
