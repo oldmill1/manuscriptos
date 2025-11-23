@@ -4,7 +4,6 @@
   import { fade } from 'svelte/transition';
   import { Document } from '$lib/models/Document';
   import { DatabaseService } from '$lib/services/DatabaseService';
-  import Page from '$lib/components/Page.svelte';
   import Dock from '$lib/components/Dock.svelte';
   import styles from './+page.module.scss';
 
@@ -68,10 +67,12 @@
   }
 </script>
 
-<Page 
-  title="Squire" 
-  description="Welcome to Squire - Your personal writing companion"
->
+<svelte:head>
+  <title>Squire</title>
+  <meta name="description" content="Welcome to Squire - Your personal writing companion" />
+</svelte:head>
+
+<div class={styles['app-container']}>
   <!-- Main Content -->
   <main>
     <div class={styles['content-wrapper']}>
@@ -120,4 +121,4 @@
     onNewDocument={handleNewDocument}
     onFavorites={handleFavorites}
   />
-</Page>
+</div>
