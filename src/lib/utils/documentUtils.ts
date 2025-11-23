@@ -19,7 +19,7 @@ export async function createNewDocument(): Promise<void> {
     const documentService = new DocumentService();
     
     // Create a new document with time-based title
-    const newDoc = new Document(generateTimeBasedTitle(), '');
+    const newDoc = new Document();
     
     // Save to database
     const savedDoc = await documentService.create(newDoc);

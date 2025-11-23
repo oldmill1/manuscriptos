@@ -1,3 +1,5 @@
+import { generateTimeBasedTitle } from '$lib/utils/timeTitle';
+
 export interface DocumentContent {
   id: string;
   title: string;
@@ -15,7 +17,7 @@ export class Document {
 
   constructor(title: string = '', content: string = '') {
     this._id = crypto.randomUUID();
-    this._title = title;
+    this._title = title || generateTimeBasedTitle();
     this._content = content;
     this._createdAt = new Date();
     this._updatedAt = new Date();

@@ -56,7 +56,7 @@
         throw new Error('Database not initialized');
       }
       
-      const newDoc = new Document(generateTimeBasedTitle(), '');
+      const newDoc = new Document();
       const savedDoc = await dbService.create(newDoc);
       
       console.log('New document created:', savedDoc.id);
