@@ -3,6 +3,7 @@
 	import type { Snippet } from 'svelte';
 	import { widgetVisibility, hideWidget } from '$lib/stores/widgetVisibility';
 	import AddToListWidget from './AddToListWidget.svelte';
+	import RewriterWidget from './RewriterWidget.svelte';
 
 	interface Props {
 		children?: Snippet;
@@ -46,6 +47,7 @@
 		<div class={styles.content}>
 			{#if documentId}
 				<AddToListWidget {documentId} />
+				<RewriterWidget {documentId} />
 			{/if}
 
 			{#if children}

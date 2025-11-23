@@ -66,7 +66,7 @@ export class OpenAIService {
 			messages.push(...request.messages);
 
 			const completion = await this.client.chat.completions.create({
-				model: request.model || 'gpt-3.5-turbo',
+				model: request.model || 'gpt-4o-mini',
 				messages: messages,
 				temperature: request.temperature ?? 0.7,
 				max_tokens: request.maxTokens ?? 1000
