@@ -28,8 +28,8 @@
   width: 100%;
   height: 100%;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  grid-template-rows: repeat(auto-fill, minmax(80px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  grid-template-rows: repeat(auto-fill, minmax(100px, 1fr));
   gap: 15px;
   align-content: start;
 }
@@ -37,7 +37,7 @@
 .documentButton {
   background: none;
   border: none;
-  padding: 0;
+  padding: 8px;
   margin: 0;
   cursor: pointer;
   display: flex;
