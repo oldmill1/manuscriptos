@@ -10,6 +10,13 @@
   padding: 0;
 }
 
+.backButtonPosition {
+  position: absolute;
+  top: -40px;
+  left: 3px;
+  z-index: 10;
+}
+
 .center {
   width: 100%;
   max-width: 620px;
@@ -21,7 +28,8 @@
   justify-content: center;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   padding: 40px;
-  overflow: auto;
+  overflow: visible;
+  position: relative;
 }
 
 .desktop {

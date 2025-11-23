@@ -2,6 +2,7 @@
   import styles from './Explorer.module.scss';
   import DocumentButton from './DocumentButton.svelte';
   import IconItem from '../global/IconItem.svelte';
+  import Button from '../global/Button.svelte';
   import type { Snippet } from 'svelte';
   import { Document } from '$lib/models/Document';
   
@@ -56,6 +57,14 @@
     {@render children()}
   {:else}
     <div class={styles.center}>
+      <div class={styles.backButtonPosition}>
+        <Button 
+          onclick={() => window.history.back()}
+          text="Back"
+          icon="/icons/folder.png"
+          alt="Back"
+        />
+      </div>
       <div class={styles.desktop}>
         {#if hasLoaded}
           {#if documents.length > 0}
