@@ -101,10 +101,6 @@
               </div>
             {/each}
           {/if}
-        {:else}
-          <div class={styles.loading}>
-            <p>Loading documents...</p>
-          </div>
         {/if}
       </div>
       
