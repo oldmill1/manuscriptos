@@ -10,7 +10,7 @@
   let { documentId }: Props = $props();
   
   let listService: ListService | null = null;
-  let lists: List[] = [];
+  let lists = $state<List[]>([]);
   let newListName = $state('');
   let isLoading = $state(false);
   let documentListsCount = $state(0);
@@ -43,6 +43,36 @@
     } catch (error) {
       console.error('Failed to load lists:', error);
     }
+  }
+  
+  async function removeFromList(list: List) {
+    if (!listService) return;
+    
+    try {
+      list.removeItem(documentId);
+      await listService.update(list);
+      await loadLists(); // Reload to update the UI
+    } catch (error) {
+      console.error('Failed to remove from list:', error);
+    }
+  }
+  
+  async function toggleListAssociation(list: List, isChecked: boolean) {
+    if (!listService) return;
+    
+    if (isChecked) {
+      // Add document to list
+      if (!list.hasItem(documentId)) {
+        list.addItem(documentId);
+        await listService.update(list);
+      }
+    } else {
+      // Remove document from list
+      await removeFromList(list);
+    }
+    
+    // Reload to update the UI
+    await loadLists();
   }
   
   async function addToList(listName: string) {
@@ -114,12 +144,22 @@
     {/if}
     
     {#if documentLists.length > 0}
-      <div class={styles.currentLists}>
-        <div class={styles.currentListsContainer}>
-          {#each documentLists as list}
-            <div class={styles.currentListTag}>{list.name}</div>
-          {/each}
-        </div>
+      <div class={styles.listsContainer}>
+        {#each documentLists as list}
+          <label class={styles.listCheckbox}>
+            <input
+              type="checkbox"
+              checked={true}
+              onchange={(e) => {
+                const target = e.target as HTMLInputElement;
+                if (target) {
+                  toggleListAssociation(list, target.checked);
+                }
+              }}
+            />
+            <span class={styles.checkboxText}>{list.name}</span>
+          </label>
+        {/each}
       </div>
     {/if}
   </div>

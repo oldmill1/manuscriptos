@@ -169,22 +169,30 @@
   font-style: italic;
 }
 
-.currentLists {
+.listsContainer {
   margin-top: 8px;
-}
-
-.currentListsContainer {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 4px;
 }
 
-.currentListTag {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+.listCheckbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 2px 0;
+  
+  input[type="checkbox"] {
+    width: 12px;
+    height: 12px;
+    accent-color: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+  }
+}
+
+.checkboxText {
+  font-size: 11px;
   color: rgba(255, 255, 255, 0.8);
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 10px;
-  font-weight: 500;
+  font-weight: 400;
 }
