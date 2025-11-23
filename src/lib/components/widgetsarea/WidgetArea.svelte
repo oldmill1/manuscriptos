@@ -2,15 +2,17 @@
   import styles from './WidgetArea.module.scss';
   import type { Snippet } from 'svelte';
   import { widgetVisibility, hideWidget } from '$lib/stores/widgetVisibility';
+  import AddToListWidget from './AddToListWidget.svelte';
   
   interface Props {
     children?: Snippet;
     title?: string;
     variant?: 'default' | 'compact' | 'expanded';
     class?: string;
+    documentId?: string;
   }
   
-  let { children, title, variant = 'default', class: className = '' }: Props = $props();
+  let { children, title, variant = 'default', class: className = '', documentId }: Props = $props();
   
   let isVisible = $state(true);
   
@@ -42,9 +44,13 @@
   
   {#if isVisible}
     <div class={styles.content}>
+      {#if documentId}
+        <AddToListWidget {documentId} />
+      {/if}
+      
       {#if children}
         {@render children()}
-      {:else}
+      {:else if !documentId}
         <div class={styles.placeholder}>
           <p>Widget area content goes here</p>
         </div>

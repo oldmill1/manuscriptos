@@ -49,4 +49,4 @@ console.log(`
 <MenuBar {documentTitle} documentId={data.id} {dbService} />
 <Editor content={documentContent} documentId={data.id} {dbService} />
 <StatusBar />
-<WidgetArea title="Widgets" />
+<WidgetArea title="Widgets" documentId={data.id} />

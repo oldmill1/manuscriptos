@@ -114,7 +114,7 @@
   <main>
     <div class={styles['content-wrapper']}>
       <div class={styles['content-header']}>
-        <h1 class={styles['lists-title']}>Folders</h1>
+        <h1 class={styles['lists-title']}>Lists</h1>
       </div>
       
       {#snippet listContentSnippet(list: List)}
@@ -164,7 +164,7 @@
       {
         id: 'new-list',
         icon: '/icons/new.png',
-        title: 'New Folder',
+        title: 'New List',
         onClick: handleNewList
       },
       {
@@ -185,7 +185,7 @@
 {#snippet modalContent()}
   <div style="padding: 2rem; min-width: 400px;">
     <h2 style="margin: 0 0 1.5rem 0; font-size: 1.5rem; font-weight: 600; color: #333;">
-      Create New Folder
+      Create New List
     </h2>
     
     <div style="margin-bottom: 1.5rem;">
