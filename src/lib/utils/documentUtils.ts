@@ -13,21 +13,15 @@ export async function createNewDocument(): Promise<void> {
       throw new Error('Document creation is only available in the browser');
     }
     
-    console.log('Creating new document...');
-    
     // Dynamically import DocumentService to ensure browser-only execution
     const { DocumentService } = await import('$lib/services/DocumentService');
     const documentService = new DocumentService();
     
     // Create a new document with default title
     const newDoc = new Document('Untitled Document', '');
-    console.log('New document object created with content:', JSON.stringify(newDoc.content));
     
     // Save to database
     const savedDoc = await documentService.create(newDoc);
-    console.log('Document saved to database, content:', JSON.stringify(savedDoc.content));
-    
-    console.log('New document created:', savedDoc.id);
     
     // Force page reload to ensure clean state
     window.location.href = `/docs/${savedDoc.id}`;
