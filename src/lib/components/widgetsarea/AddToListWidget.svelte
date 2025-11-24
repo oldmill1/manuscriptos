@@ -5,9 +5,10 @@
 
 	interface Props {
 		documentId: string;
+		dbService?: any;
 	}
 
-	let { documentId }: Props = $props();
+	let { documentId, dbService }: Props = $props();
 
 	let listService: ListService | null = null;
 	let lists = $state<List[]>([]);

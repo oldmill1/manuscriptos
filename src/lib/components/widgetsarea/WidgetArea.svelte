@@ -12,9 +12,10 @@
 		variant?: 'default' | 'compact' | 'expanded';
 		class?: string;
 		documentId?: string;
+		dbService?: any;
 	}
 
-	let { children, title, variant = 'default', class: className = '', documentId }: Props = $props();
+	let { children, title, variant = 'default', class: className = '', documentId, dbService }: Props = $props();
 
 	let isVisible = $state(true);
 
@@ -49,8 +50,8 @@
 		<div class={styles.contentContainer}>
 			<div class={styles.content}>
 				{#if documentId}
-					<AddToListWidget {documentId} />
-					<RewriterWidget {documentId} />
+					<AddToListWidget {documentId} {dbService} />
+					<RewriterWidget {documentId} {dbService} />
 				{/if}
 
 				{#if children}

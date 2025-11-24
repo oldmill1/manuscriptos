@@ -35,18 +35,31 @@ export class OpenAIService {
 
 		this.client = new OpenAI({
 			apiKey: key,
-			dangerouslyAllowBrowser: false // Note: For production, API calls should go through a backend
+			dangerouslyAllowBrowser: false // Secure: only server-side usage
 		});
 	}
 
 	private getApiKey(): string | undefined {
+		console.log('Checking environment variables...');
+		
 		// Check for environment variable (server-side)
 		if (typeof globalThis !== 'undefined' && (globalThis as any).process?.env?.OPENAI_API_KEY) {
+			console.log('Found OPENAI_API_KEY in process.env');
 			return (globalThis as any).process.env.OPENAI_API_KEY;
 		}
 
-		// For development, you might want to store this differently
-		// In production, this should be handled by your backend
+		// Debug: Log what's available in process.env
+		if (typeof globalThis !== 'undefined' && (globalThis as any).process?.env) {
+			console.log('Available env vars:', Object.keys((globalThis as any).process.env));
+		}
+
+		// For development in browser, check if Vite has exposed the env var
+		if (typeof globalThis !== 'undefined' && (globalThis as any).import?.meta?.env?.VITE_OPENAI_API_KEY) {
+			console.log('Found VITE_OPENAI_API_KEY in import.meta.env');
+			return (globalThis as any).import.meta.env.VITE_OPENAI_API_KEY;
+		}
+
+		console.log('No API key found anywhere');
 		return undefined;
 	}
 

@@ -21,6 +21,7 @@
 
 	// Debounce variables
 	let debounceTimer: number;
+	let isUpdatingFromWidget = $state(false);
 
 	// Track the previous content to detect actual prop changes
 	let previousContent = $state(content);

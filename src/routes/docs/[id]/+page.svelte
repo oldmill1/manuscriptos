@@ -12,7 +12,19 @@
 	let dbService = $state<any>();
 	let isLoading = $state(true);
 
+	// Function to update document content from widgets
+	function updateDocumentContent(docId: string, newContent: string) {
+		if (docId === data.id) {
+			console.log('[PAGE] Updating document content from widget');
+			documentContent = newContent;
+		}
+	}
+
+	// Make function available globally for widgets
 	onMount(async () => {
+		if (typeof window !== 'undefined') {
+			(window as any).updateDocumentContent = updateDocumentContent;
+		}
 		await loadDocument();
 	});
 
@@ -49,4 +61,4 @@
 <MenuBar {documentTitle} documentId={data.id} {dbService} />
 <Editor content={documentContent} documentId={data.id} {dbService} />
 <StatusBar />
-<WidgetArea title="Widgets" documentId={data.id} />
+<WidgetArea title="Widgets" documentId={data.id} {dbService} />
