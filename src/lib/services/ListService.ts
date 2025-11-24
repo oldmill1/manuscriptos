@@ -126,11 +126,13 @@ export class ListService {
 				.filter((row: any) => row.doc && row.doc._id.startsWith('list:'))
 				.map((row: any) => {
 					const list = row.doc as DatabaseList;
+					// Ensure itemIds is an array, fallback to empty array if not iterable
+					const itemIds = Array.isArray(list.itemIds) ? list.itemIds : [];
 					return List.fromJSON({
 						id: list._id.replace('list:', ''),
 						type: list.type,
 						name: list.name,
-						itemIds: list.itemIds,
+						itemIds: itemIds,
 						createdAt: new Date(list.createdAt),
 						updatedAt: new Date(list.updatedAt)
 					});
