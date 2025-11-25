@@ -129,15 +129,20 @@
 				onblur={saveTitle}
 			/>
 		{:else if title}
-			<span
-				class={styles.documentTitle}
-				onclick={titleEditable ? startEditing : undefined}
-				onkeydown={titleEditable ? (e) => (e.key === 'Enter' || e.key === ' ') && startEditing() : undefined}
-				role={titleEditable ? "button" : undefined}
-				tabindex={tabindex}
-			>
-				{title}
-			</span>
+			{#if titleEditable}
+				<button
+					type="button"
+					class={styles.documentTitle}
+					onclick={startEditing}
+					onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && startEditing()}
+				>
+					{title}
+				</button>
+			{:else}
+				<span class={styles.documentTitle}>
+					{title}
+				</span>
+			{/if}
 		{/if}
 	</div>
 	<div class={styles.rightSection}>
