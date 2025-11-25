@@ -77,11 +77,15 @@
 	text-align: center;
 	padding: 4rem 2rem;
 	color: #a0a0a0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1.5rem;
 }
 
 .empty-state p {
 	font-size: 1.1rem;
-	margin-bottom: 1.5rem;
+	margin: 0;
 }
 
 .item.selection-mode {

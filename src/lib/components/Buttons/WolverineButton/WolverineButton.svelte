@@ -2,6 +2,10 @@
 	import { Motion, M } from 'svelte-motion';
 	import styles from './WolverineButton.module.scss';
 	
+	export let text: string = 'Get Offer';
+	export let onclick: () => void = () => {};
+	export let width: string = '190px';
+	
 	let isHovered = false;
 	let isActive = false;
 	
@@ -29,17 +33,18 @@
 		use:motion
 		role="button"
 		tabindex="0"
-		on:mouseenter={() => isHovered = true}
-		on:mouseleave={() => isHovered = false}
-		on:mousedown={() => isActive = true}
-		on:mouseup={() => isActive = false}
-		on:keydown={(e) => {
+		style="max-width: {width};"
+		onmouseenter={() => isHovered = true}
+		onmouseleave={() => isHovered = false}
+		onmousedown={() => isActive = true}
+		onmouseup={() => isActive = false}
+		onkeydown={(e) => {
 			if (e.key === 'Enter' || e.key === ' ') {
 				isActive = true;
 				isHovered = true;
 			}
 		}}
-		on:keyup={(e) => {
+		onkeyup={(e) => {
 			if (e.key === 'Enter' || e.key === ' ') {
 				isActive = false;
 				isHovered = false;
@@ -98,8 +103,8 @@
 			</div>
 		</Motion>
 
-		<button class={styles.btn}>
-			<span class={styles['btn-text']}>Get Offer</span>
+		<button class={styles.btn} {onclick}>
+			<span class={styles['btn-text']}>{text}</span>
 		</button>
 
 		<!-- Corner SVGs -->

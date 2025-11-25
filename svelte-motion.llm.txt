@@ -1,0 +1,249 @@
+# Svelte-Motion Complete Guide - Learnings from WolverineButton
+
+## Core Concepts
+
+### 1. Basic Motion Component Structure
+```svelte
+<Motion 
+    let:motion
+    whileHover={{ scale: 1.05 }}
+    whileTap={{ scale: 0.95 }}
+    animate={{ x: 100, y: 50 }}
+    transition={{ duration: 0.25, ease: [0, 0, 0, 2.5] }}
+>
+    <div use:motion>Animated Content</div>
+</Motion>
+```
+
+### 2. Essential Imports
+```typescript
+import { Motion, M } from 'svelte-motion';
+```
+
+## Motion Component Props
+
+### Animation Triggers
+- **whileHover**: Animations when mouse hovers over element
+- **whileTap**: Animations when element is clicked/tapped
+- **animate**: Base animation state or conditional animations
+
+### Animation Properties
+- **Transform**: `x`, `y`, `scale`, `rotate`
+- **Visual**: `opacity`
+- **Layout**: `width`, `height`
+
+### Transitions
+```typescript
+transition={{ 
+    duration: 0.25,           // Animation duration in seconds
+    ease: [0, 0, 0, 2.5]      // Custom easing array (cubic-bezier)
+}}
+```
+
+## Advanced Patterns
+
+### 1. Conditional Animations
+```svelte
+<Motion 
+    let:motion
+    animate={isHovered ? {
+        y: -24,
+        rotate: 4,
+        opacity: 1
+    } : {
+        y: 0,
+        opacity: 0
+    }}
+>
+    <div use:motion>Content</div>
+</Motion>
+```
+
+### 2. Nested Motions
+Multiple Motion components can be nested for complex animations:
+```svelte
+<Motion let:motion whileHover={{ scale: 1.05 }}>
+    <div use:motion>
+        <Motion let:motion animate={{ y: -10 }}>
+            <div use:motion>Nested content</div>
+        </Motion>
+    </div>
+</Motion>
+```
+
+## SVG Animation
+
+### Critical: SVG Type Compatibility Issue
+**Problem**: TypeScript error with SVG elements:
+```
+Argument of type 'SVGSVGElement' is not assignable to parameter of type 'HTMLElement'
+```
+
+**Solution**: Use wrapper function for SVG compatibility:
+```typescript
+// In script section
+function applyMotion(node: any, motionAction: any) {
+    return motionAction(node);
+}
+```
+
+```svelte
+<!-- For SVG elements, use wrapper function -->
+<Motion let:motion isSVG={true}>
+    <svg use:applyMotion={motion}>
+        <!-- SVG content -->
+    </svg>
+</Motion>
+```
+
+### SVG Animation Properties
+SVG elements support all transform properties:
+- `x`, `y` for translation
+- `rotate` for rotation
+- `scale` for scaling
+
+## Real-World Example: WolverineButton Patterns
+
+### 1. Main Container Animation
+```svelte
+<Motion 
+    let:motion
+    whileHover={{ scale: 1.05 }}
+    whileTap={{ scale: 0.95 }}
+    transition={{ duration: 0.25, ease: [0, 0, 0, 2.5] }}
+>
+    <div use:motion role="button" tabindex="0">
+        <!-- Button content -->
+    </div>
+</Motion>
+```
+
+### 2. Drawer Animations (Slide & Fade)
+```svelte
+<Motion 
+    let:motion
+    animate={isHovered ? {
+        y: -24,
+        rotate: 4,
+        opacity: 1
+    } : {
+        y: 0,
+        opacity: 0
+    }}
+    whileTap={{ 
+        y: 0,
+        scale: 0.5,
+        opacity: 1
+    }}
+    transition={{ duration: 0.125, ease: [0, 0, 0, 2.5] }}
+>
+    <div use:motion>Drawer content</div>
+</Motion>
+```
+
+### 3. Corner SVG Animations
+```svelte
+<Motion 
+    let:motion
+    isSVG={true}
+    animate={isHovered ? {
+        x: -36,
+        y: -36,
+        rotate: 180
+    } : {
+        x: -24,
+        y: -24,
+        rotate: 180
+    }}
+    whileTap={{ 
+        x: -12,
+        y: -12,
+        rotate: 180
+    }}
+    transition={{ duration: 0.25, ease: [0, 0, 0, 2.5] }}
+>
+    <svg use:applyMotion={motion}>
+        <!-- SVG path -->
+    </svg>
+</Motion>
+```
+
+## Best Practices
+
+### 1. Performance
+- Use shorter durations for micro-interactions (0.125s)
+- Use longer durations for major transitions (0.25s)
+- Consistent easing across related animations
+
+### 2. Accessibility
+- Maintain `role="button"` and `tabindex="0"` for interactive elements
+- Preserve keyboard event handlers
+- Don't remove semantic HTML structure
+
+### 3. State Management
+- Use reactive variables for complex animation states:
+```typescript
+let isHovered = false;
+let isActive = false;
+```
+
+### 4. Animation Coordination
+- Parent animations affect child elements
+- Use different transition durations for visual hierarchy
+- Coordinate hover states across multiple elements
+
+## Common Issues & Solutions
+
+### 1. SVG Type Errors
+**Issue**: TypeScript complains about SVG elements
+**Solution**: Use wrapper function approach shown above
+
+### 2. Animation Not Working
+**Check**: 
+- `let:motion` is declared
+- `use:motion` is applied to target element
+- Motion component props are correctly formatted
+
+### 3. Performance Issues
+**Optimize**:
+- Reduce number of animated properties
+- Use GPU-accelerated transforms (x, y, scale, rotate)
+- Avoid animating layout properties frequently
+
+## Animation Property Reference
+
+### Transform Properties
+- `x`, `y`: Translation (px or %)
+- `scale`: Scale factor (1 = normal)
+- `rotate`: Rotation in degrees
+
+### Visual Properties
+- `opacity`: 0 (transparent) to 1 (opaque)
+
+### Transition Properties
+- `duration`: Seconds (number)
+- `ease`: Array [x1, y1, x2, y2] for cubic-bezier
+- `delay`: Seconds before animation starts
+
+## Integration with Svelte 5
+
+### Modern Svelte Patterns
+- Works with Svelte 5 syntax
+- Compatible with `{@render}` blocks
+- Integrates with Svelte stores and reactive statements
+
+### Component Structure
+```typescript
+// Script section
+import { Motion } from 'svelte-motion';
+import styles from './Component.module.scss';
+
+let isHovered = false;
+
+// Optional: SVG compatibility wrapper
+function applyMotion(node: any, motionAction: any) {
+    return motionAction(node);
+}
+```
+
+This guide covers all practical patterns learned from implementing the WolverineButton with svelte-motion.
