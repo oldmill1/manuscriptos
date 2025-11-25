@@ -120,12 +120,14 @@
 </script>
 
 <div class={styles.editorContainer}>
-	<div
-		class={styles.contentEditable}
-		contenteditable="true"
-		oninput={handleInput}
-		bind:this={editableDiv}
-	></div>
+	<div class={styles.rulerContainer}>
+		<div
+			class={styles.contentEditable}
+			contenteditable="true"
+			oninput={handleInput}
+			bind:this={editableDiv}
+		></div>
+	</div>
 	{#if isEmpty}
 		<div class={styles.emptyTips}>
 			<div class={styles.tipText}>
