@@ -8,5 +8,5 @@
 </svelte:head>
 
 <div class={styles['practice-page']}>
-    <button class={styles['big-white-button']}>BUTTON</button>
+    <button class={styles.practiceButton}>BUTTON</button>
 </div>
