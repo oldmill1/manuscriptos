@@ -3,6 +3,7 @@
 	import { Motion } from 'svelte-motion';
 	import WolverineButton from '$lib/components/Buttons/WolverineButton/WolverineButton.svelte';
 	import Switch from '$lib/components/Buttons/Switch/Switch.svelte';
+	import Modal from '$lib/components/Modal/Modal.svelte';
 	
 	console.log('Motion component:', Motion);
 </script>
@@ -60,4 +61,18 @@
         <WolverineButton />
         <Switch />
     </div>
+    
+    <!-- Always visible modal for practice -->
+    <Modal 
+        isOpen={true} 
+        dark={true}
+        buttons={[
+            { text: 'Cancel', callback: () => {}, primary: false },
+            { text: 'Confirm', callback: () => {}, primary: true }
+        ]}
+    >
+        {#snippet content()}
+            <h2 style="margin: 0 0 16px 0; font-size: 28px; font-weight: 600; font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Confirm Deletion</h2>
+        {/snippet}
+    </Modal>
 </div>

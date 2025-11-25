@@ -4,13 +4,11 @@
 	left: 0;
 	width: 100vw;
 	height: 100vh;
-	background-color: rgba(0, 0, 0, 0.6);
+	background-color: rgba(0, 0, 0, 0.8);
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	z-index: 9999;
-	backdrop-filter: blur(4px);
-	-webkit-backdrop-filter: blur(4px);
 }
 
 .modal-backdrop.dark {
@@ -18,31 +16,19 @@
 }
 
 .modal-content {
-	background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%);
-	backdrop-filter: blur(20px) saturate(180%);
-	-webkit-backdrop-filter: blur(20px) saturate(180%);
-	border-radius: 16px;
-	border: 1px solid rgba(255, 255, 255, 0.3);
-	box-shadow:
-		0 20px 60px rgba(0, 0, 0, 0.3),
-		0 10px 30px rgba(0, 0, 0, 0.2),
-		inset 0 1px 0 rgba(255, 255, 255, 0.4);
-	max-width: 90vw;
-	max-height: 90vh;
-	overflow: auto;
-	animation: modalFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-	padding: 24px;
-	color: #1a1a1a;
+	background: #f4f5f6;
+	border-radius: 12px;
+	box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+	max-width: 400px;
+	width: 90%;
+	padding: 20px;
+	color: #333333;
+	overflow: visible;
 }
 
 .modal-content.dark {
-	background: linear-gradient(135deg, rgba(31, 31, 31, 0.95) 0%, rgba(41, 41, 41, 0.9) 100%);
-	border: 1px solid rgba(255, 255, 255, 0.1);
-	box-shadow:
-		0 20px 60px rgba(0, 0, 0, 0.6),
-		0 10px 30px rgba(0, 0, 0, 0.4),
-		inset 0 1px 0 rgba(255, 255, 255, 0.1);
-	color: #ffffff;
+	background: #f4f5f6;
+	color: #333333;
 }
 
 .modal-buttons {
@@ -50,65 +36,51 @@
 	gap: 12px;
 	justify-content: flex-end;
 	margin-top: 24px;
-	padding-top: 16px;
-	border-top: 1px solid rgba(0, 0, 0, 0.1);
+	padding-top: 8px;
+	padding-bottom: 8px;
 }
 
-.modal-content.dark .modal-buttons {
-	border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
 
 .modal-button {
 	padding: 10px 20px;
-	border-radius: 8px;
-	border: 1px solid rgba(0, 0, 0, 0.2);
-	background: rgba(255, 255, 255, 0.8);
-	color: #333;
+	border-radius: 6px;
+	border: none;
 	font-size: 14px;
 	font-weight: 500;
 	cursor: pointer;
 	transition: all 0.2s ease;
-	backdrop-filter: blur(10px);
 }
 
 .modal-button:hover {
-	background: rgba(255, 255, 255, 0.9);
 	transform: translateY(-1px);
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .modal-button.primary {
-	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	background: #8b5cf6;
 	color: white;
-	border: 1px solid rgba(102, 126, 234, 0.3);
 }
 
 .modal-button.primary:hover {
-	background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
-	box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+	background: #7c3aed;
 }
 
 .modal-button.dark {
-	background: rgba(255, 255, 255, 0.1);
+	background: #4a4a4a;
 	color: white;
-	border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .modal-button.dark:hover {
-	background: rgba(255, 255, 255, 0.15);
+	background: #5a5a5a;
 	transform: translateY(-1px);
-	box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
 }
 
 .modal-button.primary.dark {
-	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	background: #8b5cf6;
 	color: white;
-	border: 1px solid rgba(102, 126, 234, 0.5);
 }
 
 .modal-button.primary.dark:hover {
-	background: linear-gradient(135deg, #7c8ff0 0%, #8e5bb3 100%);
-	box-shadow: 0 4px 16px rgba(102, 126, 234, 0.5);
+	background: #7c3aed;
 }
 
 @keyframes modalFadeIn {
@@ -120,4 +92,79 @@
 		opacity: 1;
 		transform: scale(1) translateY(0);
 	}
+}
+
+/* Neumorphic Button Styles */
+.neumorphic-button {
+	position: relative;
+	padding: 0;
+	width: 80px;
+	height: 80px;
+	border: 2px solid #888888;
+	outline: none;
+	background-color: #f4f5f6;
+	border-radius: 8px;
+	box-shadow:
+		-2px -5px 8px #ffffff,
+		-2px -3px 5px #ffffff,
+		-5px 0px 8px #ffffff,
+		2px 5px 6px rgba(0, 0, 0, 0.1);
+	cursor: pointer;
+}
+
+.neumorphic-button.primary {
+	border-color: #888888;
+	background-color: #f4f5f6;
+}
+
+.neumorphic-content {
+	position: relative;
+	display: grid;
+	padding: 8px;
+	width: 100%;
+	height: 100%;
+	grid-template-columns: 1fr 1fr 1fr 1fr;
+	grid-template-rows: 1fr 1fr;
+	box-shadow:
+		inset 0px -2px 0px #dddddd,
+		0px -2px 0px #f4f5f6;
+	border-radius: 8px;
+	z-index: 1;
+}
+
+.neumorphic-button.primary .neumorphic-content {
+	box-shadow:
+		inset 0px -2px 0px #dddddd,
+		0px -2px 0px #f4f5f6;
+}
+
+.neumorphic-icon {
+	position: relative;
+	display: flex;
+	transform: translate3d(0px, -2px, 0px);
+	grid-column: 4;
+	align-self: start;
+	justify-self: end;
+	width: 16px;
+	height: 16px;
+}
+
+.neumorphic-text {
+	position: relative;
+	transform: translate3d(0px, -2px, 0px);
+	margin: 0;
+	align-self: end;
+	grid-column: 1 / 5;
+	grid-row: 2;
+	text-align: center;
+	font-size: 16px;
+	background-color: #888888;
+	color: transparent;
+	text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+	-webkit-background-clip: text;
+	background-clip: text;
+}
+
+.neumorphic-button.primary .neumorphic-text {
+	background-color: #888888;
 }
