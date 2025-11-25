@@ -1,9 +1,14 @@
 <script lang="ts">
-	import { Motion } from 'svelte-motion';
+	import { Motion, M } from 'svelte-motion';
 	import styles from './WolverineButton.module.scss';
 	
 	let isHovered = false;
 	let isActive = false;
+	
+	// Wrapper function to handle SVG type compatibility
+	function applyMotion(node: any, motionAction: any) {
+		return motionAction(node);
+	}
 </script>
 
 <Motion 
@@ -100,6 +105,7 @@
 		<!-- Corner SVGs -->
 		<Motion 
 			let:motion
+			isSVG={true}
 			animate={isHovered ? {
 				x: -36,
 				y: -36,
@@ -123,7 +129,7 @@
 				class={styles['btn-corner']}
 				xmlns="http://www.w3.org/2000/svg"
 				viewBox="-1 1 32 32"
-				use:motion
+				use:applyMotion={motion}
 			>
 				<path
 					d="M0,32C17.645,32,32,17.645,32,0h-0.985c0,17.102-13.913,31.015-31.015,31.015v0.985Z"
@@ -133,6 +139,7 @@
 
 		<Motion 
 			let:motion
+			isSVG={true}
 			animate={isHovered ? {
 				x: 36,
 				y: -36,
@@ -156,7 +163,7 @@
 				class={styles['btn-corner']}
 				xmlns="http://www.w3.org/2000/svg"
 				viewBox="-1 1 32 32"
-				use:motion
+				use:applyMotion={motion}
 			>
 				<path
 					d="M0,32C17.645,32,32,17.645,32,0h-0.985c0,17.102-13.913,31.015-31.015,31.015v0.985Z"
@@ -166,6 +173,7 @@
 
 		<Motion 
 			let:motion
+			isSVG={true}
 			animate={isHovered ? {
 				x: 36,
 				y: 36,
@@ -189,7 +197,7 @@
 				class={styles['btn-corner']}
 				xmlns="http://www.w3.org/2000/svg"
 				viewBox="-1 1 32 32"
-				use:motion
+				use:applyMotion={motion}
 			>
 				<path
 					d="M0,32C17.645,32,32,17.645,32,0h-0.985c0,17.102-13.913,31.015-31.015,31.015v0.985Z"
@@ -199,6 +207,7 @@
 
 		<Motion 
 			let:motion
+			isSVG={true}
 			animate={isHovered ? {
 				x: -36,
 				y: 36,
@@ -222,7 +231,7 @@
 				class={styles['btn-corner']}
 				xmlns="http://www.w3.org/2000/svg"
 				viewBox="-1 1 32 32"
-				use:motion
+				use:applyMotion={motion}
 			>
 				<path
 					d="M0,32C17.645,32,32,17.645,32,0h-0.985c0,17.102-13.913,31.015-31.015,31.015v0.985Z"
