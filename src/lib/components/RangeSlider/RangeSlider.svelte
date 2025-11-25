@@ -14,6 +14,10 @@
 		value = 50, 
 		oninput 
 	}: Props = $props();
+
+	// Calculate percentage for track fill
+	const percentage = $derived(((value - min) / (max - min)) * 100);
+	const cssVarsString = $derived(`--value: ${percentage}%`);
 </script>
 
 <input 
@@ -23,4 +27,5 @@
 	{value} 
 	{oninput}
 	class={styles.rangeSlider}
+	style={cssVarsString}
 />

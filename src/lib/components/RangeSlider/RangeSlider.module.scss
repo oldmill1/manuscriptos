@@ -1,32 +1,83 @@
 .rangeSlider {
-	width: 100px;
+	width: 100%;
 	height: 4px;
-	background: transparent;
+	background: #e5e5e7;
 	outline: none;
-	opacity: 0.8;
-	transition: opacity 0.2s;
+	border-radius: 2px;
+	transition: all 0.2s ease;
+	cursor: pointer;
+	position: relative;
+	-webkit-appearance: none;
+	appearance: none;
 
 	&:hover {
-		opacity: 1;
+		&::-webkit-slider-thumb {
+			transform: scale(1.05);
+		}
+		
+		&::-moz-range-thumb {
+			transform: scale(1.05);
+		}
 	}
 
 	&::-webkit-slider-thumb {
-		appearance: none;
-		appearance: none;
-		width: 16px;
-		height: 16px;
-		background: #007acc;
+		-webkit-appearance: none;
+		width: 24px;
+		height: 24px;
+		background: #ffffff;
 		cursor: pointer;
 		border-radius: 50%;
-		border: none;
+		border: 2px solid #007aff;
+		box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3), 0 0 1px rgba(0, 0, 0, 0.1);
+		transition: all 0.15s ease;
+		margin-top: -10px;
+		position: relative;
+		z-index: 2;
+
+		&:hover {
+			box-shadow: 0 3px 12px rgba(0, 122, 255, 0.4), 0 0 1px rgba(0, 0, 0, 0.15);
+		}
+
+		&:active {
+			transform: scale(0.95);
+			box-shadow: 0 1px 4px rgba(0, 122, 255, 0.3), 0 0 1px rgba(0, 0, 0, 0.1);
+		}
 	}
 
 	&::-moz-range-thumb {
-		width: 16px;
-		height: 16px;
-		background: #007acc;
+		width: 24px;
+		height: 24px;
+		background: #ffffff;
 		cursor: pointer;
 		border-radius: 50%;
+		border: 2px solid #007aff;
+		box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3), 0 0 1px rgba(0, 0, 0, 0.1);
+		transition: all 0.15s ease;
+		border: none;
+		position: relative;
+		z-index: 2;
+
+		&:hover {
+			box-shadow: 0 3px 12px rgba(0, 122, 255, 0.4), 0 0 1px rgba(0, 0, 0, 0.15);
+		}
+
+		&:active {
+			transform: scale(0.95);
+			box-shadow: 0 1px 4px rgba(0, 122, 255, 0.3), 0 0 1px rgba(0, 0, 0, 0.1);
+		}
+	}
+
+	&::-webkit-slider-runnable-track {
+		background: linear-gradient(to right, #007aff 0%, #007aff var(--value), #e5e5e7 var(--value), #e5e5e7 100%);
+		height: 4px;
+		border-radius: 2px;
+		border: none;
+	}
+
+	&::-moz-range-track {
+		background: linear-gradient(to right, #007aff 0%, #007aff var(--value), #e5e5e7 var(--value), #e5e5e7 100%);
+		height: 4px;
+		border-radius: 2px;
 		border: none;
 	}
 }
