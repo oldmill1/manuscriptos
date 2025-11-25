@@ -119,18 +119,12 @@
 </script>
 
 <div class={styles.widget}>
-	<div class={styles.widgetHeader}>
-		<div class={styles.widgetTitle}>
-			<img src="/icons/cabinet.png" alt="Lists" class={styles.widgetIcon} />
-			Add to Folder&nbsp;{#if documentListsCount > 0} ({documentListsCount}){/if}
-		</div>
-	</div>
 
 	<div class={styles.widgetContent}>
 		<input
 			type="text"
 			bind:value={newListName}
-			placeholder="Type folder name..."
+			placeholder="Add to folder..."
 			class={styles.listInput}
 			onkeydown={handleInputKeydown}
 			disabled={isLoading}
