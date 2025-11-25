@@ -159,18 +159,25 @@
 
 <div class={styles['items-list']}>
 	{#each items as item (getItemId(item))}
-		<button
-			class={`${styles['item']} ${isSelectionMode ? styles['selection-mode'] : ''} ${checkIfSelected(item) ? styles['selected'] : ''}`}
-			onclick={(e) => handleItemClick(item, e)}
-			onkeydown={(e) => {
-				if (e.key === 'Enter' || e.key === ' ') {
-					e.preventDefault();
-					handleItemClick(item, e as any);
-				}
-			}}
-			type="button"
-			transition:fade={{ duration: 300 }}
+		<Motion 
+			let:motion
+			whileHover={{ scale: 1.02, x: 4 }}
+			whileTap={{ scale: 0.98 }}
+			transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
 		>
+			<button
+				class={`${styles['item']} ${isSelectionMode ? styles['selection-mode'] : ''} ${checkIfSelected(item) ? styles['selected'] : ''}`}
+				use:motion
+				onclick={(e) => handleItemClick(item, e)}
+				onkeydown={(e) => {
+					if (e.key === 'Enter' || e.key === ' ') {
+						e.preventDefault();
+						handleItemClick(item, e as any);
+					}
+				}}
+				type="button"
+				transition:fade={{ duration: 300 }}
+			>
 			<div class={styles['selection-checkbox']}>
 	{#if isSelectionMode}
 		<input
@@ -183,7 +190,8 @@
 </div>
 			{@render renderItemContent(item)}
 			<div class={styles['item-arrow']}>→</div>
-		</button>
+			</button>
+		</Motion>
 	{/each}
 
 	{#if hasLoaded && items.length === 0}
