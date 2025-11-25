@@ -1,6 +1,7 @@
 <script lang="ts">
 	import styles from './page.module.scss';
 	import { Motion } from 'svelte-motion';
+	import WolverineButton from '$lib/components/Buttons/WolverineButton/WolverineButton.svelte';
 	
 	console.log('Motion component:', Motion);
 </script>
@@ -54,5 +55,7 @@
                 Catfish
             </button>
         </Motion>
+        
+        <WolverineButton />
     </div>
 </div>
