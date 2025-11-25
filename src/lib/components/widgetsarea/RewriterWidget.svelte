@@ -121,6 +121,7 @@
 					<input
 						type="radio"
 						name="rewriter-option"
+						class={styles.input}
 						checked={selectedOption === 'shorter'}
 						onchange={() => handleOptionSelect('shorter')}
 					/>
@@ -131,6 +132,7 @@
 					<input
 						type="radio"
 						name="rewriter-option"
+						class={styles.input}
 						checked={selectedOption === 'professional'}
 						onchange={() => handleOptionSelect('professional')}
 					/>
@@ -141,6 +143,7 @@
 					<input
 						type="radio"
 						name="rewriter-option"
+						class={styles.input}
 						checked={selectedOption === 'clear'}
 						onchange={() => handleOptionSelect('clear')}
 					/>
