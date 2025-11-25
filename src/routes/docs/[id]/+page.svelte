@@ -3,9 +3,11 @@
 	import StatusBar from '$lib/components/StatusBar.svelte';
 	import MenuBar from '$lib/components/MenuBar.svelte';
 	import WidgetArea from '$lib/components/widgetsarea/WidgetArea.svelte';
+	import Dock from '$lib/components/Dock.svelte';
 	import { onMount } from 'svelte';
 	import type { PageProps } from './$types';
 	import { editorFontSize } from '$lib/stores/editorFontSize';
+	import type { DockItem } from '$lib/components/Dock.svelte';
 
 	let { data }: PageProps = $props();
 	let documentContent = $state<string | undefined>(undefined);
@@ -15,6 +17,64 @@
 
 	// Font size state for status bar
 	let fontSize = $state(editorFontSize.get());
+
+	// Dock items for navigation
+	const dockItems: DockItem[] = [
+		{
+			id: 'new-document',
+			icon: '/icons/new.png',
+			title: 'New Document',
+			onClick: handleNewDocument
+		},
+		{
+			id: 'favorites',
+			icon: '/icons/heart.png',
+			title: 'Favorites',
+			onClick: () => {
+				console.log('Favorites clicked');
+			}
+		},
+		{
+			id: 'explorer',
+			icon: '/icons/folder.png',
+			title: 'Explorer',
+			onClick: () => {
+				window.location.href = '/explorer';
+			}
+		},
+		{
+			id: 'cabinet',
+			icon: '/icons/cabinet.png',
+			title: 'Cabinet',
+			onClick: () => {
+				window.location.href = '/cabinet';
+			}
+		}
+	];
+
+	async function handleNewDocument() {
+		try {
+			if (!dbService) {
+				throw new Error('Database not initialized');
+			}
+
+			const { Document } = await import('$lib/models/Document');
+			const newDoc = new Document();
+			const savedDoc = await dbService.create(newDoc);
+
+			// Show saved notification
+			const { savedNotification } = await import('$lib/stores/savedNotificationStore');
+			savedNotification.show();
+
+			console.log('New document created:', savedDoc.id);
+			console.log('New document title:', savedDoc.title);
+
+			// Navigate to the new document
+			window.location.href = `/docs/${savedDoc.id}`;
+		} catch (error) {
+			console.error('Failed to create new document:', error);
+		}
+	}
 
 	$effect(() => {
 		const unsubscribe = editorFontSize.subscribe((size) => {
@@ -78,3 +138,4 @@
 
 <StatusBar {leftContent} />
 <WidgetArea title="Widgets" documentId={data.id} {dbService} />
+<Dock items={dockItems} />
