@@ -4,7 +4,7 @@
 	import { widgetVisibility, hideWidget } from '$lib/stores/widgetVisibility';
 	import AddToListWidget from './AddToListWidget.svelte';
 	import RewriterWidget from './RewriterWidget.svelte';
-	import { slide } from 'svelte/transition';
+	import type { TransitionConfig } from 'svelte/transition';
 
 	interface Props {
 		children?: Snippet;
@@ -63,12 +63,26 @@
 		// Keep animating true until element is fully removed
 		isAnimating = true;
 	}
+
+	function fadeDown(node: Element, { duration = 300 }: { duration?: number } = {}): TransitionConfig {
+		return {
+			duration,
+			css: (t) => {
+				const opacity = t;
+				const y = (1 - t) * -10; // Start at -10px, move to 0px
+				return `
+					opacity: ${opacity};
+					transform: translateY(${y}px);
+				`;
+			}
+		};
+	}
 </script>
 
 {#if isVisible}
 	<div 
 		class={`${styles.widgetArea} ${isAnimating ? styles.animating : ''}`} 
-		transition:slide={{ duration: 300 }}
+		transition:fadeDown={{ duration: 300 }}
 		onintrostart={handleIntroStart}
 		onintroend={handleIntroEnd}
 		onoutrostart={handleOutroStart}
