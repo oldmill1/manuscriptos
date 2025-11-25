@@ -3,6 +3,7 @@
 	import { selectedDocuments } from '$lib/stores/selectedDocuments';
 	import WolverineButton from '$lib/components/Buttons/WolverineButton/WolverineButton.svelte';
 	import Button from '$lib/components/global/Button.svelte';
+	import Switch from '$lib/components/Buttons/Switch/Switch.svelte';
 	import styles from './VList.module.scss';
 
 	export let items: T[] = [];
@@ -27,6 +28,10 @@
 
 	function toggleItemSelection(item: T) {
 		onToggleSelection(item);
+	}
+
+	function handleSwitchChange() {
+		onToggleSelectionMode();
 	}
 </script>
 
@@ -84,11 +89,9 @@
 
 {#if hasLoaded && items.length > 0}
 	<div class={styles['selection-controls']}>
-		<Button
-			onclick={onToggleSelectionMode}
-			text={isSelectionMode ? 'Cancel' : 'Select'}
-			icon="/icons/select-all.png"
-			alt="Select"
-		/>
+		<div class={styles['switch-container']}>
+			<span class={styles['switch-label']}>Select Mode</span>
+			<Switch checked={isSelectionMode} onchange={handleSwitchChange} />
+		</div>
 	</div>
 {/if}
