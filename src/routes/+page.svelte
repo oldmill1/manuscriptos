@@ -3,8 +3,7 @@
 	import Dock from '$lib/components/Dock.svelte';
 	import Button from '$lib/components/global/Button.svelte';
 	import VList from '$lib/components/VList/VList.svelte';
-	import StatusBar from '$lib/components/StatusBar.svelte';
-	import { Document } from '$lib/models/Document';
+		import { Document } from '$lib/models/Document';
 	import { DatabaseService } from '$lib/services/DatabaseService';
 	import { selectedDocuments } from '$lib/stores/selectedDocuments';
 	import { savedNotification } from '$lib/stores/savedNotificationStore';
@@ -193,4 +192,3 @@
 	/>
 </div>
 
-<StatusBar />
