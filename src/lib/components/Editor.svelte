@@ -1,9 +1,9 @@
 <script lang="ts">
-	import styles from './Editor.module.scss';
-	import { onMount } from 'svelte';
-	import { Document } from '$lib/models/Document';
 	import { editorFontSize } from '$lib/stores/editorFontSize';
 	import { savedNotification } from '$lib/stores/savedNotificationStore';
+	import { marginWidth } from '$lib/stores/marginWidth';
+	import { onMount } from 'svelte';
+	import styles from './Editor.module.scss';
 
 	interface Props {
 		content?: string | undefined;
@@ -24,12 +24,29 @@
 	// Reference to the editable div
 	let editableDiv: HTMLElement;
 	
+	// Reference to the margin div for dynamic width
+	let marginDiv: HTMLElement;
+	
+	// Current margin width value
+	let currentMarginWidth = $state(marginWidth.get());
+	
+	// Reactive margin width style
+	let marginStyle = $derived(`max-width: ${currentMarginWidth}px`);
+	
 	// Subscribe to font size changes and apply to editor
 	$effect(() => {
 		const unsubscribe = editorFontSize.subscribe((size) => {
 			if (editableDiv) {
 				editableDiv.style.fontSize = `${size}rem`;
 			}
+		});
+		return unsubscribe;
+	});
+
+	// Subscribe to margin width changes
+	$effect(() => {
+		const unsubscribe = marginWidth.subscribe((width) => {
+			currentMarginWidth = width;
 		});
 		return unsubscribe;
 	});
@@ -120,7 +137,7 @@
 </script>
 
 <div class={styles.editorContainer}>
-	<div class={styles.rulerContainer}>
+	<div class={styles.margin} style={marginStyle} bind:this={marginDiv}>
 		<div
 			class={styles.contentEditable}
 			contenteditable="true"

@@ -7,6 +7,7 @@
 	import { onMount } from 'svelte';
 	import type { PageProps } from './$types';
 	import { editorFontSize } from '$lib/stores/editorFontSize';
+	import { marginWidth } from '$lib/stores/marginWidth';
 	import type { DockItem } from '$lib/components/Dock.svelte';
 
 	let { data }: PageProps = $props();
@@ -17,6 +18,18 @@
 
 	// Font size state for status bar
 	let fontSize = $state(editorFontSize.get());
+
+	// Margin width state for slider (range: 400px to 1400px)
+	let marginWidthValue = $state(marginWidth.get());
+
+	function handleMarginChange(event: Event) {
+		const target = event.target as HTMLInputElement;
+		const value = parseInt(target.value);
+		// Map slider value (0-100) to pixel width (400-1400)
+		const pixelWidth = 400 + (value / 100) * 1000;
+		marginWidth.set(pixelWidth);
+		marginWidthValue = pixelWidth;
+	}
 
 	// Dock items for navigation
 	const dockItems: DockItem[] = [
@@ -136,6 +149,16 @@
 	<span>{fontSize}rem</span>
 {/snippet}
 
-<StatusBar {leftContent} />
+{#snippet rightContent()}
+	<input 
+		type="range" 
+		min="0" 
+		max="100" 
+		value={((marginWidthValue - 400) / 1000) * 100} 
+		oninput={handleMarginChange}
+	/>
+{/snippet}
+
+<StatusBar {leftContent} {rightContent} />
 <WidgetArea title="Widgets" documentId={data.id} {dbService} />
 <Dock items={dockItems} />

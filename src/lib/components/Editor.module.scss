@@ -3,14 +3,18 @@
 	height: calc(100vh - 25px - 20px);
 	display: flex;
 	flex-direction: column;
-	background: #2a2a3e;
 	position: relative;
+	// background: rgb(16, 20, 23);
+	background:slategray;
+
 }
 
-.rulerContainer {
+.margin {
 	flex: 1;
 	display: flex;
 	flex-direction: column;
+	margin: 0 auto;
+	width: 100%;
 }
 
 .contentEditable {
