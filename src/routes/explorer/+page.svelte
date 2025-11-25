@@ -1,12 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { goto } from '$app/navigation';
-	import { fade } from 'svelte/transition';
-	import { Document } from '$lib/models/Document';
-	import { DatabaseService } from '$lib/services/DatabaseService';
-	import { selectedDocuments } from '$lib/stores/selectedDocuments';
-	import { savedNotification } from '$lib/stores/savedNotificationStore';
-	import { generateTimeBasedTitle } from '$lib/utils/timeTitle';
+	import { List } from '$lib/models/List';
+	import { ListService } from '$lib/services/ListService';
 	import Explorer from '$lib/components/Explorer/Explorer.svelte';
 	import Dock, { type DockItem } from '$lib/components/Dock.svelte';
 	import StatusBar from '$lib/components/StatusBar.svelte';
@@ -15,137 +10,55 @@
 
 	let { data }: PageProps = $props();
 
-	let dbService: DatabaseService;
+	let listService: ListService;
 	let isBrowser = false;
-	let recentDocs = $state<Document[]>([]);
+	let lists = $state<List[]>([]);
 	let hasLoaded = $state(false);
-	let isSelectionMode = $state(false);
 
 	onMount(async () => {
 		isBrowser = true;
 
 		try {
-			const { DatabaseService } = await import('$lib/services/DatabaseService');
-			dbService = new DatabaseService('squiredb');
-			console.log('PouchDB "squiredb" initialized successfully in Explorer');
+			const { ListService } = await import('$lib/services/ListService');
+			listService = new ListService();
+			console.log('ListService initialized successfully');
 
-			// Load recent documents
-			await loadRecentDocs();
+			// Load lists only
+			await loadLists();
 		} catch (error) {
-			console.error('Failed to initialize database in Explorer:', error);
+			console.error('Failed to initialize services in Explorer:', error);
 		}
 	});
 
-	async function loadRecentDocs() {
+	async function loadLists() {
 		try {
-			if (!dbService) return;
+			if (!listService) return;
 
-			const docs = await dbService.list();
+			const allLists = await listService.list();
+			console.log('Lists loaded:', allLists);
 
-			// Sort by updatedAt to get the latest documents and take 100
-			recentDocs = docs.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()).slice(0, 100);
-
-			// Initialize selected count
-			updateSelectedCount();
+			// Sort by updatedAt to get the most recently updated lists
+			lists = allLists.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
 		} catch (error) {
-			console.error('Failed to load recent documents in Explorer:', error);
+			console.error('Failed to load lists:', error);
 		} finally {
 			hasLoaded = true;
 		}
 	}
 
-	async function openDocument(docId: string) {
-		await goto(`/docs/${docId}`);
+	function handleListClick(list: List, event: MouseEvent) {
+		// TODO: Handle list click - for now just log it
+		console.log('List clicked:', list.id, list.name);
 	}
 
-	function handleDocumentClick(doc: Document, event: MouseEvent) {
-		if (isSelectionMode) {
-			event.preventDefault();
-			toggleDocumentSelection(doc);
-		} else {
-			openDocument(doc.id);
-		}
-	}
-
-	function toggleDocumentSelection(doc: Document) {
-		selectedDocuments.toggleDocument(doc);
-		updateSelectedCount();
-	}
-
-	function toggleSelectionMode() {
-		isSelectionMode = !isSelectionMode;
-		if (!isSelectionMode) {
-			selectedDocuments.clearSelection();
-			updateSelectedCount();
-		}
-	}
-
-	let selectedCount = $state(0);
-
-	function updateSelectedCount() {
-		selectedCount = selectedDocuments.getSelectedCount();
-	}
-
-	async function handleNewDocument() {
-		try {
-			if (!isBrowser || !dbService) {
-				throw new Error('Database not initialized');
-			}
-
-			const newDoc = new Document();
-			const savedDoc = await dbService.create(newDoc);
-
-			// Show saved notification
-			savedNotification.show();
-
-			console.log('New document created:', savedDoc.id);
-			console.log('New document title:', savedDoc.title);
-
-			// Refresh recent docs before navigating
-			await loadRecentDocs();
-
-			await goto(`/docs/${savedDoc.id}`);
-		} catch (error) {
-			console.error('Failed to create new document:', error);
-		}
+	function handleNewDocument() {
+		// TODO: Implement new document creation
+		console.log('New document clicked');
 	}
 
 	function handleFavorites() {
 		// TODO: Implement favorites functionality
 		console.log('Favorites clicked');
-	}
-
-	async function handleDeleteSelected(selectedDocs: Document[]) {
-		try {
-			if (!dbService) {
-				throw new Error('Database not initialized');
-			}
-
-			if (selectedDocs.length === 0) {
-				return;
-			}
-
-			// Delete each selected document
-			for (const doc of selectedDocs) {
-				try {
-					await dbService.delete(doc.id);
-				} catch (deleteError) {
-					console.error(`Failed to delete document ${doc.id}:`, deleteError);
-				}
-			}
-
-			// Clear selection
-			selectedDocuments.clearSelection();
-			updateSelectedCount();
-
-			// Add a small delay to ensure database operations complete
-			await new Promise((resolve) => setTimeout(resolve, 100));
-
-			// Refresh the document list
-			await loadRecentDocs();
-		} catch (error) {
-			console.error('Failed to delete selected documents:', error);
-		}
 	}
 </script>
 
@@ -153,25 +66,14 @@
 
 <div class="explorer-container">
 	<Explorer
-		documents={recentDocs}
+		lists={lists}
 		{hasLoaded}
-		onDocumentClick={handleDocumentClick}
-		{isSelectionMode}
-		onSelectionChange={updateSelectedCount}
-		onDeleteSelected={handleDeleteSelected}
+		onListClick={handleListClick}
 	/>
 
-	{#if recentDocs.length > 0}
+	{#if lists.length > 0}
 		<Dock
 			items={[
-				{
-					id: 'selection-mode',
-					icon: '/icons/select-all.png',
-					title: isSelectionMode ? `Cancel Selection (${selectedCount})` : 'Select Documents',
-					onClick: toggleSelectionMode,
-					active: isSelectionMode,
-					badge: isSelectionMode ? selectedCount : undefined
-				},
 				{
 					id: 'new-document',
 					icon: '/icons/new.png',

@@ -1,10 +1,12 @@
 <script lang="ts">
 	import styles from './Explorer.module.scss';
 	import DocumentButton from './DocumentButton.svelte';
+	import FolderButton from './FolderButton.svelte';
 	import IconItem from '../global/IconItem.svelte';
 	import Button from '../global/Button.svelte';
 	import type { Snippet } from 'svelte';
 	import { Document } from '$lib/models/Document';
+	import { List } from '$lib/models/List';
 	import { selectedDocuments } from '$lib/stores/selectedDocuments';
 
 	interface FileItem {
@@ -18,8 +20,10 @@
 		children?: Snippet;
 		files?: FileItem[];
 		documents?: Document[];
+		lists?: List[];
 		hasLoaded?: boolean;
 		onDocumentClick?: (doc: Document, event: MouseEvent) => void;
+		onListClick?: (list: List, event: MouseEvent) => void;
 		isSelectionMode?: boolean;
 		onSelectionChange?: () => void;
 		onDeleteSelected?: (selectedDocuments: Document[]) => void;
@@ -29,8 +33,10 @@
 		children,
 		files = [],
 		documents = [],
+		lists = [],
 		hasLoaded = true,
 		onDocumentClick,
+		onListClick,
 		isSelectionMode = false,
 		onSelectionChange,
 		onDeleteSelected
@@ -68,27 +74,25 @@
 	{:else}
 		<div class={styles.explorerBg}>
 			<div class={styles.desktop}>
-				{#if hasLoaded}
-					{#if documents.length > 0}
-						{#each documents as doc (doc.id)}
-							<DocumentButton
-								document={doc}
-								{isSelectionMode}
-								onDocumentClick={onDocumentClick || (() => {})}
-								{onSelectionChange}
-							/>
-						{/each}
-					{:else}
-						{#each displayFiles as file (file.id)}
-							<div class={styles.fileItem}>
-								<IconItem name={file.name} icon={file.icon || '/icons/folder.png'} />
-							</div>
-						{/each}
-					{/if}
+			{#if hasLoaded}
+				{#if lists.length > 0}
+					{#each lists as list (list.id)}
+						<FolderButton
+							list={list}
+							onListClick={onListClick || (() => {})}
+						/>
+					{/each}
+				{:else}
+					{#each displayFiles as file (file.id)}
+						<div class={styles.fileItem}>
+							<IconItem name={file.name} icon={file.icon || '/icons/folder.png'} />
+						</div>
+					{/each}
 				{/if}
-			</div>
+			{/if}
+		</div>
 
-			{#if hasLoaded && documents.length === 0 && files.length === 0}
+			{#if hasLoaded && lists.length === 0 && files.length === 0}
 				<div class={styles.centerMessage}>
 					<p>Empty</p>
 				</div>
