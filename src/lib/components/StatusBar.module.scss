@@ -3,7 +3,7 @@
 	bottom: 0;
 	left: 0;
 	width: 100vw;
-	height: 20px;
+	height: 28px;
 	background-color: #b8e6b8;
 	display: flex;
 	align-items: center;
@@ -25,13 +25,13 @@
 
 	// Style direct children as buttons
 	> * {
-		padding: 2px 8px;
+		padding: 4px 12px;
 		background-color: rgba(255, 255, 255, 0.2);
 		border: 1px solid rgba(45, 90, 45, 0.3);
 		border-radius: 3px;
 		cursor: pointer;
 		transition: all 0.2s ease;
-		font-size: 12px;
+		font-size: 14px;
 		font-weight: 500;
 		color: #2d5a2d;
 		text-decoration: none;
@@ -67,26 +67,70 @@
 }
 
 .savedNotification {
-	display: flex;
+	display: inline-flex;
 	align-items: center;
 	gap: 6px;
+	padding: 4px 12px;
+	background-color: rgba(255, 255, 255, 0.2);
+	border: 1px solid rgba(45, 90, 45, 0.3);
+	border-radius: 3px;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	font-size: 14px;
+	font-weight: 500;
+	color: #2d5a2d;
+	text-decoration: none;
 	animation: fadeIn 0.3s ease-in-out;
-}
+	position: relative;
 
-.savedDot {
-	width: 6px;
-	height: 6px;
-	background-color: #00ff00;
-	border-radius: 50%;
-	box-shadow: 0 0 8px #00ff00, 0 0 12px #00ff00;
-	animation: glow 2s ease-in-out infinite alternate;
+	// Soft light effect using box-shadow
+	&::before {
+		content: '';
+		position: absolute;
+		left: 8px;
+		top: 50%;
+		transform: translateY(-50%);
+		width: 8px;
+		height: 8px;
+		background: transparent;
+		border-radius: 50%;
+		box-shadow: 
+			0 0 20px rgba(100, 200, 255, 0.9),
+			0 0 40px rgba(100, 200, 255, 0.7),
+			0 0 60px rgba(100, 200, 255, 0.5),
+			0 0 80px rgba(100, 200, 255, 0.3),
+			inset 0 0 15px rgba(100, 200, 255, 0.8);
+		animation: softGlow 3s ease-in-out infinite alternate;
+	}
+
+	&:hover {
+		background-color: rgba(255, 255, 255, 0.3);
+		border-color: rgba(45, 90, 45, 0.5);
+		transform: translateY(-1px);
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+		&::before {
+			box-shadow: 
+				0 0 25px rgba(100, 200, 255, 1),
+				0 0 50px rgba(100, 200, 255, 0.8),
+				0 0 75px rgba(100, 200, 255, 0.6),
+				0 0 100px rgba(100, 200, 255, 0.4),
+				inset 0 0 20px rgba(100, 200, 255, 0.9);
+		}
+	}
+
+	&:active {
+		transform: translateY(0);
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+	}
 }
 
 .savedText {
-	font-size: 12px;
+	font-size: 14px;
 	font-weight: 600;
 	color: #2d5a2d;
-	text-shadow: 0 0 4px rgba(0, 255, 0, 0.3);
+	text-shadow: 0 0 8px rgba(100, 200, 255, 0.6);
+	margin-left: 12px;
 }
 
 @keyframes fadeIn {
@@ -100,11 +144,13 @@
 	}
 }
 
-@keyframes glow {
+@keyframes softGlow {
 	from {
-		box-shadow: 0 0 8px #00ff00, 0 0 12px #00ff00;
+		opacity: 0.6;
+		filter: brightness(0.8);
 	}
 	to {
-		box-shadow: 0 0 12px #00ff00, 0 0 16px #00ff00, 0 0 20px #00ff00;
+		opacity: 1;
+		filter: brightness(1.2);
 	}
 }
