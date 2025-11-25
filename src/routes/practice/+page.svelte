@@ -2,6 +2,7 @@
 	import styles from './page.module.scss';
 	import { Motion } from 'svelte-motion';
 	import WolverineButton from '$lib/components/Buttons/WolverineButton/WolverineButton.svelte';
+	import Switch from '$lib/components/Buttons/Switch/Switch.svelte';
 	
 	console.log('Motion component:', Motion);
 </script>
@@ -57,5 +58,6 @@
         </Motion>
         
         <WolverineButton />
+        <Switch />
     </div>
 </div>
