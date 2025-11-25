@@ -4,6 +4,7 @@
 	import MenuBar from '$lib/components/MenuBar.svelte';
 	import WidgetArea from '$lib/components/widgetsarea/WidgetArea.svelte';
 	import Dock from '$lib/components/Dock.svelte';
+	import RangeSlider from '$lib/components/RangeSlider/RangeSlider.svelte';
 	import { onMount } from 'svelte';
 	import type { PageProps } from './$types';
 	import { editorFontSize } from '$lib/stores/editorFontSize';
@@ -150,10 +151,7 @@
 {/snippet}
 
 {#snippet rightContent()}
-	<input 
-		type="range" 
-		min="0" 
-		max="100" 
+	<RangeSlider 
 		value={((marginWidthValue - 400) / 1000) * 100} 
 		oninput={handleMarginChange}
 	/>
