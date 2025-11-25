@@ -20,16 +20,14 @@
 	// Font size state for status bar
 	let fontSize = $state(editorFontSize.get());
 
-	// Margin width state for slider (range: 400px to 1400px)
+	// Margin width state for slider (range: 200px to 1024px)
 	let marginWidthValue = $state(marginWidth.get());
 
 	function handleMarginChange(event: Event) {
 		const target = event.target as HTMLInputElement;
 		const value = parseInt(target.value);
-		// Map slider value (0-100) to pixel width (400-1400)
-		const pixelWidth = 400 + (value / 100) * 1000;
-		marginWidth.set(pixelWidth);
-		marginWidthValue = pixelWidth;
+		marginWidth.set(value);
+		marginWidthValue = value;
 	}
 
 	// Dock items for navigation
@@ -152,7 +150,7 @@
 
 {#snippet rightContent()}
 	<RangeSlider 
-		value={((marginWidthValue - 400) / 1000) * 100} 
+		value={marginWidthValue} 
 		oninput={handleMarginChange}
 	/>
 {/snippet}
