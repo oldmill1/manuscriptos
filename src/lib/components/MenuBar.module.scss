@@ -14,6 +14,36 @@
 	align-items: center;
 }
 
+.homeButton {
+	background: none;
+	border: none;
+	cursor: pointer;
+	border-radius: 3px;
+	transition: background-color 0.2s ease;
+	margin-left: 10px;
+
+	&:hover {
+		background-color: rgba(0, 0, 0, 0.05);
+	}
+
+	&:focus {
+		outline: 2px solid #007bff;
+		outline-offset: 1px;
+	}
+}
+
+.homeIcon {
+	width: 20px;
+	height: 20px;
+	opacity: 0.9;
+	transition: opacity 0.2s ease;
+	display: block;
+
+	.homeButton:hover & {
+		opacity: 1;
+	}
+}
+
 .centerSection {
 	flex: 1;
 	display: flex;

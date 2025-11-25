@@ -99,10 +99,24 @@
 	function handleWidgetClick() {
 		toggleWidgetVisibility();
 	}
+
+	function goHome() {
+		window.location.href = '/';
+	}
 </script>
 
 <div class={styles.menubar}>
-	<div class={styles.leftSection}></div>
+	<div class={styles.leftSection}>
+		<button
+			type="button"
+			class={styles.homeButton}
+			onclick={goHome}
+			onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && goHome()}
+			aria-label="Go home"
+		>
+			<img src="/icons/home-flat.png" alt="Home" class={styles.homeIcon} />
+		</button>
+	</div>
 	<div class={styles.centerSection}>
 		{#if isEditing}
 			<input

@@ -157,4 +157,4 @@
 
 <StatusBar {leftContent} {rightContent} />
 <WidgetArea title="Widgets" documentId={data.id} {dbService} />
-<Dock items={dockItems} />
+<!-- <Dock items={dockItems} /> -->

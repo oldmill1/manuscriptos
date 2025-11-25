@@ -67,14 +67,6 @@
 		{@render children()}
 	{:else}
 		<div class={styles.explorerBg}>
-			<div class={styles.backButtonPosition}>
-				<Button
-					onclick={() => window.history.back()}
-					text="Home"
-					icon="/icons/home.png"
-					alt="Home"
-				/>
-			</div>
 			<div class={styles.desktop}>
 				{#if hasLoaded}
 					{#if documents.length > 0}
