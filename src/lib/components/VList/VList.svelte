@@ -4,7 +4,9 @@
 	import WolverineButton from '$lib/components/Buttons/WolverineButton/WolverineButton.svelte';
 	import Button from '$lib/components/global/Button.svelte';
 	import Switch from '$lib/components/Buttons/Switch/Switch.svelte';
+	import Modal from '$lib/components/Modal/Modal.svelte';
 	import { Motion } from 'svelte-motion';
+	import { DocumentService } from '$lib/services/DocumentService';
 	import styles from './VList.module.scss';
 
 	export let items: T[] = [];
@@ -23,6 +25,11 @@
 	export let isItemSelected: (item: T) => boolean = (item) =>
 		selectedDocuments.isSelected(getItemId(item));
 	export let renderItemContent: import('svelte').Snippet<[T]> = defaultItemContent;
+	export let enableDocumentDeletion: boolean = false;
+
+	let isDeleteModalOpen = false;
+	let documentService: DocumentService;
+	let isDeleting = false;
 
 	function handleItemClick(item: T, event: MouseEvent) {
 		onItemClick(item, event);
@@ -38,8 +45,59 @@
 
 	function handleDeleteClick() {
 		if (!isDeleteButtonDisabled) {
-			onDeleteClick();
+			isDeleteModalOpen = true;
 		}
+	}
+
+	async function handleConfirmDelete() {
+		if (isDeleting || !enableDocumentDeletion) {
+			onDeleteClick(); // Fallback to original behavior
+			isDeleteModalOpen = false;
+			return;
+		}
+
+		isDeleting = true;
+		
+		try {
+			if (!documentService) {
+				const { DocumentService } = await import('$lib/services/DocumentService');
+				documentService = new DocumentService();
+			}
+
+			const selectedDocs = $selectedDocuments.documents;
+			console.log('Deleting documents:', selectedDocs.map(doc => doc.id));
+
+			// Delete each selected document
+			const deletePromises = selectedDocs.map(async (doc) => {
+				try {
+					await documentService.delete(doc.id);
+					console.log('Successfully deleted document:', doc.id);
+				} catch (error) {
+					console.error('Failed to delete document:', doc.id, error);
+					throw error;
+				}
+			});
+
+			await Promise.all(deletePromises);
+
+			// Clear selection after successful deletion
+			selectedDocuments.clearSelection();
+
+			// Call the original onDeleteClick for any additional cleanup
+			onDeleteClick();
+
+			console.log('All selected documents deleted successfully');
+		} catch (error) {
+			console.error('Error deleting documents:', error);
+			// You could show an error notification here
+		} finally {
+			isDeleting = false;
+			isDeleteModalOpen = false;
+		}
+	}
+
+	function handleCancelDelete() {
+		isDeleteModalOpen = false;
 	}
 
 	// Calculate if delete should be disabled based on selection mode and selected items
@@ -138,3 +196,24 @@
 		</div>
 	</div>
 {/if}
+
+<Modal 
+	bind:isOpen={isDeleteModalOpen}
+	dark={true}
+	buttons={[
+		{ text: 'Cancel', callback: handleCancelDelete },
+		{ text: 'Confirm', callback: handleConfirmDelete, primary: true }
+	]}
+	content={modalContent}
+/>
+
+{#snippet modalContent()}
+	<div style="text-align: center;">
+		<h2 style="margin-bottom: 16px;">Confirm Deletion</h2>
+		<p style="opacity: 0.8; margin-bottom: 8px;">Are you sure you want to delete the selected items?</p>
+		<p style="opacity: 0.6; font-size: 14px;">{selectedCount} item{selectedCount !== 1 ? 's' : ''} will be permanently deleted.</p>
+		{#if isDeleting}
+			<p style="opacity: 0.8; font-size: 14px; margin-top: 16px;">Deleting...</p>
+		{/if}
+	</div>
+{/snippet}

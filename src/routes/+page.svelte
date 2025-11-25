@@ -160,9 +160,11 @@
 				onItemClick={handleDocumentClick}
 				onToggleSelection={toggleDocumentSelection}
 				onToggleSelectionMode={toggleSelectionMode}
+				onDeleteClick={loadRecentDocs}
 				getItemId={(doc) => doc.id}
 				isItemSelected={(doc) => selectedDocuments.isSelected(doc.id)}
 				renderItemContent={documentContentSnippet}
+				enableDocumentDeletion={true}
 			/>
 		</div>
 	</main>

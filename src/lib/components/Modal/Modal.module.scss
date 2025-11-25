@@ -13,6 +13,10 @@
 	-webkit-backdrop-filter: blur(4px);
 }
 
+.modal-backdrop.dark {
+	background-color: rgba(0, 0, 0, 0.8);
+}
+
 .modal-content {
 	background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%);
 	backdrop-filter: blur(20px) saturate(180%);
@@ -27,6 +31,84 @@
 	max-height: 90vh;
 	overflow: auto;
 	animation: modalFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	padding: 24px;
+	color: #1a1a1a;
+}
+
+.modal-content.dark {
+	background: linear-gradient(135deg, rgba(31, 31, 31, 0.95) 0%, rgba(41, 41, 41, 0.9) 100%);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	box-shadow:
+		0 20px 60px rgba(0, 0, 0, 0.6),
+		0 10px 30px rgba(0, 0, 0, 0.4),
+		inset 0 1px 0 rgba(255, 255, 255, 0.1);
+	color: #ffffff;
+}
+
+.modal-buttons {
+	display: flex;
+	gap: 12px;
+	justify-content: flex-end;
+	margin-top: 24px;
+	padding-top: 16px;
+	border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.modal-content.dark .modal-buttons {
+	border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-button {
+	padding: 10px 20px;
+	border-radius: 8px;
+	border: 1px solid rgba(0, 0, 0, 0.2);
+	background: rgba(255, 255, 255, 0.8);
+	color: #333;
+	font-size: 14px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	backdrop-filter: blur(10px);
+}
+
+.modal-button:hover {
+	background: rgba(255, 255, 255, 0.9);
+	transform: translateY(-1px);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.modal-button.primary {
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	color: white;
+	border: 1px solid rgba(102, 126, 234, 0.3);
+}
+
+.modal-button.primary:hover {
+	background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+	box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+}
+
+.modal-button.dark {
+	background: rgba(255, 255, 255, 0.1);
+	color: white;
+	border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.modal-button.dark:hover {
+	background: rgba(255, 255, 255, 0.15);
+	transform: translateY(-1px);
+	box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+}
+
+.modal-button.primary.dark {
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	color: white;
+	border: 1px solid rgba(102, 126, 234, 0.5);
+}
+
+.modal-button.primary.dark:hover {
+	background: linear-gradient(135deg, #7c8ff0 0%, #8e5bb3 100%);
+	box-shadow: 0 4px 16px rgba(102, 126, 234, 0.5);
 }
 
 @keyframes modalFadeIn {
