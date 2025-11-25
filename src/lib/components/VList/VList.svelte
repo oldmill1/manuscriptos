@@ -9,30 +9,69 @@
 	import { DocumentService } from '$lib/services/DocumentService';
 	import styles from './VList.module.scss';
 
-	export let items: T[] = [];
-	export let hasLoaded: boolean = false;
-	export let isSelectionMode: boolean = false;
-	export let emptyMessage: string = 'No items found';
-	export let buttonText: string = 'Create new document';
-	export let emptyButtonTopDrawerText: string = 'get started...';
-	export let emptyButtonBottomDrawerText: string = '...it\'s easy!';
-	export let onEmptyButtonClick: () => void = () => {};
-	export let onItemClick: (item: T, event: MouseEvent) => void = () => {};
-	export let onToggleSelection: (item: T) => void = () => {};
-	export let onToggleSelectionMode: () => void = () => {};
-	export let onDeleteClick: () => void = () => {};
-	export let getItemId: (item: T) => string = (item) => (item as any).id;
-	export let isItemSelected: (item: T) => boolean = (item) =>
-		selectedDocuments.isSelected(getItemId(item));
-	export let renderItemContent: import('svelte').Snippet<[T]> = defaultItemContent;
-	export let enableDocumentDeletion: boolean = false;
+	interface Props {
+		items: T[];
+		hasLoaded: boolean;
+		isSelectionMode: boolean;
+		emptyMessage: string;
+		buttonText: string;
+		emptyButtonTopDrawerText: string;
+		emptyButtonBottomDrawerText: string;
+		onEmptyButtonClick: () => void;
+		onItemClick: (item: T, event: MouseEvent) => void;
+		onToggleSelection: (item: T) => void;
+		onToggleSelectionMode: () => void;
+		onDeleteClick: () => void;
+		getItemId: (item: T) => string;
+		isItemSelected: (item: T) => boolean;
+		renderItemContent: import('svelte').Snippet<[T]>;
+		enableDocumentDeletion: boolean;
+	}
 
-	let isDeleteModalOpen = false;
+	let {
+		items = [],
+		hasLoaded = false,
+		isSelectionMode = false,
+		emptyMessage = 'No items found',
+		buttonText = 'Create new document',
+		emptyButtonTopDrawerText = 'get started...',
+		emptyButtonBottomDrawerText = '...it\'s easy!',
+		onEmptyButtonClick = () => {},
+		onItemClick = () => {},
+		onToggleSelection = () => {},
+		onToggleSelectionMode = () => {},
+		onDeleteClick = () => {},
+		getItemId = (item) => (item as any).id,
+		isItemSelected = () => false,
+		renderItemContent = defaultItemContent,
+		enableDocumentDeletion = false
+	}: Props = $props();
+
+	let isDeleteModalOpen = $state(false);
 	let documentService: DocumentService;
-	let isDeleting = false;
+	let isDeleting = $state(false);
+	let selectedDocs: any[] = $state([]);
+
+	// Subscribe to selected documents store for reactivity
+	$effect(() => {
+		const unsubscribe = selectedDocuments.subscribe((state) => {
+			selectedDocs = state.documents;
+		});
+		return unsubscribe;
+	});
+
+	// Create reactive isItemSelected function
+	function checkIfSelected(item: T): boolean {
+		return selectedDocs.some((doc) => doc.id === getItemId(item));
+	}
 
 	function handleItemClick(item: T, event: MouseEvent) {
-		onItemClick(item, event);
+		if (isSelectionMode) {
+			event.preventDefault();
+			toggleItemSelection(item);
+		} else {
+			onItemClick(item, event);
+		}
 	}
 
 	function toggleItemSelection(item: T) {
@@ -101,8 +140,8 @@
 	}
 
 	// Calculate if delete should be disabled based on selection mode and selected items
-	$: selectedCount = $selectedDocuments.documents.length;
-	$: isDeleteButtonDisabled = !isSelectionMode || selectedCount === 0;
+	let selectedCount = $derived(selectedDocs.length);
+	let isDeleteButtonDisabled = $derived(!isSelectionMode || selectedCount === 0);
 
 	function applyMotion(node: any, motionAction: any) {
 		return motionAction(node);
@@ -121,7 +160,7 @@
 <div class={styles['items-list']}>
 	{#each items as item (getItemId(item))}
 		<button
-			class={`${styles['item']} ${isSelectionMode ? styles['selection-mode'] : ''} ${isItemSelected(item) ? styles['selected'] : ''}`}
+			class={`${styles['item']} ${isSelectionMode ? styles['selection-mode'] : ''} ${checkIfSelected(item) ? styles['selected'] : ''}`}
 			onclick={(e) => handleItemClick(item, e)}
 			onkeydown={(e) => {
 				if (e.key === 'Enter' || e.key === ' ') {
@@ -136,7 +175,7 @@
 	{#if isSelectionMode}
 		<input
 			type="checkbox"
-			checked={isItemSelected(item)}
+			checked={checkIfSelected(item)}
 			onchange={() => toggleItemSelection(item)}
 			onclick={(e) => e.stopPropagation()}
 		/>
