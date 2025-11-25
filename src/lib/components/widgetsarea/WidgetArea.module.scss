@@ -266,9 +266,10 @@
 }
 
 .rewriteButton {
-	background: rgba(144, 238, 144, 0.15);
-	border: 1px solid rgba(144, 238, 144, 0.3);
-	color: rgba(255, 255, 255, 0.9);
+	background-color: rgb(32, 48, 64);
+	border: 1px solid rgb(80, 115, 134);
+	border-color: rgb(80, 115, 134);
+	color: rgb(167, 158, 139);
 	padding: 8px 16px;
 	border-radius: 8px;
 	font-size: 14px;
@@ -278,18 +279,18 @@
 	min-width: 80px;
 	display: flex;
 	align-items: center;
-	gap: 6px;
 	justify-content: center;
 	white-space: nowrap;
+	position: relative;
 
 	&:hover {
-		background: rgba(144, 238, 144, 0.25);
-		border-color: rgba(144, 238, 144, 0.4);
-		color: rgba(255, 255, 255, 1);
+		background-color: rgb(32, 48, 64);
+		border-color: rgb(80, 115, 134);
+		color: rgb(167, 158, 139);
 	}
 
 	&:active {
-		background: rgba(144, 238, 144, 0.2);
+		background-color: rgb(32, 48, 64);
 	}
 }
 
@@ -297,6 +298,9 @@
 	width: 18px;
 	height: 18px;
 	opacity: 0.8;
+	position: absolute;
+	top: -10px;
+	left: -10px;
 }
 
 .radioGroup {

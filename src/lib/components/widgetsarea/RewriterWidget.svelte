@@ -109,7 +109,7 @@
 				{isRewriting ? 'Re-writing...' : 'Re-write'}
 			</button>
 			<button class={styles.rewriteButton} onclick={handleRewrite}>
-				<img src="/icons/sparkle.png" alt="AI" class={styles.rewriteIcon} />
+				<img src="/icons/fantasy.png" alt="AI" class={styles.rewriteIcon} />
 				Grammar
 			</button>
 		</div>
