@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import WolverineButton from '$lib/components/Buttons/WolverineButton/WolverineButton.svelte';
 	import Dock from '$lib/components/Dock/Dock.svelte';
 	import VList from '$lib/components/VList/VList.svelte';
-	import WolverineButton from '$lib/components/Buttons/WolverineButton/WolverineButton.svelte';
-		import { Document } from '$lib/models/Document';
+	import { Document } from '$lib/models/Document';
 	import { DatabaseService } from '$lib/services/DatabaseService';
-	import { selectedDocuments } from '$lib/stores/selectedDocuments';
 	import { savedNotification } from '$lib/stores/savedNotificationStore';
+	import { selectedDocuments } from '$lib/stores/selectedDocuments';
 	import { onMount } from 'svelte';
 	import styles from './+page.module.scss';
 
