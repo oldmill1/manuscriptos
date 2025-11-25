@@ -15,6 +15,7 @@
 	let editingTitle = $state('');
 	let inputRef = $state<HTMLInputElement>();
 	let isValid = $state(true);
+	const tabindex = $derived(titleEditable ? 0 : undefined);
 
 	function startEditing() {
 		isEditing = true;
@@ -133,7 +134,7 @@
 				onclick={titleEditable ? startEditing : undefined}
 				onkeydown={titleEditable ? (e) => (e.key === 'Enter' || e.key === ' ') && startEditing() : undefined}
 				role={titleEditable ? "button" : undefined}
-				tabindex={titleEditable ? 0 : undefined}
+				tabindex={tabindex}
 			>
 				{title}
 			</span>
