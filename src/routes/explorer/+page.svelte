@@ -25,22 +25,8 @@
 			console.log('Lists loaded:', allLists);
 
 			if (allLists.length === 0) {
-				// Create sample data if no lists exist
-				console.log('No lists found, creating sample data...');
-				const sampleLists = [
-					new List('custom', 'Privateer Story'),
-					new List('custom', 'Jamaica'),
-					new List('custom', 'Boo'),
-					new List('custom', 'Yo yo'),
-					new List('custom', 'Heloo world')
-				];
-				
-				for (const sampleList of sampleLists) {
-					await listService.create(sampleList);
-				}
-				
-				const reloadLists = await listService.list();
-				lists = reloadLists.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+				console.log('No lists found');
+				lists = [];
 			} else {
 				lists = allLists.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
 			}
