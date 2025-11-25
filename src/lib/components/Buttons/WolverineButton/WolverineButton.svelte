@@ -101,15 +101,15 @@
 		<Motion 
 			let:motion
 			animate={isHovered ? {
-				x: -12,
-				y: -12
+				x: -36,
+				y: -36
 			} : {
 				x: -24,
 				y: -24
 			}}
 			whileTap={{ 
-				x: 1.2,
-				y: 1.2
+				x: -12,
+				y: -12
 			}}
 			transition={{ 
 				duration: 0.25,
@@ -131,15 +131,15 @@
 		<Motion 
 			let:motion
 			animate={isHovered ? {
-				x: 12,
-				y: -12
+				x: 36,
+				y: -36
 			} : {
 				x: 24,
 				y: -24
 			}}
 			whileTap={{ 
-				x: -1.2,
-				y: 1.2
+				x: 12,
+				y: -12
 			}}
 			transition={{ 
 				duration: 0.25,
@@ -161,15 +161,15 @@
 		<Motion 
 			let:motion
 			animate={isHovered ? {
-				x: 12,
-				y: 12
+				x: 36,
+				y: 36
 			} : {
 				x: 24,
 				y: 24
 			}}
 			whileTap={{ 
-				x: -1.2,
-				y: -1.2
+				x: 12,
+				y: 12
 			}}
 			transition={{ 
 				duration: 0.25,
@@ -191,15 +191,15 @@
 		<Motion 
 			let:motion
 			animate={isHovered ? {
-				x: -12,
-				y: 12
+				x: -36,
+				y: 36
 			} : {
 				x: -24,
 				y: 24
 			}}
 			whileTap={{ 
-				x: 1.2,
-				y: -1.2
+				x: -12,
+				y: 12
 			}}
 			transition={{ 
 				duration: 0.25,
