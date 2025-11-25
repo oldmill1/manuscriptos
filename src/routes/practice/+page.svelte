@@ -27,8 +27,32 @@
                 BUTTON
             </button>
         </Motion>
-        <button class={styles.catfish}>
-            Catfish
-        </button>
+        <Motion 
+            let:motion
+            whileHover={{ 
+                y: -4,
+                background: "#ffe9e9",
+                boxShadow: "0 0 0 2px #b18597, 0 0.5em 0 0 #ffe3e2"
+            }}
+            whileTap={{ 
+                y: 12,
+                background: "#ffe9e9",
+                boxShadow: "0 0 0 2px #b18597, 0 0 #ffe3e2"
+            }}
+            transition={{ 
+                type: "tween",
+                duration: 0.15,
+                ease: [0, 0, 0.58, 1]
+            }}
+            initial={{
+                y: 0,
+                background: "#fff0f0",
+                boxShadow: "0 0 0 2px #b18597, 0 0.625em 0 0 #ffe3e2"
+            }}
+        >
+            <button class={styles.catfish} use:motion>
+                Catfish
+            </button>
+        </Motion>
     </div>
 </div>
