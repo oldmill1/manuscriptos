@@ -20,11 +20,12 @@
 		return {
 			duration: 400,
 			easing: cubicInOut,
-			css: (t: number) => {
+			css: (t: number, u: number) => {
 				// When showing from hidden, slide from right (100 to 0)
 				// When initial load, slide from left (-100 to 0)
-				const startX = isShowing ? 100 : -100;
-				const x = startX + (0 - startX) * t;
+				const startX = isShowing ? 150 : -100;
+				// Use u (1 - t) for smooth reverse interpolation
+				const x = startX * u;
 				// Preserve vertical centering (translateY(-50%)) while sliding horizontally
 				return `transform: translateX(${x}px) translateY(-50%);`;
 			}
