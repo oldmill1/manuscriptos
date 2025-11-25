@@ -1,6 +1,6 @@
 .btn-container {
   --btn-color: #d8ff7c;
-  --corner-color: #0002;
+  --corner-color: #64748b;
   --corner-dist: 24px;
   --corner-multiplier: 1.5;
   --timing-function: cubic-bezier(0, 0, 0, 2.5);
@@ -114,33 +114,32 @@
 /* CSS Hover states for effects svelte-motion can't handle */
 .btn-container:has(.btn:hover) {
   .btn {
-    filter: drop-shadow(0 16px 16px #0002);
+    filter: drop-shadow(0 8px 8px #0002);
   }
   .btn-drawer {
-    filter: blur(0px) hue-rotate(0deg);
-    animation: hue-anim 3s infinite linear;
+    filter: blur(0px);
   }
   .btn-text {
-    filter: drop-shadow(0 1px 0 #fff6) drop-shadow(0 -1px 0 #0006) drop-shadow(0px 6px 2px #0003);
+    filter: drop-shadow(0 1px 0 #fff6) drop-shadow(0 -1px 0 #0006);
     color: #0008;
   }
-  --corner-color: #0004;
+  --corner-color: #475569;
   .btn-corner {
-    filter: drop-shadow(-10px 10px 1px var(--corner-color)) drop-shadow(-20px 20px 2px var(--corner-color));
+    filter: none;
   }
 }
 
 .btn-container:has(.btn:active) {
   .btn {
-    filter: drop-shadow(0 10px 4px #0002);
+    filter: drop-shadow(0 6px 4px #0002);
   }
   .btn-text {
-    filter: drop-shadow(0 1px 0 #fff6) drop-shadow(0 -1px 0 #0006) drop-shadow(0px 6px 2px #0003);
+    filter: drop-shadow(0 1px 0 #fff6) drop-shadow(0 -1px 0 #0006);
     color: #000a;
   }
-  --corner-color: #0005;
+  --corner-color: #334155;
   .btn-corner {
-    filter: drop-shadow(-10px 10px 2px var(--corner-color)) drop-shadow(-20px 20px 3px var(--corner-color));
+    filter: none;
   }
 }
 
