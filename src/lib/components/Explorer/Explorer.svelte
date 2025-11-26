@@ -3,6 +3,7 @@
 	import IconItem from '../global/IconItem.svelte';
 	import Button from '../global/Button.svelte';
 	import Switch from '../Buttons/Switch/Switch.svelte';
+	import SwitchMini from '../SwitchMini/SwitchMini.svelte';
 	import { Motion } from 'svelte-motion';
 	import Modal from '../Modal/Modal.svelte';
 	import type { Snippet } from 'svelte';
@@ -131,8 +132,7 @@
 					<div class={`${styles.fileItem} ${isSelectionMode ? styles.selectionMode : ''} ${checkIfSelected(item) ? styles.selected : ''}`}>
 						{#if isSelectionMode}
 							<div class={styles.selectionCheckbox}>
-								<input
-									type="checkbox"
+								<SwitchMini
 									checked={checkIfSelected(item)}
 									onchange={() => toggleItemSelection(item)}
 									onclick={(e) => e.stopPropagation()}
