@@ -164,15 +164,9 @@
 					<Motion 
 						let:motion
 						whileHover={{ 
-							scale: 1.02,
-							background: "linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04))",
-							boxShadow: "0 8px 30px rgba(0, 0, 0, 0.2), 0 2px 8px rgba(0, 0, 0, 0.15)",
-							borderColor: "rgba(255, 255, 255, 0.15)"
-						}}
-						animate={{
-							background: "transparent",
-							boxShadow: "none",
-							borderColor: "transparent"
+							scale: 1.03,
+							y: -2,
+							transition: { type: "spring", stiffness: 400 }
 						}}
 						whileTap={{ scale: 0.98 }}
 						transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
