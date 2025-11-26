@@ -115,19 +115,19 @@
 			isSVG={true}
 			initial={false}
 			animate={isHovered ? {
-				x: -60,
-				y: -60,
+				x: -80,
+				y: -40,
 				rotate: 180
 			} : {
-				x: -48,
-				y: -48,
-				rotate: 180
-			}}
-			whileTap={{ 
-				x: -30,
+				x: -70,
 				y: -30,
 				rotate: 180
 			}}
+			whileTap={{ 
+				x: -40,
+				y: -20,
+				rotate: 180
+			}}
 			transition={{ 
 				duration: 0.25,
 				ease: [0, 0, 0, 2.5]
@@ -150,53 +150,18 @@
 			isSVG={true}
 			initial={false}
 			animate={isHovered ? {
-				x: 60,
-				y: -60,
+				x: 80,
+				y: -40,
 				rotate: 270
 			} : {
-				x: 48,
-				y: -48,
-				rotate: 270
-			}}
-			whileTap={{ 
-				x: 30,
+				x: 70,
 				y: -30,
 				rotate: 270
 			}}
-			transition={{ 
-				duration: 0.25,
-				ease: [0, 0, 0, 2.5]
-			}}
-		>
-			<svg
-				class={styles['btn-corner']}
-				xmlns="http://www.w3.org/2000/svg"
-				viewBox="-1 1 32 32"
-				use:applyMotion={motion}
-			>
-				<path
-					d="M0,32C17.645,32,32,17.645,32,0h-0.985c0,17.102-13.913,31.015-31.015,31.015v0.985Z"
-				></path>
-			</svg>
-		</Motion>
-
-		<Motion 
-			let:motion
-			isSVG={true}
-			initial={false}
-			animate={isHovered ? {
-				x: 60,
-				y: 60,
-				rotate: 0
-			} : {
-				x: 48,
-				y: 48,
-				rotate: 0
-			}}
 			whileTap={{ 
-				x: 30,
-				y: 30,
-				rotate: 0
+				x: 40,
+				y: -20,
+				rotate: 270
 			}}
 			transition={{ 
 				duration: 0.25,
@@ -220,17 +185,52 @@
 			isSVG={true}
 			initial={false}
 			animate={isHovered ? {
-				x: -60,
-				y: 60,
+				x: 80,
+				y: 40,
+				rotate: 0
+			} : {
+				x: 70,
+				y: 30,
+				rotate: 0
+			}}
+			whileTap={{ 
+				x: 40,
+				y: 20,
+				rotate: 0
+			}}
+			transition={{ 
+				duration: 0.25,
+				ease: [0, 0, 0, 2.5]
+			}}
+		>
+			<svg
+				class={styles['btn-corner']}
+				xmlns="http://www.w3.org/2000/svg"
+				viewBox="-1 1 32 32"
+				use:applyMotion={motion}
+			>
+				<path
+					d="M0,32C17.645,32,32,17.645,32,0h-0.985c0,17.102-13.913,31.015-31.015,31.015v0.985Z"
+				></path>
+			</svg>
+		</Motion>
+
+		<Motion 
+			let:motion
+			isSVG={true}
+			initial={false}
+			animate={isHovered ? {
+				x: -80,
+				y: 40,
 				rotate: 90
 			} : {
-				x: -48,
-				y: 48,
+				x: -70,
+				y: 30,
 				rotate: 90
 			}}
 			whileTap={{ 
-				x: -30,
-				y: 30,
+				x: -40,
+				y: 20,
 				rotate: 90
 			}}
 			transition={{ 
