@@ -6,7 +6,7 @@
 	import { ExplorerNav } from '../ExplorerNav';
 	import Modal from '../Modal/Modal.svelte';
 	import styles from './Explorer.module.scss';
-	import FileItem from './FileItem/FileItem.svelte';
+	import ExplorerItem from './ExplorerItem/ExplorerItem.svelte';
 	import type { ExplorerData } from './types';
 
 	interface Props {
@@ -163,7 +163,7 @@
 			<div class={styles.desktop}>
 			{#if data.hasLoaded}
 				{#each data.items as item (item.id)}
-					<FileItem
+					<ExplorerItem
 						item={item}
 						isSelectionMode={isSelectionMode}
 						isSelected={checkIfSelected(item)}

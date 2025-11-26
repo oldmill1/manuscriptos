@@ -1,6 +1,5 @@
 <script lang="ts">
-	import styles from '../Explorer.module.scss';
-	import IconItem from '../IconItem/IconItem.svelte';
+	import styles from './ExplorerItem.module.scss';
 	import SwitchMini from '../../SwitchMini/SwitchMini.svelte';
 	import { Motion } from 'svelte-motion';
 
@@ -20,10 +19,6 @@
 		onToggleSelection
 	}: Props = $props();
 
-	function applyMotion(node: any, motionAction: any) {
-		return motionAction(node);
-	}
-
 	function handleClick(event: MouseEvent) {
 		onItemClick?.(item, event);
 	}
@@ -34,6 +29,19 @@
 
 	function handleSwitchChange() {
 		onToggleSelection?.(item);
+	}
+
+	function handleKeydown(event: KeyboardEvent) {
+		if (event.key === 'Enter' || event.key === ' ') {
+			event.preventDefault();
+			// Create a synthetic MouseEvent for keyboard interactions
+			const syntheticEvent = new MouseEvent('click', {
+				bubbles: true,
+				cancelable: true,
+				view: window
+			});
+			handleClick(syntheticEvent);
+		}
 	}
 </script>
 
@@ -48,8 +56,12 @@
 	transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
 >
 	<div 
-		class={`${styles.fileItem} ${isSelectionMode ? styles.selectionMode : ''} ${isSelected ? styles.selected : ''}`}
+		class={`${styles.explorerItem} ${isSelectionMode ? styles.selectionMode : ''} ${isSelected ? styles.selected : ''}`}
 		use:motion
+		role="button"
+		tabindex="0"
+		onclick={handleClick}
+		onkeydown={handleKeydown}
 	>
 		{#if isSelectionMode}
 			<div class={styles.selectionCheckbox}>
@@ -60,10 +72,7 @@
 				/>
 			</div>
 		{/if}
-		<IconItem 
-			name={item.name} 
-			icon={item.icon} 
-			onClick={handleClick}
-		/>
+		<img src={item.icon} alt={item.name} class={styles.icon} />
+		<span class={styles.label}>{item.name}</span>
 	</div>
 </Motion>
