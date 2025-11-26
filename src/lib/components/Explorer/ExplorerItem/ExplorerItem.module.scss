@@ -15,7 +15,24 @@
 	}
 
 	&.selected {
-	
+		&::after {
+			content: '';
+			position: absolute;
+			bottom: -8px;
+			left: 50%;
+			transform: translateX(-50%);
+			width: 8px;
+			height: 8px;
+			border-radius: 50%;
+			background: #3b82f6;
+			box-shadow: 
+				0 0 10px rgba(59, 130, 246, 0.8),
+				0 0 20px rgba(59, 130, 246, 0.4),
+				0 0 30px rgba(59, 130, 246, 0.2),
+				inset 0 0 4px rgba(255, 255, 255, 0.3);
+			animation: ledPulse 2s ease-in-out infinite;
+		}
+		
 		.icon {
 			filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2)) brightness(1.05);
 		}
@@ -55,4 +72,15 @@
 	max-width: 160px;
 	color: #ffffff;
 	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes ledPulse {
+	0%, 100% {
+		opacity: 1;
+		transform: translateX(-50%) scale(1);
+	}
+	50% {
+		opacity: 0.7;
+		transform: translateX(-50%) scale(1.2);
+	}
 }
