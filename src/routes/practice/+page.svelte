@@ -4,7 +4,7 @@
 	import WolverineButton from '$lib/components/Buttons/WolverineButton/WolverineButton.svelte';
 	import Switch from '$lib/components/Buttons/Switch/Switch.svelte';
 	import Modal from '$lib/components/Modal/Modal.svelte';
-	import Checkbox from '$lib/components/Checkbox/Checkbox.svelte';
+	import SwitchMini from '$lib/components/SwitchMini/SwitchMini.svelte';
 
 	console.log('Motion component:', Motion);
 	
@@ -27,7 +27,7 @@
 
 <div class={styles['practice-page']}>
     <div class={styles['input-section']}>
-        <Checkbox label="Checkbox" />
+        <SwitchMini label="Switch Mini" />
     </div>
     
     <div class={styles['button-stack']}>
