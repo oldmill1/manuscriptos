@@ -6,44 +6,57 @@
 	width: 170px;
 	height: 110px;
 	padding: 0px;
+	border: 1px solid rgba(255, 255, 255, 0.08);
 	border-radius: 16px;
 	position: relative;
 	cursor: pointer;
-	transition: all 0.2s ease;
+	transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+	background-color: rgba(255, 255, 255, 0.02);
 
 	&:hover {
-		// background-color: rgba(255, 255, 255, 0.1);
-		transform: scale(1.05);
+		background-color: rgba(255, 255, 255, 0.06);
+		border-color: rgba(255, 255, 255, 0.15);
+		transform: translateY(-1px);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 	}
 
 	&:active {
-		transform: scale(0.95);
+		transform: translateY(0px);
+		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 	}
 
 	&.selectionMode {
 		cursor: pointer;
 		
 		&:hover {
-			transform: translateY(0); // Added value to translateY
+			transform: translateY(0);
 		}
 	}
 
 	&.selected {
-		background: linear-gradient(145deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.08));
-		border-color: rgba(59, 130, 246, 0.4); // Added value to border-color
-		box-shadow: 0 4px 20px rgba(59, 130, 246, 0.2), 0 1px 3px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+		background: linear-gradient(145deg, rgba(59, 130, 246, 0.08), rgba(59, 130, 246, 0.04));
+		border: 1px solid rgba(59, 130, 246, 0.3);
+		box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
 		
 		&::after {
 			content: '';
 			position: absolute;
 			top: 8px;
 			right: 8px;
-			width: 8px; // Changed width from 16px to 8px
-			height: 8px; // Added height
+			width: 6px;
+			height: 6px;
 			border-radius: 50%;
-			background: linear-gradient(135deg, #3b82f6, #1d4ed8); // Added missing color code
-			box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); // Added missing color code
+			background: rgba(59, 130, 246, 0.8);
+			box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
 			z-index: 5;
+		}
+		
+		.icon {
+			filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2)) brightness(1.05);
+		}
+		
+		.label {
+			color: rgba(255, 255, 255, 0.95);
 		}
 	}
 }
@@ -73,7 +86,7 @@
 .label {
 	font-size: 16px;
 	text-align: center;
-	word-break: break-word; // Removed duplicate word-break
+	word-break: break-word;
 	max-width: 160px;
 	color: #ffffff;
 	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
