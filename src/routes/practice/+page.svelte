@@ -88,7 +88,7 @@
             dark={true}
             buttons={[
                 { text: 'Cancel', callback: closeModal, primary: false },
-                { text: 'Confirm', callback: closeModal, primary: true }
+                { text: 'Delete', callback: closeModal, primary: true }
             ]}
         >
             {#snippet content()}

@@ -227,7 +227,7 @@
 	dark={true}
 	buttons={[
 		{ text: 'Cancel', callback: handleCancelDelete },
-		{ text: 'Confirm', callback: handleConfirmDelete, primary: true }
+		{ text: 'Delete', callback: handleConfirmDelete, primary: true }
 	]}
 >
 	{#snippet content()}

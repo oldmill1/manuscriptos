@@ -1,10 +1,11 @@
 <script lang="ts">
+	import AquaButton from '../Buttons/AquaButton/AquaButton.svelte';
 	import styles from './Modal.module.scss';
 
 	export let content: any = null;
 	export let isOpen: boolean = false;
 	export let dark: boolean = false;
-	export let buttons: Array<{ text: string; callback: () => void; primary?: boolean }> = [];
+	export let buttons: Array<{ text: string; callback: () => void; primary?: boolean; disabled?: boolean }> = [];
 
 	function handleBackdropClick() {
 		isOpen = false;
@@ -24,10 +25,6 @@
 		if (event.key === 'Escape') {
 			isOpen = false;
 		}
-	}
-
-	function handleButtonClick(callback: () => void) {
-		callback();
 	}
 </script>
 
@@ -53,12 +50,14 @@
 			{#if buttons.length > 0}
 				<div class={styles['modal-buttons']}>
 					{#each buttons as button}
-						<button 
-							class={`${styles['modal-button']} ${button.primary ? styles['primary'] : ''} ${dark ? styles['dark'] : ''}`}
-							onclick={() => handleButtonClick(button.callback)}
-						>
-							{button.text}
-						</button>
+						<AquaButton 
+							text={button.text}
+							onClick={button.callback}
+							primary={button.primary || false}
+							dark={dark}
+							disabled={button.disabled || false}
+							type="button"
+						/>
 					{/each}
 				</div>
 			{/if}
