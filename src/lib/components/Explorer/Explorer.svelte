@@ -133,13 +133,15 @@
 						id: 'cut',
 						label: 'Cut',
 						icon: '✂️',
-						onClick: () => console.log('Cut clicked')
+						onClick: () => console.log('Cut clicked'),
+						disabled: true
 					},
 					{
 						id: 'copy',
 						label: 'Copy',
 						icon: '📋',
-						onClick: () => console.log('Copy clicked')
+						onClick: () => console.log('Copy clicked'),
+						disabled: true
 					},
 					{
 						id: 'paste',
