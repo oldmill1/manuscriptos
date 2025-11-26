@@ -22,6 +22,7 @@
   let loading = $state(true);
   let error = $state<string | null>(null);
   let showBulkAddModal = $state(false);
+  let showDeleteModal = $state(false);
   let selectedItems = $state(new Set<string>());
 
   onMount(async () => {
@@ -59,8 +60,46 @@
   });
   
   function handleEmptyTable() {
-    console.log('Delete clicked for selected items:', Array.from(selectedItems));
-    // TODO: Implement delete functionality for selected documents
+    if (selectedItems.size > 0) {
+      showDeleteModal = true;
+    }
+  }
+  
+  async function confirmDeleteDocuments() {
+    showDeleteModal = false;
+    try {
+      console.log('Deleting selected documents:', Array.from(selectedItems));
+      
+      // Initialize DocumentService
+      const { DocumentService } = await import('$lib/services/DocumentService');
+      const documentService = new DocumentService('squiredb');
+      
+      // Delete all selected documents
+      for (const docId of selectedItems) {
+        await documentService.delete(docId);
+        console.log(`Deleted document: ${docId}`);
+      }
+      
+      // Clear selection
+      selectedItems = new Set();
+      
+      // Refresh the items list
+      if (data.resource === 'documents') {
+        const allDocs = await documentService.list();
+        items = allDocs
+          .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+          .slice(0, 10);
+      }
+      
+      console.log('Successfully deleted selected documents and refreshed table');
+    } catch (error) {
+      console.error('Failed to delete documents:', error);
+      error = 'Failed to delete documents from database';
+    }
+  }
+  
+  function cancelDeleteDocuments() {
+    showDeleteModal = false;
   }
   
   function handleSelectionChange(selectedIds: Set<string>) {
@@ -70,6 +109,10 @@
   
   async function handleBulkAddDocuments() {
     showBulkAddModal = true;
+  }
+  
+  function cancelBulkAddDocuments() {
+    showBulkAddModal = false;
   }
   
   async function confirmBulkAddDocuments() {
@@ -98,10 +141,6 @@
       console.error('Failed to bulk add documents:', error);
       error = 'Failed to add documents to database';
     }
-  }
-  
-  function cancelBulkAddDocuments() {
-    showBulkAddModal = false;
   }
   
   function generateRandomDocuments(count: number = 10): Document[] {
@@ -208,7 +247,21 @@
     <p style="color: #b0b0b0; font-size: 0.9rem;">These documents will be saved to the database and appear in your documents list.</p>
   `}
   buttons={[
-    { text: 'Cancel', callback: cancelBulkAddDocuments, primary: false },
+    { text: 'Cancel', callback: () => { showBulkAddModal = false; }, primary: false },
     { text: 'Add Documents', callback: confirmBulkAddDocuments, primary: true }
+  ]}
+/>
+
+<Modal
+  isOpen={showDeleteModal}
+  dark={true}
+  content={() => `
+    <h2 style="color: #e0e0e0; margin-bottom: 1rem;">Confirm Delete</h2>
+    <p style="color: #b0b0b0; margin-bottom: 0.5rem;">Are you sure you want to delete ${selectedItems.size} selected document${selectedItems.size !== 1 ? 's' : ''}?</p>
+    <p style="color: #ff6b6b; font-size: 0.9rem;">This action cannot be undone. The documents will be permanently removed from the database.</p>
+  `}
+  buttons={[
+    { text: 'Cancel', callback: cancelDeleteDocuments, primary: false },
+    { text: 'Delete Documents', callback: confirmDeleteDocuments, primary: true }
   ]}
 />
