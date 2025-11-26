@@ -117,3 +117,20 @@
 	font-variant-numeric: tabular-nums;
 	white-space: nowrap;
 }
+
+.checkbox-cell {
+	width: 40px;
+	text-align: center;
+	padding: 0.875rem 0.5rem !important;
+	
+	& :global(div) {
+		transform: scale(0.5);
+		transform-origin: center;
+	}
+}
+
+.selected-row {
+	border: 2px solid #add8e6 !important;
+	border-radius: 4px;
+	background: rgba(173, 216, 230, 0.1) !important;
+}

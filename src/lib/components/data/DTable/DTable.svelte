@@ -3,6 +3,7 @@
 	import type { Snippet } from 'svelte';
 	import { Document } from '$lib/models/Document';
 	import { List } from '$lib/models/List';
+	import SwitchMini from '$lib/components/SwitchMini/SwitchMini.svelte';
 
 	interface Props {
 		items: (Document | List)[];
@@ -13,6 +14,35 @@
 	}
 
 	let { items, resourceType, loading = false, error = null, empty = false }: Props = $props();
+
+	// Track selected items
+	let selectedItems = $state(new Set<string>());
+
+	function toggleItemSelection(itemId: string) {
+		if (selectedItems.has(itemId)) {
+			selectedItems.delete(itemId);
+		} else {
+			selectedItems.add(itemId);
+		}
+		// Trigger reactivity
+		selectedItems = new Set(selectedItems);
+	}
+
+	function toggleSelectAll() {
+		if (selectedItems.size === items.length) {
+			selectedItems.clear();
+		} else {
+			selectedItems = new Set(items.map(item => item.id));
+		}
+	}
+
+	function isAllSelected() {
+		return items.length > 0 && selectedItems.size === items.length;
+	}
+
+	function isPartiallySelected() {
+		return selectedItems.size > 0 && selectedItems.size < items.length;
+	}
 
 	function formatDate(date: Date): string {
 		return date.toLocaleString();
@@ -43,6 +73,12 @@
 		<table class={styles['data-table']}>
 			<thead>
 				<tr>
+					<th class={styles['checkbox-cell']}>
+						<SwitchMini 
+							checked={isAllSelected()} 
+							onchange={toggleSelectAll}
+						/>
+					</th>
 					<th>ID</th>
 					{#if resourceType === 'documents'}
 						<th>Title</th>
@@ -58,7 +94,13 @@
 			</thead>
 			<tbody>
 				{#each items as item (item.id)}
-					<tr>
+					<tr class={selectedItems.has(item.id) ? styles['selected-row'] : ''}>
+						<td class={styles['checkbox-cell']}>
+							<SwitchMini 
+								checked={selectedItems.has(item.id)}
+								onchange={() => toggleItemSelection(item.id)}
+							/>
+						</td>
 						<td class={styles['id-cell']}>{item.id}</td>
 						{#if isDocument(item)}
 							<td class={styles['title-cell']}>{item.title}</td>

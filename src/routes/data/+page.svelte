@@ -3,11 +3,41 @@
   import { DatabaseService } from '$lib/services/DatabaseService';
   import { Document } from '$lib/models/Document';
   import { browser } from '$app/environment';
+  import SwitchMini from '$lib/components/SwitchMini/SwitchMini.svelte';
 
   let dbService: DatabaseService;
-  let documents: Document[] = [];
-  let loading = true;
-  let error: string | null = null;
+  let documents = $state<Document[]>([]);
+  let loading = $state(true);
+  let error = $state<string | null>(null);
+
+  // Track selected documents
+  let selectedDocuments = $state(new Set<string>());
+
+  function toggleDocumentSelection(docId: string) {
+    if (selectedDocuments.has(docId)) {
+      selectedDocuments.delete(docId);
+    } else {
+      selectedDocuments.add(docId);
+    }
+    // Trigger reactivity
+    selectedDocuments = new Set(selectedDocuments);
+  }
+
+  function toggleSelectAll() {
+    if (selectedDocuments.size === documents.length) {
+      selectedDocuments.clear();
+    } else {
+      selectedDocuments = new Set(documents.map(doc => doc.id));
+    }
+  }
+
+  function isAllSelected() {
+    return documents.length > 0 && selectedDocuments.size === documents.length;
+  }
+
+  function isPartiallySelected() {
+    return selectedDocuments.size > 0 && selectedDocuments.size < documents.length;
+  }
 
   onMount(async () => {
     try {
@@ -56,6 +86,12 @@
     <table class="data-table">
       <thead>
         <tr>
+          <th class="checkbox-cell">
+            <SwitchMini 
+              checked={isAllSelected()} 
+              onchange={toggleSelectAll}
+            />
+          </th>
           <th>ID</th>
           <th>Title</th>
           <th>Content Preview</th>
@@ -65,7 +101,13 @@
       </thead>
       <tbody>
         {#each documents as doc (doc.id)}
-          <tr>
+          <tr class={selectedDocuments.has(doc.id) ? 'selected-row' : ''}>
+            <td class="checkbox-cell">
+              <SwitchMini 
+                checked={selectedDocuments.has(doc.id)}
+                onchange={() => toggleDocumentSelection(doc.id)}
+              />
+            </td>
             <td class="id-cell">{doc.id}</td>
             <td class="title-cell">{doc.title}</td>
             <td class="content-cell">{truncateContent(doc.content)}</td>
@@ -171,5 +213,17 @@
     font-size: 0.9rem;
     color: #b0b0b0;
     white-space: nowrap;
+  }
+
+  .checkbox-cell {
+    width: 40px;
+    text-align: center;
+    padding: 0.75rem 0.5rem !important;
+  }
+
+  .selected-row {
+    border: 2px solid #add8e6 !important;
+    border-radius: 4px;
+    background: rgba(173, 216, 230, 0.1) !important;
   }
 </style>
