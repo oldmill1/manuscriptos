@@ -89,6 +89,7 @@
 	gap: 10px;
 	overflow-y: auto;
 	padding-right: 4px; // Reduced space for sleeker scrollbar
+	padding-top: 10px;
 
 	// Modern scrollbar styling
 	&::-webkit-scrollbar {
