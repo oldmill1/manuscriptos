@@ -9,6 +9,7 @@
 	import type { Snippet } from 'svelte';
 	import { selectedDocuments } from '$lib/stores/selectedDocuments';
 	import type { ExplorerData } from './types';
+	import { ExplorerNav } from '../ExplorerNav';
 
 	interface Props {
 		children?: Snippet;
@@ -126,6 +127,35 @@
 		{@render children()}
 	{:else}
 		<div class={styles.explorerBg}>
+			<ExplorerNav 
+				content={[
+					{
+						id: 'cut',
+						label: 'Cut',
+						icon: '✂️',
+						onClick: () => console.log('Cut clicked')
+					},
+					{
+						id: 'copy',
+						label: 'Copy',
+						icon: '📋',
+						onClick: () => console.log('Copy clicked')
+					},
+					{
+						id: 'paste',
+						label: 'Paste',
+						icon: '📄',
+						onClick: () => console.log('Paste clicked'),
+						disabled: true
+					},
+					{
+						id: 'folder',
+						label: 'New Folder',
+						icon: '📁',
+						onClick: () => console.log('New folder clicked')
+					}
+				]}
+			/>
 			<div class={styles.desktop}>
 			{#if data.hasLoaded}
 				{#each data.items as item (item.id)}
