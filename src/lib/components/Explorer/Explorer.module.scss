@@ -61,7 +61,7 @@
 	justify-content: center;
 	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 8px 20px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 	padding: min(10px, 4vh);
-	overflow: visible;
+	overflow: hidden;
 	position: relative;
 	border: 1px solid rgba(255, 255, 255, 0.08);
 
@@ -150,12 +150,15 @@
 	height: 110px;
 	padding: 0px;
 	border-radius: 16px;
-	background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
-	backdrop-filter: blur(10px);
-	border: 1px solid rgba(255, 255, 255, 0.1);
-	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
 	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 	position: relative;
+
+	&:hover {
+		background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+		backdrop-filter: blur(10px);
+		border: 1px solid rgba(255, 255, 255, 0.1);
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
+	}
 
 	&::before {
 		content: '';
@@ -167,17 +170,6 @@
 		background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
 		opacity: 0;
 		transition: opacity 0.3s ease;
-	}
-
-	&:hover {
-		transform: translateY(-2px) scale(1.02);
-		box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2), 0 2px 8px rgba(0, 0, 0, 0.15);
-		border-color: rgba(255, 255, 255, 0.15);
-		background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
-
-		&::before {
-			opacity: 1;
-		}
 	}
 
 	&.selectionMode {
