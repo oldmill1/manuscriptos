@@ -1,0 +1,28 @@
+.explorer-container {
+	width: 100vw;
+	height: 100vh;
+	display: flex;
+	flex-direction: column;
+	background-color: rgb(16, 20, 23);
+	color: #ffffff;
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	overflow: hidden;
+	position: relative;
+}
+
+/* Ensure no scrollbars on the page itself */
+:global(body) {
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+}
+
+:global(html) {
+	margin: 0;
+	padding: 0;
+	:root {
+		overflow: hidden;
+	}
+}

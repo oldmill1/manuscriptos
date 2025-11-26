@@ -10,6 +10,7 @@
 	import MenuBar from '$lib/components/MenuBar/MenuBar.svelte';
 	import type { PageProps } from './$types';
 	import { convertListsToExplorerItems, convertDocumentsToExplorerItems, createExplorerData } from '$lib/components/Explorer/utils';
+	import styles from './+page.module.scss';
 
 	let { data }: PageProps = $props();
 
@@ -116,7 +117,7 @@
 
 <MenuBar title="Explorer" />
 
-<div class="explorer-container">
+<div class={styles['explorer-container']}>
 	<!-- Using the new standardized data interface -->
 	<Explorer 
 		data={explorerData} 
