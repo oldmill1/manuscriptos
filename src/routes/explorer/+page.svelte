@@ -29,15 +29,12 @@
 
 			// Load lists
 			const allLists = await listService.list();
-			console.log('Lists loaded:', allLists);
 
 			if (allLists.length === 0) {
-				console.log('No lists found, fetching un-listed documents');
 				lists = [];
 				
 				// Fetch all documents when no lists exist
 				const allDocuments = await documentService.list();
-				console.log('Documents loaded:', allDocuments);
 				documents = allDocuments.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
 			} else {
 				lists = allLists.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
@@ -51,13 +48,11 @@
 	});
 
 	function handleListClick(list: List, event: MouseEvent) {
-		console.log('List clicked:', list.id, list.name);
 		// Navigate to the list view
 		window.location.href = `/explorer/${list.id}`;
 	}
 
 	function handleDocumentClick(document: Document, event: MouseEvent) {
-		console.log('Document clicked:', document.id, document.title);
 		// Navigate to the document view
 		window.location.href = `/docs/${document.id}`;
 	}
@@ -92,8 +87,30 @@
 	}
 
 	function handleSelectionToggle(enabled: boolean) {
-		console.log('Selection mode:', enabled);
 		isSelectionMode = enabled;
+	}
+
+	async function handleDeleteSelected(selectedDocs: any[]) {
+		if (!documentService) {
+			return;
+		}
+
+		try {
+			// Delete each selected document
+			const deletePromises = selectedDocs.map(async (doc) => {
+				await documentService.delete(doc.id);
+			});
+
+			await Promise.all(deletePromises);
+			
+			// Refresh the documents list if we're showing documents
+			if (lists.length === 0) {
+				const allDocuments = await documentService.list();
+				documents = allDocuments.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+			}
+		} catch (error) {
+			console.error('Failed to delete documents:', error);
+		}
 	}
 </script>
 
@@ -106,6 +123,7 @@
 		{isSelectionMode}
 		showSelectionSwitch={true}
 		onSelectionToggle={handleSelectionToggle}
+		onDeleteSelected={handleDeleteSelected}
 	/>
 
 	{#if lists.length > 0 || documents.length > 0}

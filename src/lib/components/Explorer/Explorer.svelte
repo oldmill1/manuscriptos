@@ -4,6 +4,7 @@
 	import Button from '../global/Button.svelte';
 	import Switch from '../Buttons/Switch/Switch.svelte';
 	import { Motion } from 'svelte-motion';
+	import Modal from '../Modal/Modal.svelte';
 	import type { Snippet } from 'svelte';
 	import { selectedDocuments } from '$lib/stores/selectedDocuments';
 	import type { ExplorerData } from './types';
@@ -30,6 +31,8 @@
 
 	// Track selected documents from the store
 	let selectedDocs = $state<any[]>([]);
+	let isDeleteModalOpen = $state(false);
+	let isDeleting = $state(false);
 
 	// Subscribe to selected documents store
 	$effect(() => {
@@ -46,8 +49,35 @@
 
 	function handleDeleteClick() {
 		if (!isDeleteButtonDisabled) {
-			onDeleteSelected?.(selectedDocs);
+			isDeleteModalOpen = true;
 		}
+	}
+
+	async function handleConfirmDelete() {
+		if (isDeleting) {
+			return;
+		}
+
+		isDeleting = true;
+		
+		try {
+			// Call the parent's delete handler
+			onDeleteSelected?.(selectedDocs);
+			
+			// Clear selection after successful deletion
+			selectedDocuments.clearSelection();
+			
+			console.log('All selected documents deleted successfully');
+		} catch (error) {
+			console.error('Error deleting documents:', error);
+		} finally {
+			isDeleting = false;
+			isDeleteModalOpen = false;
+		}
+	}
+
+	function handleCancelDelete() {
+		isDeleteModalOpen = false;
 	}
 
 	function applyMotion(node: any, motionAction: any) {
@@ -168,3 +198,16 @@
 		</div>
 	{/if}
 </div>
+
+<Modal 
+	isOpen={isDeleteModalOpen}
+	dark={true}
+	buttons={[
+		{ text: 'Cancel', callback: handleCancelDelete },
+		{ text: 'Confirm', callback: handleConfirmDelete, primary: true }
+	]}
+>
+	{#snippet content()}
+		<h2 style="margin: 0; font-size: 28px; font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Confirm Deletion</h2>
+	{/snippet}
+</Modal>

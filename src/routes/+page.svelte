@@ -27,7 +27,6 @@
 		try {
 			const { DatabaseService } = await import('$lib/services/DatabaseService');
 			dbService = new DatabaseService('squiredb');
-			console.log('PouchDB "squiredb" initialized successfully');
 
 			// Load recent documents
 			await loadRecentDocs();
@@ -55,7 +54,6 @@
 			if (!dbService) return;
 
 			const docs = await dbService.list();
-			console.log('Documents loaded:', docs);
 
 			// Sort by updatedAt to get the latest documents and take 6
 			recentDocs = docs.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()).slice(0, 6);
@@ -78,9 +76,6 @@
 			// Show saved notification
 			savedNotification.show();
 
-			console.log('New document created:', savedDoc.id);
-			console.log('New document title:', savedDoc.title);
-
 			// Refresh recent docs before navigating
 			await loadRecentDocs();
 
@@ -92,7 +87,6 @@
 
 	function handleFavorites() {
 		// TODO: Implement favorites functionality
-		console.log('Favorites clicked');
 	}
 
 	function handleExplorer() {
