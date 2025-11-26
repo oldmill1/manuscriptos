@@ -11,10 +11,6 @@
 	font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 	font-size: 14px;
 	color: #333;
-	
-	&:hover .checkboxCustom {
-		border-color: #666;
-	}
 }
 
 .checkboxInput {
@@ -33,25 +29,17 @@
 	border: 2px solid #ccc;
 	border-radius: 4px;
 	background-color: white;
-	transition: all 0.2s ease;
 	flex-shrink: 0;
 }
 
-.checkboxInput:checked + .checkboxCustom {
-	background-color: #007AFF;
-	border-color: #007AFF;
-	
-	&::after {
-		content: '';
-		position: absolute;
-		left: 6px;
-		top: 2px;
-		width: 6px;
-		height: 10px;
-		border: solid white;
-		border-width: 0 2px 2px 0;
-		transform: rotate(45deg);
-	}
+.checkmark {
+	position: absolute;
+	left: 6px;
+	top: 2px;
+	width: 6px;
+	height: 10px;
+	border: solid white;
+	border-width: 0 2px 2px 0;
 }
 
 .checkboxInput:disabled + .checkboxCustom {
