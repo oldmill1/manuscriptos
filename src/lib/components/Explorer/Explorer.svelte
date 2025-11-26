@@ -137,6 +137,11 @@
 							boxShadow: "0 8px 30px rgba(0, 0, 0, 0.2), 0 2px 8px rgba(0, 0, 0, 0.15)",
 							borderColor: "rgba(255, 255, 255, 0.15)"
 						}}
+						animate={{
+							background: "transparent",
+							boxShadow: "none",
+							borderColor: "transparent"
+						}}
 						whileTap={{ scale: 0.98 }}
 						transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
 					>
