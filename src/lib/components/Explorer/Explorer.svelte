@@ -3,6 +3,7 @@
 	import IconItem from '../global/IconItem.svelte';
 	import Button from '../global/Button.svelte';
 	import Switch from '../Buttons/Switch/Switch.svelte';
+	import { Motion } from 'svelte-motion';
 	import type { Snippet } from 'svelte';
 	import { selectedDocuments } from '$lib/stores/selectedDocuments';
 	import type { ExplorerData } from './types';
@@ -38,6 +39,20 @@
 
 		return unsubscribe;
 	});
+
+	// Calculate if delete should be disabled based on selection mode and selected items
+	let selectedCount = $derived(selectedDocs.length);
+	let isDeleteButtonDisabled = $derived(!isSelectionMode || selectedCount === 0);
+
+	function handleDeleteClick() {
+		if (!isDeleteButtonDisabled) {
+			onDeleteSelected?.(selectedDocs);
+		}
+	}
+
+	function applyMotion(node: any, motionAction: any) {
+		return motionAction(node);
+	}
 
 	function handleSelectionToggle() {
 		const newMode = !isSelectionMode;
@@ -111,26 +126,43 @@
 						checked={isSelectionMode} 
 						onchange={handleSelectionToggle}
 					/>
-					<span class={styles.switchLabel}>
-						{isSelectionMode ? 'Selection Mode' : 'File Mode'}
-					</span>
+					
+					{#if isSelectionMode}
+						<Motion 
+							let:motion
+							whileHover={!isDeleteButtonDisabled ? { y: -2 } : {}}
+							whileTap={!isDeleteButtonDisabled ? { scale: 0.9 } : {}}
+							transition={{ duration: 0.1, ease: [0.4, 0, 0.2, 1] }}
+						>
+							<div 
+                                class={`${styles['deleteButton']} ${isDeleteButtonDisabled ? styles['disabled'] : ''} `} 
+                                use:motion
+                                onclick={handleDeleteClick}
+                                onkeydown={(e) => {
+                                    if (!isDeleteButtonDisabled && (e.key === 'Enter' || e.key === ' ')) {
+                                        e.preventDefault();
+                                        handleDeleteClick();
+                                    }
+                                }}
+                                role="button"
+                                tabindex={isDeleteButtonDisabled ? -1 : 0}
+                            >
+                                <Motion 
+                                    let:motion
+                                    whileHover={!isDeleteButtonDisabled ? { y: -2 } : {}}
+                                    transition={{ duration: 0.1, ease: [0.4, 0, 0.2, 1] }}
+                                >
+                                    <span use:applyMotion={motion}>🗑️</span>
+                                </Motion>
+                            </div>
+                        </Motion>
+					{/if}
 				</div>
 			{/if}
 
 			{#if data.hasLoaded && data.items.length === 0}
 				<div class={styles.centerMessage}>
 					<p>Empty</p>
-				</div>
-			{/if}
-
-			{#if isSelectionMode}
-				<div class={styles.selectButtonPosition}>
-					<Button
-						onclick={() => onDeleteSelected?.(selectedDocs)}
-						text="Delete"
-						icon="/icons/trash-can.png"
-						alt="Delete"
-					/>
 				</div>
 			{/if}
 		</div>

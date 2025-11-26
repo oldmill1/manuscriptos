@@ -215,3 +215,37 @@
 		opacity: 1;
 	}
 }
+
+.deleteButton {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	background: rgba(255, 59, 48, 0.2);
+	border: 1px solid rgba(255, 59, 48, 0.3);
+	border-radius: 8px;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	color: #ff3b30;
+	font-size: 16px;
+
+	&:hover:not(.disabled) {
+		background: rgba(255, 59, 48, 0.3);
+		border-color: rgba(255, 59, 48, 0.5);
+		transform: translateY(-1px);
+	}
+
+	&:active:not(.disabled) {
+		transform: translateY(0px);
+		background: rgba(255, 59, 48, 0.4);
+	}
+
+	&.disabled {
+		opacity: 0.3;
+		cursor: not-allowed;
+		background: rgba(255, 255, 255, 0.1);
+		border-color: rgba(255, 255, 255, 0.2);
+		color: rgba(255, 255, 255, 0.3);
+	}
+}
