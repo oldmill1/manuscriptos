@@ -126,22 +126,20 @@
 		onDeleteSelected={handleDeleteSelected}
 	/>
 
-	{#if lists.length > 0 || documents.length > 0}
-		<Dock
-			items={[
-				{
-					id: 'new-document',
-					icon: '/icons/new.png',
-					title: 'New Document',
-					onClick: handleNewDocument
-				},
-				{
-					id: 'favorites',
-					icon: '/icons/heart.png',
-					title: 'Favorites',
-					onClick: handleFavorites
-				}
-			]}
-		/>
-	{/if}
+	<Dock
+		items={[
+			{
+				id: 'new-document',
+				icon: '/icons/new.png',
+				title: 'New Document',
+				onClick: handleNewDocument
+			},
+			{
+				id: 'favorites',
+				icon: '/icons/heart.png',
+				title: 'Favorites',
+				onClick: handleFavorites
+			}
+		]}
+	/>
 </div>
