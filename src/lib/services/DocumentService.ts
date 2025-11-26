@@ -115,7 +115,7 @@ export class DocumentService {
 			});
 
 			return result.rows
-				.filter((row: any) => row.doc)
+				.filter((row: any) => row.doc && !row.doc._id.startsWith('list:')) // Filter out list entries
 				.map((row: any) => {
 					const doc = row.doc as DatabaseDocument;
 					return Document.fromJSON({

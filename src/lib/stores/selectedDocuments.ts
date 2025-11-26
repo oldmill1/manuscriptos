@@ -1,8 +1,15 @@
 import { writable } from 'svelte/store';
 import type { Document } from '$lib/models/Document';
 
+// Base interface for items that can be selected
+export interface SelectableItem {
+	id: string;
+	name: string;
+	icon?: string;
+}
+
 export interface SelectedDocumentsState {
-	documents: Document[];
+	documents: SelectableItem[];
 	lastUpdated: Date | null;
 }
 
@@ -16,7 +23,7 @@ function createSelectedDocumentsStore() {
 		subscribe,
 
 		// Add a document to the selected list
-		addDocument: (document: Document) => {
+		addDocument: (document: SelectableItem) => {
 			update((state) => {
 				// Check if document already exists
 				if (state.documents.some((doc) => doc.id === document.id)) {
@@ -39,7 +46,7 @@ function createSelectedDocumentsStore() {
 		},
 
 		// Toggle document selection
-		toggleDocument: (document: Document) => {
+		toggleDocument: (document: SelectableItem) => {
 			update((state) => {
 				const isSelected = state.documents.some((doc) => doc.id === document.id);
 
@@ -85,7 +92,7 @@ function createSelectedDocumentsStore() {
 
 		// Get the currently selected documents
 		getDocuments: () => {
-			let docs: Document[] = [];
+			let docs: SelectableItem[] = [];
 			subscribe((state) => {
 				docs = state.documents;
 			})();
@@ -93,7 +100,8 @@ function createSelectedDocumentsStore() {
 		},
 
 		// Set the entire selection
-		setSelection: (documents: Document[]) => {
+
+		setSelection: (documents: SelectableItem[]) => {
 			set({
 				documents,
 				lastUpdated: new Date()

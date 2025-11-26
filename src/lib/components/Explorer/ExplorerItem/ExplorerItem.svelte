@@ -1,20 +1,23 @@
 <script lang="ts">
 	import { selectedDocuments } from '$lib/stores/selectedDocuments';
+	import type { SelectableItem } from '$lib/stores/selectedDocuments';
 	import { onDestroy } from 'svelte';
 	import { Motion } from 'svelte-motion';
 	import SwitchMini from '../../SwitchMini/SwitchMini.svelte';
 	import styles from './ExplorerItem.module.scss';
 
 	interface Props {
-		item: any;
+		item: SelectableItem;
 		isSelectionMode?: boolean;
 		onItemClick?: (item: any, event: MouseEvent) => void;
+		onFolderCreate?: (folderName: string, tempId: string) => void;
 	}
 
 	let {
 		item,
 		isSelectionMode = false,
-		onItemClick
+		onItemClick,
+		onFolderCreate
 	}: Props = $props();
 
 	// Track global selection state for documents
@@ -23,6 +26,7 @@
 	// Track editing state for folders
 	let isEditing = $state(false);
 	let editingValue = $state('');
+	let inputElement = $state<HTMLInputElement>();
 
 	// Subscribe to store updates and check if this item is selected
 	const unsubscribeSelection = selectedDocuments.subscribe(state => {
@@ -35,6 +39,14 @@
 		} else {
 			isEditing = false;
 			editingValue = '';
+		}
+	});
+	
+	// Auto-focus input when editing starts
+	$effect(() => {
+		if (isEditing && inputElement) {
+			inputElement.focus();
+			inputElement.select();
 		}
 	});
 
@@ -82,18 +94,25 @@
 	function handleInputKeydown(event: KeyboardEvent) {
 		if (event.key === 'Enter') {
 			event.preventDefault();
-			// TODO: Save the edited name
-			console.log('Folder name edited to:', editingValue);
+			// Save the folder
+			if (editingValue.trim() && onFolderCreate) {
+				onFolderCreate(editingValue.trim(), item.id);
+			}
 		} else if (event.key === 'Escape') {
 			event.preventDefault();
-			// Reset to original name
-			editingValue = item.name;
+			// Cancel editing and remove from selection
+			selectedDocuments.removeDocument(item.id);
 		}
 	}
 	
 	function handleInputBlur() {
-		// TODO: Save the edited name
-		console.log('Folder name edited to:', editingValue);
+		// Save the folder when input loses focus
+		if (editingValue.trim() && onFolderCreate) {
+			onFolderCreate(editingValue.trim(), item.id);
+		} else {
+			// Remove from selection if empty
+			selectedDocuments.removeDocument(item.id);
+		}
 	}
 
 	// Cleanup on component destroy
@@ -133,6 +152,7 @@
 		{#if isEditing && item.icon === '/icons/folder.png'}
 			<input 
 				type="text" 
+				bind:this={inputElement}
 				bind:value={editingValue}
 				class={styles.input}
 				onkeydown={handleInputKeydown}

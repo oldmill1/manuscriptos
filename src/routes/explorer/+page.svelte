@@ -35,7 +35,7 @@
 			const allLists = await listService.list();
 			lists = allLists.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
-			// Always load unlisted documents (recent ones not in any list)
+			// Always load unlisted documents (recentones not in any list)
 			const allDocuments = await documentService.list();
 			// TODO: Filter out documents that are already in lists when you have that data
 			documents = allDocuments.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
@@ -95,6 +95,27 @@
 		// Auto-select the new folder for editing
 		selectedDocuments.addDocument(tempFolder);
 	}
+	
+	async function handleFolderCreate(folderName: string, tempId: string) {
+		try {
+			// Create the real folder using ListService
+			const newFolder = new List('custom', folderName);
+			const savedFolder = await listService.create(newFolder);
+			
+			// Remove the temporary folder
+			temporaryFolders = temporaryFolders.filter(f => f.id !== tempId);
+			
+			// Add the real folder to the lists array (it will appear first due to sorting)
+			lists = [savedFolder, ...lists];
+			
+			// Clear selection
+			selectedDocuments.removeDocument(tempId);
+			
+			console.log('Folder created successfully:', savedFolder.name);
+		} catch (error) {
+			console.error('Failed to create folder:', error);
+		}
+	}
 
 	function handleFavorites() {
 		console.log('Favorites clicked');
@@ -153,6 +174,7 @@
 		onSelectionToggle={handleSelectionToggle}
 		onDeleteSelected={handleDeleteSelected}
 		onNewFolder={handleNewFolder}
+		onFolderCreate={handleFolderCreate}
 	/>
 
 	<Dock
