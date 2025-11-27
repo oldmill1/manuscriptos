@@ -348,9 +348,13 @@
 			await listService.update(currentList);
 			
 			// Update just the renamed folder in the local array
-			const updatedChildFolders = childFolders.map(folder => 
-				folder.id === folderId ? { ...folder, name: newName } : folder
-			);
+			const updatedChildFolders = childFolders.map(folder => {
+				if (folder.id === folderId) {
+					folder.name = newName;
+					return folder;
+				}
+				return folder;
+			});
 			childFolders = updatedChildFolders;
 			
 			console.log('Folder renamed successfully:', newName);
