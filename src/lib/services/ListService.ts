@@ -119,6 +119,7 @@ export class ListService {
 				type: listData.type,
 				name: listData.name,
 				itemIds: listData.itemIds,
+				parentId: listData.parentId,
 				createdAt: listData.createdAt.toISOString(),
 				updatedAt: listData.updatedAt.toISOString()
 			};
@@ -130,6 +131,7 @@ export class ListService {
 				type: listData.type,
 				name: listData.name,
 				itemIds: listData.itemIds,
+				parentId: listData.parentId,
 				createdAt: listData.createdAt,
 				updatedAt: listData.updatedAt
 			});

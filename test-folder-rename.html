@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Folder Rename Test</title>
+</head>
+<body>
+    <h1>Folder Rename Test Instructions</h1>
+    
+    <h2>Test Steps:</h2>
+    <ol>
+        <li>Open the app at <a href="http://localhost:5174/" target="_blank">http://localhost:5174/</a></li>
+        <li>Navigate to the explorer</li>
+        <li>Create a folder on root level</li>
+        <li>Go into that folder</li>
+        <li>Create a folder on second level</li>
+        <li>Long press to rename the second level folder</li>
+        <li>Rename and press enter</li>
+    </ol>
+    
+    <h2>Expected Result:</h2>
+    <ul>
+        <li>✅ Folder should rename correctly</li>
+        <li>✅ Folder should stay in the second level (NOT move to root)</li>
+        <li>✅ When navigating back to root, you should see only the root level folder</li>
+        <li>✅ When navigating back into the first level folder, you should see the renamed second level folder</li>
+    </ul>
+    
+    <h2>Previous Bug Behavior:</h2>
+    <ul>
+        <li>❌ Folder would rename but move to root level</li>
+        <li>❌ Both folders would appear at root level after rename</li>
+    </ul>
+    
+    <h2>Fix Applied:</h2>
+    <p>The bug was in <code>ListService.update()</code> method - the <code>parentId</code> field was not being preserved during updates, causing renamed folders to lose their parent relationship.</p>
+    
+    <p><strong>Files modified:</strong> <code>/src/lib/services/ListService.ts</code></p>
+</body>
+</html>

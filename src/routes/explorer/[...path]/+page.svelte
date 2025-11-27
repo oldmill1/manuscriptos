@@ -345,10 +345,14 @@
 			}
 			
 			currentList.name = newName;
-			await listService.update(currentList);
+			const updatedFolder = await listService.update(currentList);
 			
-			// Reload to show the updated name
-			window.location.reload();
+			// Update the local state to show the new name immediately
+			const updatedChildFolders = childFolders.map(folder => 
+				folder.id === folderId ? updatedFolder : folder
+			);
+			childFolders = updatedChildFolders;
+			console.log('Folder renamed successfully:', newName);
 			
 		} catch (error) {
 			console.error('Failed to rename folder:', error);
