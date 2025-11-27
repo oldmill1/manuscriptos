@@ -20,9 +20,9 @@ test('basic navigation works', async ({ page }) => {
 test('test database should be empty on first load', async ({ page }) => {
   await page.goto('/');
   
-  // Should NOT have items-list since test DB is empty
-  const itemsList = page.locator('.items-list');
-  await expect(itemsList).not.toBeVisible();
+  // Should have empty state visible since test DB is empty - find by class containing "empty-state"
+  const emptyState = page.locator('[class*="empty-state"]');
+  await expect(emptyState).toBeVisible();
 });
 
 test('create new document navigates to docs page', async ({ page }) => {
