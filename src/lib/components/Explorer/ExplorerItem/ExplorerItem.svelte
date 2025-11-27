@@ -214,6 +214,8 @@
 		onmouseleave={handleMouseLeave}
 		onclick={handleClick}
 		onkeydown={handleKeydown}
+		data-folder-id={item.id}
+		data-folder-name={item.name}
 	>
 		{#if isSelectionMode}
 			<div class={styles.selectionCheckbox}>

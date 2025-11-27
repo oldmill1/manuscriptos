@@ -205,7 +205,7 @@
 			}
 			
 			// Only refresh if there was no conflict
-			const allLists = await listService.list();
+			const allLists = await listService.getByParentId(undefined);
 			lists = allLists.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 			
 		} catch (error) {
