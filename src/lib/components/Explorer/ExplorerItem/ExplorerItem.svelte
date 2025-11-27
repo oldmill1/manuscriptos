@@ -154,18 +154,18 @@
 			// Set flag to prevent blur from running
 			isExitingByEnter = true;
 			
-			if (editingValue.trim()) {
+			if (editingValue) {
 				if (isTempFolder && onFolderCreate) {
 					// Create new folder
-					console.log('Creating folder:', editingValue.trim());
-					onFolderCreate(editingValue.trim(), item.id);
+					console.log('Creating folder:', editingValue);
+					onFolderCreate(editingValue, item.id);
 				} else if (isTempDocument && onDocumentCreate) {
 					// Create new document
-					console.log('Creating document:', editingValue.trim());
-					onDocumentCreate(editingValue.trim(), item.id);
+					console.log('Creating document:', editingValue);
+					onDocumentCreate(editingValue, item.id);
 				} else if (!isTempFolder && !isTempDocument && onFolderRename) {
 					// Rename existing folder
-					onFolderRename(item.id, editingValue.trim());
+					onFolderRename(item.id, editingValue);
 				}
 			}
 			isEditing = false;
@@ -231,9 +231,14 @@
 				bind:this={inputElement}
 				bind:value={editingValue}
 				class={styles.input}
-				onkeydown={handleInputKeydown}
 				onblur={handleInputBlur}
 				onclick={(e: MouseEvent) => e.stopPropagation()}
+				onkeydown={(e: KeyboardEvent) => {
+					if (e.key === ' ') {
+						e.stopPropagation();
+					}
+					handleInputKeydown(e);
+				}}
 			/>
 		{:else}
 			<span class={styles.label}>{item.name}</span>
