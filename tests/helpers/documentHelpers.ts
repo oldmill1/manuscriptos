@@ -47,6 +47,7 @@ export class DocumentHelpers {
    */
   async findExplorerItem() {
     const explorerItem = this.page.locator('div[class*="explorerItem"]');
+    await explorerItem.waitFor();
     return explorerItem;
   }
 
