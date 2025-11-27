@@ -3,12 +3,15 @@
 	import { onMount } from 'svelte';
 	import { shortcutsService } from '$lib/services/ShortcutsService';
 	import { editorFontSize } from '$lib/stores/editorFontSize';
-	import { Analytics } from '@vercel/analytics/svelte';
 
 	let { children } = $props();
+	let Analytics: any;
 
-	// Initialize global shortcuts
-	onMount(() => {
+	// Load Analytics component on client side and initialize shortcuts
+	onMount(async () => {
+		const { Analytics: AnalyticsComponent } = await import('@vercel/analytics/sveltekit');
+		Analytics = AnalyticsComponent;
+
 		// Register Option + "=" to increase font size
 		// Using 'code' instead of 'key' for Mac compatibility (Option + "+" produces "≠" character)
 		shortcutsService.register({
@@ -60,4 +63,6 @@
 
 {@render children()}
 
-<Analytics />
+{#if Analytics}
+	<Analytics />
+{/if}
