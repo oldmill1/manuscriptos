@@ -5,13 +5,13 @@
 	import MenuBar from '$lib/components/MenuBar/MenuBar.svelte';
 	import VList from '$lib/components/VList/VList.svelte';
 	import { Document } from '$lib/models/Document';
-	import { DatabaseService } from '$lib/services/DatabaseService';
+	import { DocumentService } from '$lib/services/DocumentService';
 	import { savedNotification } from '$lib/stores/savedNotificationStore';
 	import { selectedDocuments } from '$lib/stores/selectedDocuments';
 	import { onMount } from 'svelte';
 	import styles from './+page.module.scss';
 
-	let dbService: DatabaseService;
+	let documentService: DocumentService;
 	let isBrowser = false;
 	let recentDocs: Document[] = [];
 	let selectedCategory = 'Recents';
@@ -26,8 +26,8 @@
 		greeting = getTimeBasedGreeting();
 
 		try {
-			const { DatabaseService } = await import('$lib/services/DatabaseService');
-			dbService = new DatabaseService('manuscriptOS_DB');
+			const { DocumentService } = await import('$lib/services/DocumentService');
+			documentService = new DocumentService('manuscriptOS_DB');
 
 			// Load recent documents
 			await loadRecentDocs();
@@ -52,9 +52,9 @@
 
 	async function loadRecentDocs() {
 		try {
-			if (!dbService) return;
+			if (!documentService) return;
 
-			const docs = await dbService.list();
+			const docs = await documentService.list();
 
 			// Filter out documents with empty titles (these are likely corrupted/accidental)
 			const validDocs = docs.filter(doc => doc.title && doc.title.trim() !== '');
@@ -70,12 +70,12 @@
 
 	async function handleNewDocument() {
 		try {
-			if (!isBrowser || !dbService) {
+			if (!isBrowser || !documentService) {
 				throw new Error('Database not initialized');
 			}
 
 			const newDoc = new Document();
-			const savedDoc = await dbService.create(newDoc);
+			const savedDoc = await documentService.create(newDoc);
 
 			// Show saved notification
 			savedNotification.show();
