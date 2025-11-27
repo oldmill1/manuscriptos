@@ -89,6 +89,8 @@ export class Document {
 	static fromJSON(data: DocumentContent): Document {
 		const doc = new Document(data.title, data.content, data.parentId);
 		doc._id = data.id;
+		// IMPORTANT: Preserve the original title from JSON, don't regenerate it
+		doc._title = data.title;
 		doc._createdAt = new Date(data.createdAt);
 		doc._updatedAt = new Date(data.updatedAt);
 		return doc;

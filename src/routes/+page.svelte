@@ -56,8 +56,11 @@
 
 			const docs = await dbService.list();
 
+			// Filter out documents with empty titles (these are likely corrupted/accidental)
+			const validDocs = docs.filter(doc => doc.title && doc.title.trim() !== '');
+
 			// Sort by updatedAt to get the latest documents and take 6
-			recentDocs = docs.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()).slice(0, 6);
+			recentDocs = validDocs.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()).slice(0, 6);
 		} catch (error) {
 			console.error('Failed to load recent documents:', error);
 		} finally {
@@ -202,7 +205,7 @@
 				id: 'new-document',
 				icon: '/icons/new.png',
 				title: 'New Document',
-				onClick: handleNewDocument
+				onClick: isBrowser ? handleNewDocument : () => {}
 			},
 			{
 				id: 'favorites',
