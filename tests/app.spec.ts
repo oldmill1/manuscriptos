@@ -54,7 +54,7 @@ test('create document and verify explorer item in desktop', async ({ page }) => 
   const desktopDiv = await docHelpers.findDesktopDiv();
   
   // 5. Verify there is exactly 1 explorer item with the specific class pattern
-  const specificExplorerItem = desktopDiv.locator('div[class*="_explorerItem_"]');
+  const specificExplorerItem = desktopDiv.locator('div[class*="explorerItem"]');
   await expect(specificExplorerItem).toHaveCount(1);
   
   // 6. Verify the specific explorer item contains the expected class pattern
