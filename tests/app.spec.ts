@@ -45,7 +45,7 @@ test('create document and verify explorer item in desktop', async ({ page }) => 
   await page.goto('/');
   
   // 2. Click create new document using helpers
-  const documentId = await docHelpers.createNewDocument();
+  await docHelpers.createNewDocument();
   
   // 3. Navigate to explorer
   await page.goto('/explorer');
