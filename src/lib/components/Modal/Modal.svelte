@@ -16,11 +16,11 @@
 		// Move to settling stage (scale back to 100%)
 		setTimeout(() => {
 			animationStage = 'settling';
-		}, 300);
+		}, 200);
 		// Move to final open stage
 		setTimeout(() => {
 			animationStage = 'open';
-		}, 500);
+		}, 400);
 	} else if (!isOpen) {
 		animationStage = 'closed';
 	}
@@ -60,15 +60,15 @@
 				scale: 0,
 				opacity: 0
 			} : animationStage === 'opening' ? {
-				scale: 1.2,
+				scale: 1.05,
 				opacity: 1
 			} : {
 				scale: 1,
 				opacity: 1
 			}}
 			transition={{
-				duration: 0.3,
-				ease: [0, 0, 0, 2.5]
+				duration: 0.25,
+				ease: [0.25, 0.1, 0.25, 1]
 			}}
 		>
 			<div
