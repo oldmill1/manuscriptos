@@ -150,29 +150,7 @@
 	{:else}
 		<div class={styles.explorerBg}>
 			<ExplorerNav 
-				leftContent={[
-					{
-						id: 'cut',
-						label: 'Cut',
-						icon: '✂️',
-						onClick: () => console.log('Cut clicked'),
-						disabled: true
-					},
-					{
-						id: 'copy',
-						label: 'Copy',
-						icon: '📋',
-						onClick: () => console.log('Copy clicked'),
-						disabled: true
-					},
-					{
-						id: 'paste',
-						label: 'Paste',
-						icon: '📄',
-						onClick: () => console.log('Paste clicked'),
-						disabled: true
-					}
-				]}
+				leftContent={[]}
 				rightContent={[
 					{
 						id: 'folder',
@@ -214,34 +192,69 @@
 					/>
 					
 					{#if isSelectionMode}
-						<Motion 
-							let:motion
-							whileHover={!isDeleteButtonDisabled ? { y: -2 } : {}}
-							whileTap={!isDeleteButtonDisabled ? { scale: 0.9 } : {}}
-							transition={{ duration: 0.1, ease: [0.4, 0, 0.2, 1] }}
-						>
-							<div 
-                                class={`${styles['deleteButton']} ${isDeleteButtonDisabled ? styles['disabled'] : ''} `} 
-                                use:motion
-                                onclick={handleDeleteClick}
-                                onkeydown={(e) => {
-                                    if (!isDeleteButtonDisabled && (e.key === 'Enter' || e.key === ' ')) {
-                                        e.preventDefault();
-                                        handleDeleteClick();
-                                    }
-                                }}
-                                role="button"
-                                tabindex={isDeleteButtonDisabled ? -1 : 0}
-                            >
-                                <Motion 
-                                    let:motion
-                                    whileHover={!isDeleteButtonDisabled ? { y: -2 } : {}}
-                                    transition={{ duration: 0.1, ease: [0.4, 0, 0.2, 1] }}
-                                >
-                                    <span use:applyMotion={motion}>🗑️</span>
-                                </Motion>
-                            </div>
-                        </Motion>
+						<div class={styles.actionButtons}>
+							<!-- Cut, Copy, Paste buttons -->
+							<Motion 
+								let:motion
+								whileHover={{ y: -2 }}
+								whileTap={{ scale: 0.9 }}
+								transition={{ duration: 0.1, ease: [0.4, 0, 0.2, 1] }}
+							>
+								<div class={`${styles.actionButton} ${styles.disabled}`} use:motion role="button" tabindex="-1" onclick={(e) => e.preventDefault()} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); } }}>
+									<span>✂️</span>
+								</div>
+							</Motion>
+							<Motion 
+								let:motion
+								whileHover={{ y: -2 }}
+								whileTap={{ scale: 0.9 }}
+								transition={{ duration: 0.1, ease: [0.4, 0, 0.2, 1] }}
+							>
+								<div class={`${styles.actionButton} ${styles.disabled}`} use:motion role="button" tabindex="-1" onclick={(e) => e.preventDefault()} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); } }}>
+									<span>📋</span>
+								</div>
+							</Motion>
+							<Motion 
+								let:motion
+								whileHover={{ y: -2 }}
+								whileTap={{ scale: 0.9 }}
+								transition={{ duration: 0.1, ease: [0.4, 0, 0.2, 1] }}
+							>
+								<div class={`${styles.actionButton} ${styles.disabled}`} use:motion role="button" tabindex="-1" onclick={(e) => e.preventDefault()} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); } }}>
+									<span>📄</span>
+								</div>
+							</Motion>
+							
+							<!-- Delete button -->
+							<Motion 
+								let:motion
+								whileHover={!isDeleteButtonDisabled ? { y: -2 } : {}}
+								whileTap={!isDeleteButtonDisabled ? { scale: 0.9 } : {}}
+								transition={{ duration: 0.1, ease: [0.4, 0, 0.2, 1] }}
+							>
+								<div 
+									class={`${styles['deleteButton']} ${isDeleteButtonDisabled ? styles['disabled'] : ''} `} 
+									use:motion
+									onclick={handleDeleteClick}
+									onkeydown={(e) => {
+										if (!isDeleteButtonDisabled && (e.key === 'Enter' || e.key === ' ')) {
+											e.preventDefault();
+											handleDeleteClick();
+										}
+									}}
+									role="button"
+									tabindex={isDeleteButtonDisabled ? -1 : 0}
+								>
+									<Motion 
+										let:motion
+										whileHover={!isDeleteButtonDisabled ? { y: -2 } : {}}
+										transition={{ duration: 0.1, ease: [0.4, 0, 0.2, 1] }}
+									>
+										<span use:applyMotion={motion}>🗑️</span>
+									</Motion>
+								</div>
+							</Motion>
+						</div>
 					{/if}
 				</div>
 			{/if}
