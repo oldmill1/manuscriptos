@@ -138,7 +138,7 @@
 
 <div class={styles['app-container']}>
 	<!-- MenuBar -->
-	<MenuBar title="transcriptOS" />
+	<MenuBar logo="/icons/full-logo.png" />
 	
 	<!-- Main Content -->
 	<main>

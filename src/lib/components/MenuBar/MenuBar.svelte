@@ -5,6 +5,7 @@
 
 	interface Props {
 		title?: string;
+		logo?: string;
 		titleEditable?: boolean;
 		documentId?: string;
 		dbService?: any;
@@ -12,7 +13,7 @@
 		onBackClick?: () => void;
 	}
 
-	let { title = '', titleEditable = false, documentId, dbService, backButton = false, onBackClick }: Props = $props();
+	let { title = '', logo, titleEditable = false, documentId, dbService, backButton = false, onBackClick }: Props = $props();
 
 	let isEditing = $state(false);
 	let editingTitle = $state('');
@@ -155,7 +156,9 @@
 		{/if}
 	</div>
 	<div class={styles.centerSection}>
-		{#if isEditing}
+		{#if logo}
+			<img src={logo} alt="Logo" class={styles.logo} />
+		{:else if isEditing}
 			<input
 				bind:this={inputRef}
 				bind:value={editingTitle}
