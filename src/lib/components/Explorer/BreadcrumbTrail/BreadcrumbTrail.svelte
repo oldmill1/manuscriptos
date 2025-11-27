@@ -30,10 +30,10 @@
 				const listService = new ListService();
 				const trail: BreadcrumbItem[] = [];
 
-				// Always start with transcriptOS
+				// Always start with manuscriptOS Novel Writer
 				trail.push({
 					id: 'root',
-					name: 'transcriptOS',
+					name: 'manuscriptOS Novel Writer',
 					path: '/explorer'
 				});
 

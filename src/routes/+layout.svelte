@@ -54,7 +54,7 @@
 
 
 <svelte:head>
-	<title>transcriptOS</title>
+	<title>manuscriptOS Novel Writer</title>
 </svelte:head>
 
 {@render children()}

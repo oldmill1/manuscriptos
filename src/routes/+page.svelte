@@ -132,8 +132,8 @@
 </script>
 
 <svelte:head>
-	<title>transcriptOS</title>
-	<meta name="description" content="Welcome to transcriptOS - Your personal writing companion" />
+	<title>manuscriptOS Novel Writer</title>
+	<meta name="description" content="Welcome to manuscriptOS Novel Writer - Your personal writing companion" />
 </svelte:head>
 
 <div class={styles['app-container']}>
