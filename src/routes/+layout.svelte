@@ -3,6 +3,7 @@
 	import { onMount } from 'svelte';
 	import { shortcutsService } from '$lib/services/ShortcutsService';
 	import { editorFontSize } from '$lib/stores/editorFontSize';
+	import { Analytics } from '@vercel/analytics/svelte';
 
 	let { children } = $props();
 
@@ -58,3 +59,5 @@
 </svelte:head>
 
 {@render children()}
+
+<Analytics />
