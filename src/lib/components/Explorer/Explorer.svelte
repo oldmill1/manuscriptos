@@ -150,7 +150,7 @@
 	{:else}
 		<div class={styles.explorerBg}>
 			<ExplorerNav 
-				content={[
+				leftContent={[
 					{
 						id: 'cut',
 						label: 'Cut',
@@ -171,7 +171,9 @@
 						icon: '📄',
 						onClick: () => console.log('Paste clicked'),
 						disabled: true
-					},
+					}
+				]}
+				rightContent={[
 					{
 						id: 'folder',
 						label: 'New Folder',

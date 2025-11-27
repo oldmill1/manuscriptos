@@ -119,7 +119,7 @@
 				onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && onBackClick?.()}
 				aria-label="Go back"
 			>
-				<img src="/icons/home-flat.png" alt="Back" class={styles.backIcon} />
+				<img src="/icons/logo.png" alt="Back" class={styles.backIcon} />
 			</button>
 		{:else}
 			<button
@@ -129,7 +129,7 @@
 				onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && goHome()}
 				aria-label="Go home"
 			>
-				<img src="/icons/home-flat.png" alt="Home" class={styles.homeIcon} />
+				<img src="/icons/logo.png" alt="Home" class={styles.homeIcon} />
 			</button>
 		{/if}
 	</div>
@@ -161,15 +161,7 @@
 	</div>
 	<div class={styles.rightSection}>
 		<div class={styles.taskDrawer}>
-			<button
-				type="button"
-				class={styles.widgetButton}
-				onclick={handleWidgetClick}
-				onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && handleWidgetClick()}
-				aria-label="Toggle widgets"
-			>
-				<img src="/icons/widget.png" alt="Widgets" class={styles.widgetIcon} />
-			</button>
+			<!-- Task drawer is now empty -->
 		</div>
 	</div>
 </div>

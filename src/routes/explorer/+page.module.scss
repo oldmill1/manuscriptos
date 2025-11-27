@@ -1,5 +1,4 @@
 .explorer-container {
-	width: 100vw;
 	height: calc(100vh - 66px - 20px);
 	display: flex;
 	flex-direction: column;
@@ -10,6 +9,8 @@
 	box-sizing: border-box;
 	overflow: hidden;
 	position: relative;
+	align-items: center;
+	justify-content: center;
 }
 
 /* Ensure no scrollbars on the page itself */
