@@ -33,15 +33,15 @@
 				let:motion
 				initial={false}
 				whileHover={!item.disabled ? { 
-					scale: 1.05,
-					y: -2
+					y: -4,
+					boxShadow: "inset 0 0.3rem 0.5rem rgba(255, 255, 255, 0.4), inset 0 -0.1rem 0.3rem rgba(0, 0, 0, 0.7), inset 0 -0.4rem 0.9rem rgba(255, 255, 255, 0.7), 0 3rem 3rem rgba(0, 0, 0, 0.3), 0 1rem 1rem -0.6rem rgba(0, 0, 0, 0.8)"
 				} : {}}
 				whileTap={!item.disabled ? { 
-					scale: 0.95,
-					y: 0
+					y: 4,
+					boxShadow: "inset 0 0.3rem 0.5rem rgba(255, 255, 255, 0.5), inset 0 -0.1rem 0.3rem rgba(0, 0, 0, 0.8), inset 0 -0.4rem 0.9rem rgba(255, 255, 255, 0.4), 0 3rem 3rem rgba(0, 0, 0, 0.3), 0 1rem 1rem -0.6rem rgba(0, 0, 0, 0.8)"
 				} : {}}
 				transition={{ 
-					duration: 0.3, 
+					duration: 0.2, 
 					ease: [0.4, 0, 0.2, 1] 
 				}}
 			>
@@ -51,23 +51,44 @@
 					disabled={item.disabled}
 					use:motion
 				>
-					{#if item.icon}
+					<div class={styles.wrap}>
 						<Motion 
 							let:motion
 							initial={false}
 							whileHover={!item.disabled ? { 
-								scale: 1.2,
-								rotate: 5
+								y: -6
+							} : {}}
+							whileTap={!item.disabled ? { 
+								y: 2
 							} : {}}
 							transition={{ 
-								duration: 0.3, 
+								duration: 0.2, 
 								ease: [0.4, 0, 0.2, 1] 
 							}}
 						>
-							<span class={styles.icon} use:motion>{item.icon}</span>
+							<div use:motion>
+								<p>
+									{#if item.icon}
+										<Motion 
+											let:motion
+											initial={false}
+											whileHover={!item.disabled ? { 
+												scale: 1.2,
+												rotate: 5
+											} : {}}
+											transition={{ 
+												duration: 0.3, 
+												ease: [0.4, 0, 0.2, 1] 
+											}}
+										>
+											<span class={styles.icon} use:motion>{item.icon}</span>
+										</Motion>
+									{/if}
+									{item.label}
+								</p>
+							</div>
 						</Motion>
-					{/if}
-					<span class={styles.label}>{item.label}</span>
+					</div>
 				</button>
 			</Motion>
 		{/each}
@@ -83,15 +104,15 @@
 				let:motion
 				initial={false}
 				whileHover={!item.disabled ? { 
-					scale: 1.05,
-					y: -2
+					y: -4,
+					boxShadow: "inset 0 0.3rem 0.5rem rgba(255, 255, 255, 0.4), inset 0 -0.1rem 0.3rem rgba(0, 0, 0, 0.7), inset 0 -0.4rem 0.9rem rgba(255, 255, 255, 0.7), 0 3rem 3rem rgba(0, 0, 0, 0.3), 0 1rem 1rem -0.6rem rgba(0, 0, 0, 0.8)"
 				} : {}}
 				whileTap={!item.disabled ? { 
-					scale: 0.95,
-					y: 0
+					y: 4,
+					boxShadow: "inset 0 0.3rem 0.5rem rgba(255, 255, 255, 0.5), inset 0 -0.1rem 0.3rem rgba(0, 0, 0, 0.8), inset 0 -0.4rem 0.9rem rgba(255, 255, 255, 0.4), 0 3rem 3rem rgba(0, 0, 0, 0.3), 0 1rem 1rem -0.6rem rgba(0, 0, 0, 0.8)"
 				} : {}}
 				transition={{ 
-					duration: 0.3, 
+					duration: 0.2, 
 					ease: [0.4, 0, 0.2, 1] 
 				}}
 			>
@@ -101,23 +122,44 @@
 					disabled={item.disabled}
 					use:motion
 				>
-					{#if item.icon}
+					<div class={styles.wrap}>
 						<Motion 
 							let:motion
 							initial={false}
 							whileHover={!item.disabled ? { 
-								scale: 1.2,
-								rotate: 5
+								y: -6
+							} : {}}
+							whileTap={!item.disabled ? { 
+								y: 2
 							} : {}}
 							transition={{ 
-								duration: 0.3, 
+								duration: 0.2, 
 								ease: [0.4, 0, 0.2, 1] 
 							}}
 						>
-							<span class={styles.icon} use:motion>{item.icon}</span>
+							<div use:motion>
+								<p>
+									{#if item.icon}
+										<Motion 
+											let:motion
+											initial={false}
+											whileHover={!item.disabled ? { 
+												scale: 1.2,
+												rotate: 5
+											} : {}}
+											transition={{ 
+												duration: 0.3, 
+												ease: [0.4, 0, 0.2, 1] 
+											}}
+										>
+											<span class={styles.icon} use:motion>{item.icon}</span>
+										</Motion>
+									{/if}
+									{item.label}
+								</p>
+							</div>
 						</Motion>
-					{/if}
-					<span class={styles.label}>{item.label}</span>
+					</div>
 				</button>
 			</Motion>
 		{/each}
@@ -130,15 +172,15 @@
 				let:motion
 				initial={false}
 				whileHover={!item.disabled ? { 
-					scale: 1.05,
-					y: -2
+					y: -4,
+					boxShadow: "inset 0 0.3rem 0.5rem rgba(255, 255, 255, 0.4), inset 0 -0.1rem 0.3rem rgba(0, 0, 0, 0.7), inset 0 -0.4rem 0.9rem rgba(255, 255, 255, 0.7), 0 3rem 3rem rgba(0, 0, 0, 0.3), 0 1rem 1rem -0.6rem rgba(0, 0, 0, 0.8)"
 				} : {}}
 				whileTap={!item.disabled ? { 
-					scale: 0.95,
-					y: 0
+					y: 4,
+					boxShadow: "inset 0 0.3rem 0.5rem rgba(255, 255, 255, 0.5), inset 0 -0.1rem 0.3rem rgba(0, 0, 0, 0.8), inset 0 -0.4rem 0.9rem rgba(255, 255, 255, 0.4), 0 3rem 3rem rgba(0, 0, 0, 0.3), 0 1rem 1rem -0.6rem rgba(0, 0, 0, 0.8)"
 				} : {}}
 				transition={{ 
-					duration: 0.3, 
+					duration: 0.2, 
 					ease: [0.4, 0, 0.2, 1] 
 				}}
 			>
@@ -148,23 +190,44 @@
 					disabled={item.disabled}
 					use:motion
 				>
-					{#if item.icon}
+					<div class={styles.wrap}>
 						<Motion 
 							let:motion
 							initial={false}
 							whileHover={!item.disabled ? { 
-								scale: 1.2,
-								rotate: 5
+								y: -6
+							} : {}}
+							whileTap={!item.disabled ? { 
+								y: 2
 							} : {}}
 							transition={{ 
-								duration: 0.3, 
+								duration: 0.2, 
 								ease: [0.4, 0, 0.2, 1] 
 							}}
 						>
-							<span class={styles.icon} use:motion>{item.icon}</span>
+							<div use:motion>
+								<p>
+									{#if item.icon}
+										<Motion 
+											let:motion
+											initial={false}
+											whileHover={!item.disabled ? { 
+												scale: 1.2,
+												rotate: 5
+											} : {}}
+											transition={{ 
+												duration: 0.3, 
+												ease: [0.4, 0, 0.2, 1] 
+											}}
+										>
+											<span class={styles.icon} use:motion>{item.icon}</span>
+										</Motion>
+									{/if}
+									{item.label}
+								</p>
+							</div>
 						</Motion>
-					{/if}
-					<span class={styles.label}>{item.label}</span>
+					</div>
 				</button>
 			</Motion>
 		{/each}
