@@ -11,13 +11,15 @@
 		isSelectionMode?: boolean;
 		onItemClick?: (item: any, event: MouseEvent) => void;
 		onFolderCreate?: (folderName: string, tempId: string) => void;
+		onFolderRename?: (folderId: string, newName: string) => void;
 	}
 
 	let {
 		item,
 		isSelectionMode = false,
 		onItemClick,
-		onFolderCreate
+		onFolderCreate,
+		onFolderRename
 	}: Props = $props();
 
 	// Track global selection state for documents
@@ -27,6 +29,10 @@
 	let isEditing = $state(false);
 	let editingValue = $state('');
 	let inputElement = $state<HTMLInputElement>();
+	
+	// Track long press for editing
+	let pressTimer = $state<number | null>(null);
+	let isPressed = $state(false);
 
 	// Subscribe to store updates and check if this item is selected
 	const unsubscribeSelection = selectedDocuments.subscribe(state => {
@@ -44,12 +50,48 @@
 		}
 	});
 
+	function handleMouseDown(event: MouseEvent) {
+		// Only enable long press for folders
+		if (item.icon === '/icons/folder.png' && !isSelectionMode) {
+			isPressed = true;
+			pressTimer = setTimeout(() => {
+				if (isPressed) {
+					startEditing();
+				}
+			}, 1000); // 1 second long press
+		}
+	}
+
+	function handleMouseUp() {
+		if (pressTimer) {
+			clearTimeout(pressTimer);
+			pressTimer = null;
+		}
+		isPressed = false;
+	}
+
+	function handleMouseLeave() {
+		if (pressTimer) {
+			clearTimeout(pressTimer);
+			pressTimer = null;
+		}
+		isPressed = false;
+	}
+
+	function startEditing() {
+		if (item.icon === '/icons/folder.png') {
+			isEditing = true;
+			editingValue = item.name;
+		}
+	}
+
 	function handleClick(event: MouseEvent) {
 		// Allow both documents and folders to be selected
 		if (isSelectionMode) {
 			event.preventDefault();
 			toggleItemSelection(item);
-		} else if (!isSelectionMode) {
+		} else if (!isSelectionMode && !isEditing) {
+			// Only handle click if not in editing mode and not a long press
 			onItemClick?.(item, event);
 		}
 	}
@@ -86,25 +128,26 @@
 	function handleInputKeydown(event: KeyboardEvent) {
 		if (event.key === 'Enter') {
 			event.preventDefault();
-			// Save the folder
-			if (editingValue.trim() && onFolderCreate) {
-				onFolderCreate(editingValue.trim(), item.id);
+			event.stopPropagation();
+			// Save the folder with new name
+			if (editingValue.trim() && onFolderRename) {
+				onFolderRename(item.id, editingValue.trim());
 			}
+			isEditing = false;
 		} else if (event.key === 'Escape') {
 			event.preventDefault();
-			// Cancel editing and remove from selection
-			selectedDocuments.removeDocument(item.id);
+			event.stopPropagation();
+			// Cancel editing
+			isEditing = false;
 		}
 	}
 	
 	function handleInputBlur() {
 		// Save the folder when input loses focus
-		if (editingValue.trim() && onFolderCreate) {
-			onFolderCreate(editingValue.trim(), item.id);
-		} else {
-			// Remove from selection if empty
-			selectedDocuments.removeDocument(item.id);
+		if (editingValue.trim() && onFolderRename) {
+			onFolderRename(item.id, editingValue.trim());
 		}
+		isEditing = false;
 	}
 
 	// Cleanup on component destroy
@@ -128,6 +171,9 @@
 		use:motion
 		role="button"
 		tabindex="0"
+		onmousedown={handleMouseDown}
+		onmouseup={handleMouseUp}
+		onmouseleave={handleMouseLeave}
 		onclick={handleClick}
 		onkeydown={handleKeydown}
 	>

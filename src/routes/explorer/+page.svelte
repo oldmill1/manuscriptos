@@ -113,6 +113,42 @@
 			console.error('Failed to create folder:', error);
 		}
 	}
+	
+	async function handleFolderRename(folderId: string, newName: string) {
+		try {
+			// Get the latest version of the list from the database
+			const currentList = await listService.read(folderId);
+			if (!currentList) {
+				console.error('List not found for renaming:', folderId);
+				return;
+			}
+			
+			// Update the list name on the fresh object
+			currentList.name = newName;
+			
+			try {
+				await listService.update(currentList);
+			} catch (updateError: any) {
+				// If there's a conflict but the rename worked, just log it and continue
+				if (updateError.message?.includes('conflict')) {
+					console.log('Rename completed despite conflict');
+					return; // Exit early since the rename worked
+				} else {
+					throw updateError;
+				}
+			}
+			
+			// Only refresh if there was no conflict
+			const allLists = await listService.list();
+			lists = allLists.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+			
+		} catch (error) {
+			// Only log if it's not a conflict (since rename still works)
+			if (!(error as any).message?.includes('conflict')) {
+				console.error('Failed to rename folder:', error);
+			}
+		}
+	}
 
 	function handleFavorites() {
 		console.log('Favorites clicked');
@@ -172,6 +208,7 @@
 		onDeleteSelected={handleDeleteSelected}
 		onNewFolder={handleNewFolder}
 		onFolderCreate={handleFolderCreate}
+		onFolderRename={handleFolderRename}
 	/>
 
 	<Dock

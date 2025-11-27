@@ -19,6 +19,7 @@
 		onSelectionToggle?: (enabled: boolean) => void;
 		onNewFolder?: () => void;
 		onFolderCreate?: (folderName: string, tempId: string) => void;
+		onFolderRename?: (folderId: string, newName: string) => void;
 	}
 
 	let {
@@ -30,7 +31,8 @@
 		showSelectionSwitch = false,
 		onSelectionToggle,
 		onNewFolder,
-		onFolderCreate
+		onFolderCreate,
+		onFolderRename
 	}: Props = $props();
 
 	// Track selected documents from the store
@@ -167,6 +169,7 @@
 						isSelectionMode={isSelectionMode}
 						onItemClick={handleItemClick}
 						onFolderCreate={onFolderCreate}
+						onFolderRename={onFolderRename}
 					/>
 				{/each}
 			{/if}
