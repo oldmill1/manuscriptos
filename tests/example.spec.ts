@@ -16,3 +16,11 @@ test('basic navigation works', async ({ page }) => {
   // Expect the URL to contain explorer
   expect(page.url()).toContain('/explorer');
 });
+
+test('test database should be empty on first load', async ({ page }) => {
+  await page.goto('/');
+  
+  // Should NOT have items-list since test DB is empty
+  const itemsList = page.locator('.items-list');
+  await expect(itemsList).not.toBeVisible();
+});
