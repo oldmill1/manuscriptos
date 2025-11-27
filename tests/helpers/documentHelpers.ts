@@ -29,4 +29,23 @@ export class DocumentHelpers {
     
     return uuidMatch[1];
   }
+
+  /**
+   * Finds a div element that has a class name containing the word 'desktop'
+   * @returns Promise resolving to the locator for the desktop div
+   */
+  async findDesktopDiv() {
+    const desktopDiv = this.page.locator('div[class*="desktop"]');
+    await expect(desktopDiv).toBeVisible();
+    return desktopDiv;
+  }
+
+  /**
+   * Finds a div element that has a class name containing 'explorerItem'
+   * @returns Promise resolving to the locator for the explorer item div
+   */
+  async findExplorerItem() {
+    const explorerItem = this.page.locator('div[class*="explorerItem"]');
+    return explorerItem;
+  }
 }
