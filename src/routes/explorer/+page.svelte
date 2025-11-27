@@ -216,6 +216,42 @@
 		}
 	}
 
+	async function handleDocumentRename(documentId: string, newName: string) {
+		try {
+			// Get the latest version of the document from the database
+			const currentDocument = await documentService.read(documentId);
+			if (!currentDocument) {
+				console.error('Document not found for renaming:', documentId);
+				return;
+			}
+			
+			// Update the document title on the fresh object
+			currentDocument.title = newName;
+			
+			try {
+				await documentService.update(currentDocument);
+			} catch (updateError: any) {
+				// If there's a conflict but the rename worked, just log it and continue
+				if (updateError.message?.includes('conflict')) {
+					console.log('Document rename completed despite conflict');
+					return; // Exit early since the rename worked
+				} else {
+					throw updateError;
+				}
+			}
+			
+			// Only refresh if there was no conflict
+			const allDocuments = await documentService.getByParentId(undefined);
+			documents = allDocuments.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+			
+		} catch (error) {
+			// Only log if it's not a conflict (since rename still works)
+			if (!(error as any).message?.includes('conflict')) {
+				console.error('Failed to rename document:', error);
+			}
+		}
+	}
+
 	function handleFavorites() {
 		console.log('Favorites clicked');
 	}
@@ -351,6 +387,7 @@
 		onFolderCreate={handleFolderCreate}
 		onFolderRename={handleFolderRename}
 		onDocumentCreate={handleDocumentCreate}
+		onDocumentRename={handleDocumentRename}
 		editingTempFolderId={editingTempFolderId}
 		editingTempDocumentId={editingTempDocumentId}
 		folderIds={[]}

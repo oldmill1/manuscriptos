@@ -364,6 +364,34 @@
 		}
 	}
 
+	async function handleDocumentRename(documentId: string, newName: string) {
+		try {
+			const currentDocument = await documentService.read(documentId);
+			if (!currentDocument) {
+				console.error('Document not found for renaming:', documentId);
+				return;
+			}
+			
+			currentDocument.title = newName;
+			await documentService.update(currentDocument);
+			
+			// Update just the renamed document in the local array
+			const updatedDocuments = documents.map(document => {
+				if (document.id === documentId) {
+					document.title = newName;
+					return document;
+				}
+				return document;
+			});
+			documents = updatedDocuments;
+			
+			console.log('Document renamed successfully:', newName);
+			
+		} catch (error) {
+			console.error('Failed to rename document:', error);
+		}
+	}
+
 	// Create standardized data for Explorer
 	const explorerData = $derived.by(() => {
 		if (!hasLoaded) return createExplorerData([], 'document', false);
@@ -402,6 +430,7 @@
 			onFolderCreate={handleFolderCreate}
 			onFolderRename={handleFolderRename}
 			onDocumentCreate={handleDocumentCreate}
+			onDocumentRename={handleDocumentRename}
 			editingTempFolderId={editingTempFolderId}
 			editingTempDocumentId={editingTempDocumentId}
 			folderIds={pathArray}

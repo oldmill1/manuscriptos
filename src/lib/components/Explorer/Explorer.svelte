@@ -23,6 +23,7 @@
 		onFolderCreate?: (folderName: string, tempId: string) => void;
 		onFolderRename?: (folderId: string, newName: string) => void;
 		onDocumentCreate?: (documentName: string, tempId: string) => void;
+		onDocumentRename?: (documentId: string, newName: string) => void;
 		editingTempFolderId?: string | null;
 		editingTempDocumentId?: string | null;
 		folderIds?: string[]; // For breadcrumb trail
@@ -41,6 +42,7 @@
 		onFolderCreate,
 		onFolderRename,
 		onDocumentCreate,
+		onDocumentRename,
 		editingTempFolderId,
 		editingTempDocumentId,
 		folderIds = []
@@ -177,6 +179,7 @@
 						onFolderCreate={onFolderCreate}
 						onFolderRename={onFolderRename}
 						onDocumentCreate={onDocumentCreate}
+						onDocumentRename={onDocumentRename}
 						forceEditing={editingTempFolderId === item.id || editingTempDocumentId === item.id}
 					/>
 				{/each}

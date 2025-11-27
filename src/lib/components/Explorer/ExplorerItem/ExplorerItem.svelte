@@ -13,6 +13,7 @@
 		onFolderCreate?: (folderName: string, tempId: string) => void;
 		onFolderRename?: (folderId: string, newName: string) => void;
 		onDocumentCreate?: (documentName: string, tempId: string) => void;
+		onDocumentRename?: (documentId: string, newName: string) => void;
 		forceEditing?: boolean;
 	}
 
@@ -23,6 +24,7 @@
 		onFolderCreate,
 		onFolderRename,
 		onDocumentCreate,
+		onDocumentRename,
 		forceEditing = false
 	}: Props = $props();
 
@@ -66,8 +68,8 @@
 	});
 
 	function handleMouseDown(event: MouseEvent) {
-		// Only enable long press for folders
-		if (item.icon === '/icons/folder.png' && !isSelectionMode) {
+		// Enable long press for both folders and documents
+		if ((item.icon === '/icons/folder.png' || !item.isFolder) && !isSelectionMode) {
 			isPressed = true;
 			pressTimer = setTimeout(() => {
 				if (isPressed) {
@@ -94,9 +96,10 @@
 	}
 
 	function startEditing() {
-		if (item.icon === '/icons/folder.png') {
+		// Allow editing for both folders and documents
+		if (item.icon === '/icons/folder.png' || !item.isFolder) {
 			isEditing = true;
-			editingValue = item.name;
+			editingValue = item.name || item.title;
 		}
 	}
 
@@ -163,9 +166,15 @@
 					// Create new document
 					console.log('Creating document:', editingValue);
 					onDocumentCreate(editingValue, item.id);
-				} else if (!isTempFolder && !isTempDocument && onFolderRename) {
-					// Rename existing folder
-					onFolderRename(item.id, editingValue);
+				} else if (!isTempFolder && !isTempDocument) {
+					// Rename existing item
+					if (item.isFolder && onFolderRename) {
+						// Rename existing folder
+						onFolderRename(item.id, editingValue);
+					} else if (!item.isFolder && onDocumentRename) {
+						// Rename existing document
+						onDocumentRename(item.id, editingValue);
+					}
 				}
 			}
 			isEditing = false;
@@ -227,7 +236,7 @@
 			</div>
 		{/if}
 		<img src={item.icon} alt={item.name} class={styles.icon} />
-		{#if isEditing && (item.icon === '/icons/folder.png' || item.icon === '/icons/new.png')}
+		{#if isEditing && (item.icon === '/icons/folder.png' || item.icon === '/icons/new.png' || !item.isFolder)}
 			<input 
 				type="text" 
 				bind:this={inputElement}
@@ -243,7 +252,7 @@
 				}}
 			/>
 		{:else}
-			<span class={styles.label}>{item.name}</span>
+			<span class={styles.label}>{item.name || item.title}</span>
 		{/if}
 	</div>
 </Motion>
