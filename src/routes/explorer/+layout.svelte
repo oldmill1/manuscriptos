@@ -1,5 +1,12 @@
 <script lang="ts">
-	let { children } = $props();
+	import MenuBar from '$lib/components/MenuBar/MenuBar.svelte';
+	
+	interface LayoutProps {
+		children: any;
+		title?: string;
+	}
+	
+	let { children, title = "Explorer" }: LayoutProps = $props();
 </script>
 
 <svelte:head>
@@ -16,4 +23,39 @@
 	</style>
 </svelte:head>
 
-{@render children()}
+<div class="page-container">
+	<MenuBar title={title} />
+	<div class="explorer-content">
+		{@render children()}
+	</div>
+</div>
+
+<style>
+	.page-container {
+		width: 100vw;
+		height: 100vh;
+		display: flex;
+		flex-direction: column;
+		background-color: rgb(16, 20, 23);
+		color: #ffffff;
+		margin: 0;
+		padding: 0;
+		box-sizing: border-box;
+		overflow: hidden;
+		position: relative;
+	}
+
+	.explorer-content {
+		width: 100%;
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		background-color: rgb(16, 20, 23);
+		color: #ffffff;
+		margin: 0;
+		padding: 0;
+		box-sizing: border-box;
+		overflow: hidden;
+		position: relative;
+	}
+</style>

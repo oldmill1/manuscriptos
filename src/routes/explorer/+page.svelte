@@ -1,18 +1,16 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { onMount } from 'svelte';
-	import { List } from '$lib/models/List';
-	import { ListService } from '$lib/services/ListService';
-	import { Document } from '$lib/models/Document';
-	import { DocumentService } from '$lib/services/DocumentService';
-	import { selectedDocuments } from '$lib/stores/selectedDocuments';
-	import Explorer from '$lib/components/Explorer/Explorer.svelte';
-	import StatusBar from '$lib/components/Editor/StatusBar.svelte';
-	import MenuBar from '$lib/components/MenuBar/MenuBar.svelte';
 	import Dock from '$lib/components/Dock/Dock.svelte';
-	import type { PageProps } from './$types';
-	import { convertListsToExplorerItems, convertDocumentsToExplorerItems, createExplorerData } from '$lib/components/Explorer/utils';
+	import Explorer from '$lib/components/Explorer/Explorer.svelte';
 	import type { ExplorerItem } from '$lib/components/Explorer/types';
+	import { convertDocumentsToExplorerItems, convertListsToExplorerItems, createExplorerData } from '$lib/components/Explorer/utils';
+	import MenuBar from '$lib/components/MenuBar/MenuBar.svelte';
+	import { Document } from '$lib/models/Document';
+	import { List } from '$lib/models/List';
+	import { DocumentService } from '$lib/services/DocumentService';
+	import { ListService } from '$lib/services/ListService';
+	import { onMount } from 'svelte';
+	import type { PageProps } from './$types';
 	import styles from './+page.module.scss';
 
 	let { data }: PageProps = $props();
@@ -372,29 +370,24 @@
 	}
 </script>
 
-<div class={styles['page-container']}>
-	<MenuBar title="Explorer" />
-
-	<div class={styles['explorer-container']}>
-		<!-- Using the new standardized data interface -->
-		<Explorer 
-			data={explorerData} 
-			{isSelectionMode}
-			showSelectionSwitch={true}
-			onSelectionToggle={handleSelectionToggle}
-			onDeleteSelected={handleDeleteSelected}
-			onNewFolder={handleNewFolder}
-			onNewDocument={handleNewDocument}
-			onFolderCreate={handleFolderCreate}
-			onFolderRename={handleFolderRename}
-			onDocumentCreate={handleDocumentCreate}
-			onDocumentRename={handleDocumentRename}
-			editingTempFolderId={editingTempFolderId}
-			editingTempDocumentId={editingTempDocumentId}
-			folderIds={[]}
-		/>
-
-	</div>
+<div class={styles['explorer-container']}>
+	<!-- Using the new standardized data interface -->
+	<Explorer 
+		data={explorerData} 
+		{isSelectionMode}
+		showSelectionSwitch={true}
+		onSelectionToggle={handleSelectionToggle}
+		onDeleteSelected={handleDeleteSelected}
+		onNewFolder={handleNewFolder}
+		onNewDocument={handleNewDocument}
+		onFolderCreate={handleFolderCreate}
+		onFolderRename={handleFolderRename}
+		onDocumentCreate={handleDocumentCreate}
+		onDocumentRename={handleDocumentRename}
+		editingTempFolderId={editingTempFolderId}
+		editingTempDocumentId={editingTempDocumentId}
+		folderIds={[]}
+	/>
 </div>
 
 <!-- Dock -->

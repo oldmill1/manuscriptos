@@ -411,78 +411,38 @@
 	});
 </script>
 
-<div class="page-container">
-	<MenuBar title={list?.name || 'List'} backButton={true} onBackClick={handleBack} />
-
-	<div class="explorer-container">
-		{#if error}
-			<div class="error-message">
-				<p>{error}</p>
-			</div>
-		{:else}
-			<Explorer 
-				data={explorerData} 
-				{isSelectionMode}
-				showSelectionSwitch={true}
-				onSelectionToggle={handleSelectionToggle}
-				onDeleteSelected={handleDeleteSelected}
-				onNewFolder={handleNewFolder}
-				onNewDocument={handleNewDocument}
-				onFolderCreate={handleFolderCreate}
-				onFolderRename={handleFolderRename}
-				onDocumentCreate={handleDocumentCreate}
-				onDocumentRename={handleDocumentRename}
-				editingTempFolderId={editingTempFolderId}
-				editingTempDocumentId={editingTempDocumentId}
-				folderIds={pathArray}
-			/>
-		{/if}
-	</div>
+<div class="explorer-container">
+	{#if error}
+		<div class="error-message">
+			<p>{error}</p>
+		</div>
+	{:else}
+		<Explorer 
+			data={explorerData} 
+			{isSelectionMode}
+			showSelectionSwitch={true}
+			onSelectionToggle={handleSelectionToggle}
+			onDeleteSelected={handleDeleteSelected}
+			onNewFolder={handleNewFolder}
+			onNewDocument={handleNewDocument}
+			onFolderCreate={handleFolderCreate}
+			onFolderRename={handleFolderRename}
+			onDocumentCreate={handleDocumentCreate}
+			onDocumentRename={handleDocumentRename}
+			editingTempFolderId={editingTempFolderId}
+			editingTempDocumentId={editingTempDocumentId}
+			folderIds={pathArray}
+		/>
+	{/if}
 </div>
 
 
 <style>
-	.page-container {
-		width: 100vw;
-		height: 100vh;
-		display: flex;
-		flex-direction: column;
-		background-color: rgb(16, 20, 23);
-		color: #ffffff;
-		margin: 0;
-		padding: 0;
-		box-sizing: border-box;
-		overflow: hidden;
-		position: relative;
-	}
-
 	.explorer-container {
 		width: 100%;
-		flex: 1;
+		height: 100%;
 		display: flex;
 		flex-direction: column;
-		background-color: rgb(16, 20, 23);
-		color: #ffffff;
-		margin: 0;
-		padding: 0;
-		box-sizing: border-box;
-		overflow: hidden;
-		position: relative;
-	}
-
-	/* Ensure no scrollbars on the page itself */
-	:global(body) {
-		margin: 0;
-		padding: 0;
-		overflow: hidden;
-	}
-
-	:global(html) {
-		margin: 0;
-		padding: 0;
-		:root {
-			overflow: hidden;
-		}
 	}
 
 	.error-message {
