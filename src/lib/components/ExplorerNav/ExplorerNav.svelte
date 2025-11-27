@@ -33,12 +33,10 @@
 				let:motion
 				initial={false}
 				whileHover={!item.disabled ? { 
-					y: -4,
-					boxShadow: "inset 0 0.3rem 0.5rem rgba(255, 255, 255, 0.4), inset 0 -0.1rem 0.3rem rgba(0, 0, 0, 0.7), inset 0 -0.4rem 0.9rem rgba(255, 255, 255, 0.7), 0 3rem 3rem rgba(0, 0, 0, 0.3), 0 1rem 1rem -0.6rem rgba(0, 0, 0, 0.8)"
+					y: -4
 				} : {}}
 				whileTap={!item.disabled ? { 
-					y: 4,
-					boxShadow: "inset 0 0.3rem 0.5rem rgba(255, 255, 255, 0.5), inset 0 -0.1rem 0.3rem rgba(0, 0, 0, 0.8), inset 0 -0.4rem 0.9rem rgba(255, 255, 255, 0.4), 0 3rem 3rem rgba(0, 0, 0, 0.3), 0 1rem 1rem -0.6rem rgba(0, 0, 0, 0.8)"
+					y: 4
 				} : {}}
 				transition={{ 
 					duration: 0.2, 
@@ -104,12 +102,10 @@
 				let:motion
 				initial={false}
 				whileHover={!item.disabled ? { 
-					y: -4,
-					boxShadow: "inset 0 0.3rem 0.5rem rgba(255, 255, 255, 0.4), inset 0 -0.1rem 0.3rem rgba(0, 0, 0, 0.7), inset 0 -0.4rem 0.9rem rgba(255, 255, 255, 0.7), 0 3rem 3rem rgba(0, 0, 0, 0.3), 0 1rem 1rem -0.6rem rgba(0, 0, 0, 0.8)"
+					y: -4
 				} : {}}
 				whileTap={!item.disabled ? { 
-					y: 4,
-					boxShadow: "inset 0 0.3rem 0.5rem rgba(255, 255, 255, 0.5), inset 0 -0.1rem 0.3rem rgba(0, 0, 0, 0.8), inset 0 -0.4rem 0.9rem rgba(255, 255, 255, 0.4), 0 3rem 3rem rgba(0, 0, 0, 0.3), 0 1rem 1rem -0.6rem rgba(0, 0, 0, 0.8)"
+					y: 4
 				} : {}}
 				transition={{ 
 					duration: 0.2, 
@@ -172,12 +168,10 @@
 				let:motion
 				initial={false}
 				whileHover={!item.disabled ? { 
-					y: -4,
-					boxShadow: "inset 0 0.3rem 0.5rem rgba(255, 255, 255, 0.4), inset 0 -0.1rem 0.3rem rgba(0, 0, 0, 0.7), inset 0 -0.4rem 0.9rem rgba(255, 255, 255, 0.7), 0 3rem 3rem rgba(0, 0, 0, 0.3), 0 1rem 1rem -0.6rem rgba(0, 0, 0, 0.8)"
+					y: -4
 				} : {}}
 				whileTap={!item.disabled ? { 
-					y: 4,
-					boxShadow: "inset 0 0.3rem 0.5rem rgba(255, 255, 255, 0.5), inset 0 -0.1rem 0.3rem rgba(0, 0, 0, 0.8), inset 0 -0.4rem 0.9rem rgba(255, 255, 255, 0.4), 0 3rem 3rem rgba(0, 0, 0, 0.3), 0 1rem 1rem -0.6rem rgba(0, 0, 0, 0.8)"
+					y: 4
 				} : {}}
 				transition={{ 
 					duration: 0.2, 
