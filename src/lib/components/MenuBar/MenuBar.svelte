@@ -1,6 +1,7 @@
 <script lang="ts">
 	import styles from './MenuBar.module.scss';
 	import { toggleWidgetVisibility } from '$lib/stores/widgetVisibility';
+	import { Motion } from 'svelte-motion';
 
 	interface Props {
 		title?: string;
@@ -18,6 +19,10 @@
 	let inputRef = $state<HTMLInputElement>();
 	let isValid = $state(true);
 	const tabindex = $derived(titleEditable ? 0 : undefined);
+
+	function applyMotion(node: any, motionAction: any) {
+		return motionAction(node);
+	}
 
 	function startEditing() {
 		isEditing = true;
@@ -112,25 +117,41 @@
 <div class={styles.menubar}>
 	<div class={styles.leftSection}>
 		{#if backButton}
-			<button
-				type="button"
-				class={styles.backButton}
-				onclick={onBackClick}
-				onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && onBackClick?.()}
-				aria-label="Go back"
+			<Motion 
+				let:motion
+				whileHover={{ scale: 1.1, y: -2 }}
+				whileTap={{ scale: 0.95, y: 0 }}
+				transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
 			>
-				<img src="/icons/logo.png" alt="Back" class={styles.backIcon} />
-			</button>
+				<button
+					type="button"
+					class={styles.backButton}
+					onclick={onBackClick}
+					onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && onBackClick?.()}
+					aria-label="Go back"
+					use:motion
+				>
+					<img src="/icons/logo.png" alt="Back" class={styles.backIcon} />
+				</button>
+			</Motion>
 		{:else}
-			<button
-				type="button"
-				class={styles.homeButton}
-				onclick={goHome}
-				onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && goHome()}
-				aria-label="Go home"
+			<Motion 
+				let:motion
+				whileHover={{ scale: 1.1, y: -2 }}
+				whileTap={{ scale: 0.95, y: 0 }}
+				transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
 			>
-				<img src="/icons/logo.png" alt="Home" class={styles.homeIcon} />
-			</button>
+				<button
+					type="button"
+					class={styles.homeButton}
+					onclick={goHome}
+					onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && goHome()}
+					aria-label="Go home"
+					use:motion
+				>
+					<img src="/icons/logo.png" alt="Home" class={styles.homeIcon} />
+				</button>
+			</Motion>
 		{/if}
 	</div>
 	<div class={styles.centerSection}>
