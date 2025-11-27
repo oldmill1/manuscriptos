@@ -38,10 +38,9 @@
 			const allLists = await listService.getByParentId(undefined);
 			lists = allLists.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
-			// Always load unlisted documents (recentones not in any list)
-			const allDocuments = await documentService.list();
-			// TODO: Filter out documents that are already in lists when you have that data
-			documents = allDocuments.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+			// Load documents - only root level (parentId: undefined)
+			const rootDocuments = await documentService.getByParentId(undefined);
+			documents = rootDocuments.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 		} catch (error) {
 			console.error('Failed to load lists or documents:', error);
 		} finally {
