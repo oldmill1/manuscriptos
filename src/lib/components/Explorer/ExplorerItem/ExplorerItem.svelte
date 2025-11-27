@@ -51,8 +51,8 @@
 	});
 
 	function handleClick(event: MouseEvent) {
-		// Only allow document selection, ignore folders
-		if (isSelectionMode && item.icon !== '/icons/folder.png') {
+		// Allow both documents and folders to be selected
+		if (isSelectionMode) {
 			event.preventDefault();
 			toggleItemSelection(item);
 		} else if (!isSelectionMode) {
@@ -72,10 +72,8 @@
 	}
 
 	function handleSwitchChange() {
-		// Only allow document selection
-		if (item.icon !== '/icons/folder.png') {
-			toggleItemSelection(item);
-		}
+		// Allow both documents and folders to be selected
+		toggleItemSelection(item);
 	}
 
 	function handleKeydown(event: KeyboardEvent) {
@@ -139,7 +137,7 @@
 		onclick={handleClick}
 		onkeydown={handleKeydown}
 	>
-		{#if isSelectionMode && item.icon !== '/icons/folder.png'}
+		{#if isSelectionMode}
 			<div class={styles.selectionCheckbox}>
 				<SwitchMini
 					checked={globallySelected}
