@@ -193,6 +193,12 @@
 	<Dock
 		items={[
 			{
+				id: 'home',
+				icon: '/icons/logo-small.png',
+				title: 'Home',
+				onClick: () => goto('/')
+			},
+			{
 				id: 'new-document',
 				icon: '/icons/new.png',
 				title: 'New Document',

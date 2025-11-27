@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import { List } from '$lib/models/List';
 	import { ListService } from '$lib/services/ListService';
@@ -8,6 +9,7 @@
 	import Explorer from '$lib/components/Explorer/Explorer.svelte';
 	import StatusBar from '$lib/components/Editor/StatusBar.svelte';
 	import MenuBar from '$lib/components/MenuBar/MenuBar.svelte';
+	import Dock from '$lib/components/Dock/Dock.svelte';
 	import type { PageProps } from './$types';
 	import { convertListsToExplorerItems, convertDocumentsToExplorerItems, createExplorerData } from '$lib/components/Explorer/utils';
 	import type { ExplorerItem } from '$lib/components/Explorer/types';
@@ -355,3 +357,33 @@
 	/>
 
 </div>
+
+<!-- Dock -->
+<Dock
+	items={[
+		{
+			id: 'home',
+			icon: '/icons/logo-small.png',
+			title: 'Home',
+			onClick: () => goto('/')
+		},
+		{
+			id: 'new-document',
+			icon: '/icons/new.png',
+			title: 'New Document',
+			onClick: handleNewDocument
+		},
+		{
+			id: 'favorites',
+			icon: '/icons/heart.png',
+			title: 'Favorites',
+			onClick: () => goto('/favorites')
+		},
+		{
+			id: 'explorer',
+			icon: '/icons/folder.png',
+			title: 'Explorer',
+			onClick: () => goto('/explorer')
+		}
+	]}
+/>
