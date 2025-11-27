@@ -61,3 +61,14 @@ test('create document and verify explorer item in desktop', async ({ page }) => 
   const explorerItemElement = specificExplorerItem.first();
   await expect(explorerItemElement).toBeVisible();
 });
+
+test('Proof that every test starts with clean db', async ({ page }) => {
+  const docHelpers = new DocumentHelpers(page);
+  await page.goto('/');
+  
+  const emptyStateDiv = await docHelpers.findEmptyStateDiv();
+  const count = await emptyStateDiv.count();
+  expect(count).toBeGreaterThan(0);
+  expect(count).toBe(1);
+});
+

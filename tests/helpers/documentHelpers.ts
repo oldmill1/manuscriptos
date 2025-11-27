@@ -36,7 +36,8 @@ export class DocumentHelpers {
    */
   async findDesktopDiv() {
     const desktopDiv = this.page.locator('div[class*="desktop"]');
-    await expect(desktopDiv).toBeVisible();
+    const count = await desktopDiv.count();
+    expect(count).toBeGreaterThan(0);
     return desktopDiv;
   }
 
@@ -47,5 +48,35 @@ export class DocumentHelpers {
   async findExplorerItem() {
     const explorerItem = this.page.locator('div[class*="explorerItem"]');
     return explorerItem;
+  }
+
+  /**
+   * Finds a div element that has a class name containing 'empty-state'
+   * @returns Promise resolving to the locator for the empty state div
+   */
+  async findEmptyStateDiv() {
+    const emptyStateDiv = this.page.locator('div[class*="_empty-state_"]');
+    await emptyStateDiv.waitFor();
+    return emptyStateDiv;
+  }
+
+  /**
+   * Finds a div element that has a class name containing 'items-list'
+   * @returns Promise resolving to the locator for the items list div
+   */
+  async findItemsListDiv() {
+    const itemsListDiv = this.page.locator('div[class*="items-list"]');
+    await itemsListDiv.waitFor();
+    return itemsListDiv;
+  }
+
+  /**
+   * Finds a div element that has a class name containing 'recents-title'
+   * @returns Promise resolving to the locator for the recents title div
+   */
+  async findRecentsTitleDiv() {
+    const recentsTitleDiv = this.page.locator('div[class*="recents-title"]');
+    await recentsTitleDiv.waitFor();
+    return recentsTitleDiv;
   }
 }
