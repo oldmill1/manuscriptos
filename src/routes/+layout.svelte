@@ -5,12 +5,14 @@
 	import { editorFontSize } from '$lib/stores/editorFontSize';
 
 	let { children } = $props();
-	let Analytics: any;
+	let Analytics: any = $state();
 
 	// Load Analytics component on client side and initialize shortcuts
-	onMount(async () => {
-		const { Analytics: AnalyticsComponent } = await import('@vercel/analytics/sveltekit');
-		Analytics = AnalyticsComponent;
+	onMount(() => {
+		// Load analytics asynchronously
+		import('@vercel/analytics/sveltekit').then(analyticsModule => {
+			Analytics = analyticsModule.default;
+		});
 
 		// Register Option + "=" to increase font size
 		// Using 'code' instead of 'key' for Mac compatibility (Option + "+" produces "≠" character)
