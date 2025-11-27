@@ -11,6 +11,8 @@
 ║ ║
 ╚═══════════════════════════════════════════════════════════════════╝
 
+![Tests](https://github.com/oldmill1/manuscriptos/workflows/Tests/badge.svg)
+
 > _just you and your words._
 
 ---
