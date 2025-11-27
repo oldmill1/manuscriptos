@@ -11,6 +11,29 @@
 		/>
 		<script src="//cdn.jsdelivr.net/npm/pouchdb@9.0.0/dist/pouchdb.min.js"></script>
 		<link rel="icon" type="image/png" href="/icons/logo-small.png" />
+		<style>
+			body:before {
+				content: "\0042\0075\0069\006c\0064\003a\0020\0056\0052\0031";
+				position: fixed;
+				bottom: 10px;
+				left: 10px;
+				font-size: 12px;
+				color: #28283A;
+				z-index: 1000;
+				pointer-events: none;
+			}
+			body:after {
+				content: "\00a9\0041\006e\006b\0075\0072\0020\0054\0061\0078\0061\006c\0069\0020\0032\0030\0032\0035";
+				position: fixed;
+				bottom: 10px;
+				left: 50%;
+				transform: translateX(-50%);
+				font-size: 12px;
+				color: #28283A;
+				z-index: 1000;
+				pointer-events: none;
+			}
+		</style>
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">
