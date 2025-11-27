@@ -32,14 +32,8 @@
 	const unsubscribeSelection = selectedDocuments.subscribe(state => {
 		globallySelected = state.documents.some(doc => doc.id === item.id);
 		
-		// Enable editing for folders when selected
-		if (globallySelected && item.icon === '/icons/folder.png') {
-			isEditing = true;
-			editingValue = item.name;
-		} else {
-			isEditing = false;
-			editingValue = '';
-		}
+		// Note: Don't automatically enable editing for folders when selected
+		// Editing should be a separate action from selection
 	});
 	
 	// Auto-focus input when editing starts
