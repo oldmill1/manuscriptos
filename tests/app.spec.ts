@@ -24,3 +24,16 @@ test('test database should be empty on first load', async ({ page }) => {
   const itemsList = page.locator('.items-list');
   await expect(itemsList).not.toBeVisible();
 });
+
+test('create new document navigates to docs page', async ({ page }) => {
+  await page.goto('/');
+  
+  // Click the create new document button using text content
+  await page.click('button:has-text("Create new document")');
+  
+  // Wait for navigation to complete and URL to contain /docs/ with a UUID
+  await page.waitForURL(/\/docs\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/);
+  
+  // Verify the URL pattern matches expected docs route with UUID
+  expect(page.url()).toMatch(/\/docs\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/);
+});
