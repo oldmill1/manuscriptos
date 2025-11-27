@@ -372,27 +372,29 @@
 	}
 </script>
 
-<MenuBar title="Explorer" />
+<div class={styles['page-container']}>
+	<MenuBar title="Explorer" />
 
-<div class={styles['explorer-container']}>
-	<!-- Using the new standardized data interface -->
-	<Explorer 
-		data={explorerData} 
-		{isSelectionMode}
-		showSelectionSwitch={true}
-		onSelectionToggle={handleSelectionToggle}
-		onDeleteSelected={handleDeleteSelected}
-		onNewFolder={handleNewFolder}
-		onNewDocument={handleNewDocument}
-		onFolderCreate={handleFolderCreate}
-		onFolderRename={handleFolderRename}
-		onDocumentCreate={handleDocumentCreate}
-		onDocumentRename={handleDocumentRename}
-		editingTempFolderId={editingTempFolderId}
-		editingTempDocumentId={editingTempDocumentId}
-		folderIds={[]}
-	/>
+	<div class={styles['explorer-container']}>
+		<!-- Using the new standardized data interface -->
+		<Explorer 
+			data={explorerData} 
+			{isSelectionMode}
+			showSelectionSwitch={true}
+			onSelectionToggle={handleSelectionToggle}
+			onDeleteSelected={handleDeleteSelected}
+			onNewFolder={handleNewFolder}
+			onNewDocument={handleNewDocument}
+			onFolderCreate={handleFolderCreate}
+			onFolderRename={handleFolderRename}
+			onDocumentCreate={handleDocumentCreate}
+			onDocumentRename={handleDocumentRename}
+			editingTempFolderId={editingTempFolderId}
+			editingTempDocumentId={editingTempDocumentId}
+			folderIds={[]}
+		/>
 
+	</div>
 </div>
 
 <!-- Dock -->

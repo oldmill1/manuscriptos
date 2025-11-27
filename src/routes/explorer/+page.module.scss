@@ -1,11 +1,26 @@
-.explorer-container {
-	height: calc(100vh - 66px - 20px);
+.page-container {
+	width: 100vw;
+	height: 100vh;
 	display: flex;
 	flex-direction: column;
 	background-color: rgb(16, 20, 23);
 	color: #ffffff;
 	margin: 0;
-	padding: 0 20px 20px 20px;
+	padding: 0;
+	box-sizing: border-box;
+	overflow: hidden;
+	position: relative;
+}
+
+.explorer-container {
+	width: 100%;
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	background-color: rgb(16, 20, 23);
+	color: #ffffff;
+	margin: 0;
+	padding: 0;
 	box-sizing: border-box;
 	overflow: hidden;
 	position: relative;
