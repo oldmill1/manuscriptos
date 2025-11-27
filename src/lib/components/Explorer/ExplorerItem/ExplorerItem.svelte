@@ -51,15 +51,7 @@
 	
 	// Handle force editing for new folders and documents
 	$effect(() => {
-		console.log('ExplorerItem force editing check:', {
-			forceEditing,
-			itemIcon: item.icon,
-			itemId: item.id,
-			isEditing,
-			condition: forceEditing && (item.icon === '/icons/folder.png' || item.icon === '/icons/new.png') && !isEditing
-		});
 		if (forceEditing && (item.icon === '/icons/folder.png' || item.icon === '/icons/new.png') && !isEditing) {
-			console.log('Setting isEditing to true for item:', item.id);
 			isEditing = true;
 			editingValue = item.name;
 		}

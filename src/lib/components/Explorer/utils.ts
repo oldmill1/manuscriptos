@@ -10,6 +10,7 @@ export function convertListsToExplorerItems(
 		id: list.id,
 		name: list.name || 'Untitled List',
 		icon: '/icons/folder.png',
+		isFolder: true,
 		onClick: onListClick ? (item: ExplorerItem, event: MouseEvent) => {
 			const originalList = lists.find(l => l.id === item.id);
 			if (originalList) onListClick(originalList, event);
@@ -25,6 +26,7 @@ export function convertDocumentsToExplorerItems(
 		id: doc.id,
 		name: doc.title || 'Untitled Document',
 		icon: '/icons/new.png',
+		isFolder: false,
 		onClick: onDocumentClick ? (item: ExplorerItem, event: MouseEvent) => {
 			const originalDoc = documents.find(d => d.id === item.id);
 			if (originalDoc) onDocumentClick(originalDoc, event);

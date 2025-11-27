@@ -78,18 +78,11 @@ export class ListService {
 	// Get lists by parent ID (for nested folders)
 	async getByParentId(parentId?: string): Promise<List[]> {
 		try {
-			console.log('Looking for child folders with parentId:', parentId);
 			const result = await this.db.allDocs({
 				include_docs: true,
 				startkey: 'list:',
 				endkey: 'list:\uffff'
 			});
-			
-			console.log('All lists in database:', result.rows.map((row: any) => ({
-				id: row.doc._id.replace('list:', ''),
-				name: row.doc.name,
-				parentId: row.doc.parentId
-			})));
 			
 			const lists = result.rows
 				.map((row: any) => {
@@ -106,7 +99,6 @@ export class ListService {
 				})
 				.filter((list: List) => list.parentId === parentId);
 			
-			console.log('Filtered child folders:', lists.map((f: List) => ({ id: f.id, name: f.name, parentId: f.parentId })));
 			return lists;
 		} catch (error) {
 			console.error('Failed to get lists by parent ID:', error);

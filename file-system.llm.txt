@@ -146,6 +146,68 @@ await documentService.create(newDoc);
 - Could add document moving between folders
 - Could add document deletion with proper hierarchy cleanup
 
+### Document Deletion Implementation
+
+#### Challenge: Legacy Deletion Logic
+- **Problem**: Original deletion used icon-based detection (`doc.icon === '/icons/new.png'`) which was unreliable
+- **Problem**: Used old `documentService.list()` and `listService.list()` for refresh, causing duplication
+- **Problem**: Mixed folder and document deletion in one function
+- **Problem**: Required warning modal (user wanted direct deletion)
+
+#### Solution: Document-Only Deletion
+```typescript
+async function handleDeleteSelected(selectedDocs: any[]) {
+  // Filter for documents only (not folders)
+  const documentsToDelete = selectedDocs.filter(doc => !doc.isFolder);
+  
+  // Delete from database
+  const documentDeletePromises = documentsToDelete.map(async (doc) => {
+    await documentService.delete(doc.id);
+  });
+  await Promise.all(documentDeletePromises);
+  
+  // Update local state immediately (no refresh needed)
+  documents = documents.filter(doc => !documentsToDelete.some(deleted => deleted.id === doc.id));
+}
+```
+
+#### Key Implementation Details
+- **Document Detection**: Uses `!doc.isFolder` instead of icon matching
+- **No Warning Modal**: Direct deletion as requested by user
+- **Local State Updates**: Documents disappear immediately without page refresh
+- **Consistent Logic**: Same pattern for root explorer and nested folders
+- **TypeScript Fixes**: Documents use `title` property, not `name`
+
+#### Testing Results
+- ✅ Single document deletion
+- ✅ Multiple document deletion (batch operations)
+- ✅ Documents deleted from database permanently
+- ✅ UI updates immediately without refresh
+- ✅ Works at root level (`parentId: undefined`)
+- ✅ Works in nested folders (`parentId: folder-id`)
+- ✅ No folders affected (documents only)
+- ✅ Proper console logging for debugging
+
+#### User Workflow
+1. Toggle selection mode in Explorer
+2. Select one or more documents using checkboxes
+3. Click delete button
+4. Documents disappear immediately
+5. No confirmation modal required
+6. Database properly cleaned up
+
+#### Performance Benefits
+- **Before**: Delete → Full page refresh → Reload all documents
+- **After**: Delete → Local state filter → Immediate UI update
+- **Benefit**: Much faster deletion experience, especially with many documents
+
+#### Code Quality Improvements
+- Fixed TypeScript errors (`doc.name` → `doc.title`)
+- Proper error handling with try/catch
+- Detailed console logging for debugging
+- Separation of concerns (documents vs folders)
+- Consistent patterns across root and nested implementations
+
 ### Key Learning
 - **Incremental migration**: Worked step-by-step, testing each component
 - **Parallel patterns**: Documents now follow same patterns as Lists

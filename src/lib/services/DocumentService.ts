@@ -141,16 +141,9 @@ export class DocumentService {
 	// Get documents by parent ID (for nested folders)
 	async getByParentId(parentId?: string): Promise<Document[]> {
 		try {
-			console.log('Looking for documents with parentId:', parentId);
 			const result = await this.db.allDocs({
 				include_docs: true
 			});
-			
-			console.log('All documents in database:', result.rows.map((row: any) => ({
-				id: row.doc._id,
-				title: row.doc.title,
-				parentId: row.doc.parentId
-			})));
 			
 			const documents = result.rows
 				.filter((row: any) => row.doc && !row.doc._id.startsWith('list:')) // Filter out list entries
@@ -167,7 +160,6 @@ export class DocumentService {
 				})
 				.filter((doc: Document) => doc.parentId === parentId);
 			
-			console.log('Filtered documents:', documents.map((d: Document) => ({ id: d.id, title: d.title, parentId: d.parentId })));
 			return documents;
 		} catch (error) {
 			console.error('Failed to get documents by parent ID:', error);
