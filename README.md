@@ -1,30 +1,22 @@
+## Testing
+- Testing done via Github actions with Playwright 
+
 ![Tests](https://github.com/oldmill1/manuscriptos/workflows/Tests/badge.svg)
 
 
-```
-┌─────────────────────────────────────────┐
-│ ▸ WORKS OFFLINE                         │
-│   Write anywhere. No wifi needed.       │
-│                                         │
-│ ▸ COMPLETE PRIVACY                      │
-│   Your words never leave your device.   │
-│                                         │
-│ ▸ FAMILIAR INTERFACE                    │
-│   Classic desktop                       │
-│                                         │
-│ ▸ ZERO FRICTION                         │
-│                                         │
-└─────────────────────────────────────────┘
-```
+## Tech stack
+- Svelte-Kit with Typescript
+- IndexedDB (pouchdb) for safe storage
 
-## 🚀
+## Purpose
+To develop a private writing app for novel writing, with optional cloud sync in the future
 
-```
-[ 1 ] Open manuscriptOS in your browser
-[ 2 ] Start working
-[ 3 ] Take a break when you're done.
-```
+## Current state
+- Explorer that can display list of folders and documents that supports infinite nesting
+- Deletion of documents and folders
+- Editing via an Editor
+- Basic AI features like text generation
 
-**No sign-ups** • **No trackers** • **No ads**
-
-Just private writing, the way it should be.
+## Future plans
+- Cloud sync
+- Custom AI transforms: create your own rewrite prompts (e.g., “make this Shakespearean”) and apply them to selected text.
