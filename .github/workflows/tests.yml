@@ -26,7 +26,8 @@ jobs:
       run: yarn playwright install --with-deps
     
     - name: Run tests
-      run: yarn playwright test
+      run: yarn playwright test --reporter=list
+      timeout-minutes: 10
     
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
