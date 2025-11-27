@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { DocumentHelpers } from './helpers/documentHelpers';
 
 test('has title', async ({ page }) => {
@@ -53,14 +53,11 @@ test('create document and verify explorer item in desktop', async ({ page }) => 
   // 4. Find desktop div using helper
   const desktopDiv = await docHelpers.findDesktopDiv();
   
-  // 5. Find explorer item within desktop using helper
-  const explorerItem = await docHelpers.findExplorerItem();
-  
-  // 6. Verify there is exactly 1 explorer item with the specific class pattern
+  // 5. Verify there is exactly 1 explorer item with the specific class pattern
   const specificExplorerItem = desktopDiv.locator('div[class*="_explorerItem_"]');
   await expect(specificExplorerItem).toHaveCount(1);
   
-  // 7. Verify the specific explorer item contains the expected class pattern
+  // 6. Verify the specific explorer item contains the expected class pattern
   const explorerItemElement = specificExplorerItem.first();
   await expect(explorerItemElement).toBeVisible();
 });
