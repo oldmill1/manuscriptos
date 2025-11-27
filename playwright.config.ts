@@ -11,6 +11,7 @@ export default defineConfig({
     baseURL: 'http://localhost:5173',
     trace: 'on-first-retry',
   },
+  globalSetup: './tests/global-setup.ts',
   projects: [
     {
       name: 'chromium',
