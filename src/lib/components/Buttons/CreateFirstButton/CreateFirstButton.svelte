@@ -1,8 +1,13 @@
 <script lang="ts">
 	import styles from './CreateFirstButton.module.scss';
 
-	export let text: string = 'Create your first document';
-	export let onclick: () => void = () => {};
+	let {
+		text = 'Create your first document',
+		onclick = () => {}
+	}: {
+		text?: string;
+		onclick: () => void;
+	} = $props();
 </script>
 
 <button class={styles['create-first-btn']} {onclick}>
