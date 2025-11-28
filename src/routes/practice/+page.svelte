@@ -11,6 +11,7 @@
 	let showModal = false;
 	let inputValue = '';
 	let switchState = false;
+	let switchMiniState = false;
 	
 	function openModal() {
 		showModal = true;
@@ -24,6 +25,15 @@
 		switchState = checked;
 		console.log('Switch changed to:', checked);
 	}
+	
+	function handleSwitchMiniChange() {
+		switchMiniState = !switchMiniState;
+		console.log('SwitchMini changed to:', switchMiniState);
+	}
+	
+	function handleSwitchMiniClick(e: MouseEvent) {
+		console.log('SwitchMini clicked');
+	}
 </script>
 
 <svelte:head>
@@ -33,7 +43,11 @@
 
 <div class={styles['practice-page']}>
     <div class={styles['input-section']}>
-        <SwitchMini label="Switch Mini" />
+        <SwitchMini 
+            label="Switch Mini" 
+            onchange={handleSwitchMiniChange}
+            onclick={handleSwitchMiniClick}
+        />
     </div>
     
     <div class={styles['button-stack']}>
