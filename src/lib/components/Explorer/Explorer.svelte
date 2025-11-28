@@ -20,12 +20,15 @@
 		onSelectionToggle?: (enabled: boolean) => void;
 		onNewFolder?: () => void;
 		onNewDocument?: () => void;
+		onNewCharacter?: () => void;
 		onFolderCreate?: (folderName: string, tempId: string) => void;
 		onFolderRename?: (folderId: string, newName: string) => void;
 		onDocumentCreate?: (documentName: string, tempId: string) => void;
 		onDocumentRename?: (documentId: string, newName: string) => void;
+		onCharacterCreate?: (characterName: string, tempId: string) => void;
 		editingTempFolderId?: string | null;
 		editingTempDocumentId?: string | null;
+		editingTempCharacterId?: string | null;
 		folderIds?: string[]; // For breadcrumb trail
 	}
 
@@ -39,14 +42,25 @@
 		onSelectionToggle,
 		onNewFolder,
 		onNewDocument,
+		onNewCharacter,
 		onFolderCreate,
 		onFolderRename,
 		onDocumentCreate,
 		onDocumentRename,
+		onCharacterCreate,
 		editingTempFolderId,
 		editingTempDocumentId,
+		editingTempCharacterId,
 		folderIds = []
 	}: Props = $props();
+
+	// Debug: Log all received props
+	console.log('=== Explorer component props ===');
+	console.log('onNewFolder:', !!onNewFolder);
+	console.log('onNewDocument:', !!onNewDocument);
+	console.log('onNewCharacter:', !!onNewCharacter);
+	console.log('onCharacterCreate:', !!onCharacterCreate);
+	console.log('=== End Explorer props ===');
 
 	// Track selected documents from the store
 	let selectedDocs = $state<any[]>([]);
@@ -142,6 +156,14 @@
 		// Call the parent's new document handler
 		onNewDocument?.();
 	}
+
+	async function handleNewCharacter() {
+		console.log('New character button clicked in Explorer component');
+		console.log('onNewCharacter function:', onNewCharacter);
+		console.log('onNewCharacter type:', typeof onNewCharacter);
+		// Call the parent's new character handler
+		onNewCharacter?.();
+	}
 </script>
 
 <div class={styles.container}>
@@ -163,6 +185,12 @@
 						label: 'New Document',
 						icon: '📄',
 						onClick: handleNewDocument
+					},
+					{
+						id: 'character',
+						label: 'New Character',
+						icon: '🧙',
+						onClick: handleNewCharacter
 					}
 				]}
 			/>
@@ -178,7 +206,8 @@
 						onFolderRename={onFolderRename}
 						onDocumentCreate={onDocumentCreate}
 						onDocumentRename={onDocumentRename}
-						forceEditing={editingTempFolderId === item.id || editingTempDocumentId === item.id}
+						onCharacterCreate={onCharacterCreate}
+						forceEditing={editingTempFolderId === item.id || editingTempDocumentId === item.id || editingTempCharacterId === item.id}
 					/>
 				{/each}
 			{/if}

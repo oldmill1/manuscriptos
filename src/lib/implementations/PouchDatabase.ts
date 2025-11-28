@@ -24,6 +24,9 @@ export class PouchDatabase implements IDatabase {
 				type: data.type, // Include type field
 				title: data.title,
 				content: data.content,
+				name: data.name, // Include name field for characters
+				dob: data.dob,   // Include dob field for characters
+				dod: data.dod,   // Include dod field for characters
 				parentId: data.parentId,
 				path: data.path,
 				level: data.level,
@@ -66,6 +69,9 @@ export class PouchDatabase implements IDatabase {
 				type: data.type, // Include type field
 				title: data.title,
 				content: data.content,
+				name: data.name, // Include name field for characters
+				dob: data.dob,   // Include dob field for characters
+				dod: data.dod,   // Include dod field for characters
 				parentId: data.parentId,
 				path: data.path,
 				level: data.level,

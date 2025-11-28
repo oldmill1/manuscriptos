@@ -2,20 +2,24 @@
 	import { onMount } from 'svelte';
 	import { List } from '$lib/models/List';
 	import { Document } from '$lib/models/Document';
+	import { Character } from '$lib/models/Character';
 	import { ListService } from '$lib/services/ListService';
 	import { DocumentService } from '$lib/services/DocumentService';
+	import { CharacterService } from '$lib/services/CharacterService';
 	import Explorer from '$lib/components/Explorer/Explorer.svelte';
 	import MenuBar from '$lib/components/MenuBar/MenuBar.svelte';
 	import type { ExplorerItem } from '$lib/components/Explorer/types';
-	import { convertDocumentsToExplorerItems, convertListsToExplorerItems, createExplorerData } from '$lib/components/Explorer/utils';
+	import { convertDocumentsToExplorerItems, convertListsToExplorerItems, convertCharactersToExplorerItems, createExplorerData } from '$lib/components/Explorer/utils';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 
 	let listService: ListService;
 	let documentService: DocumentService;
+	let characterService: CharacterService;
 	let list = $state<List | null>(null);
 	let documents = $state<Document[]>([]);
+	let characters = $state<Character[]>([]);
 	let childFolders = $state<List[]>([]);
 	let hasLoaded = $state(false);
 	let error = $state<string | null>(null);
@@ -24,16 +28,21 @@
 	let isSelectionMode = $state(false);
 	let editingTempFolderId = $state<string | null>(null);
 	let editingTempDocumentId = $state<string | null>(null);
+	let editingTempCharacterId = $state<string | null>(null);
 	let temporaryFolders = $state<any[]>([]);
 	let temporaryDocuments = $state<ExplorerItem[]>([]);
+	let temporaryCharacters = $state<ExplorerItem[]>([]);
 
 	onMount(async () => {
 		try {
 			const { ListService } = await import('$lib/services/ListService');
 			const { DocumentService } = await import('$lib/services/DocumentService');
+			const { CharacterService } = await import('$lib/services/CharacterService');
 			const { PouchDatabase } = await import('$lib/implementations/PouchDatabase');
+			const database = new PouchDatabase('manuscriptOS_DB');
 			listService = new ListService();
-			documentService = new DocumentService(new PouchDatabase('manuscriptOS_DB'));
+			documentService = new DocumentService(database);
+			characterService = new CharacterService(database);
 
 			// Load the list - first path segment is the list ID
 			console.log('Raw path data:', data.path);
@@ -84,6 +93,12 @@
 			// Sort by creation date, newest first
 			documents.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 			console.log('Loaded documents in folder:', documents.map(d => ({ id: d.id, title: d.title, parentId: d.parentId })));
+
+			// Load characters in this folder using parentId
+			characters = await characterService.getByParentId(currentFolderId);
+			// Sort by creation date, newest first
+			characters.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+			console.log('Loaded characters in folder:', characters.map(c => ({ id: c.id, name: c.name, parentId: c.parentId })));
 
 		} catch (err) {
 			console.error('Failed to load list documents:', err);
@@ -166,6 +181,19 @@
 		window.location.href = `/docs/${doc.id}`;
 	}
 
+	function handleCharacterClick(character: ExplorerItem, event: MouseEvent) {
+		console.log('The character file was clicked!');
+		// TODO: Navigate to character page when implemented
+	}
+
+	// Wrapper function for convertCharactersToExplorerItems
+	function createCharacterClickHandler(character: Character) {
+		return (explorerItem: ExplorerItem, event: MouseEvent) => {
+			console.log('The character file was clicked!');
+			// TODO: Navigate to character page when implemented
+		};
+	}
+
 	function handleFolderClick(folder: List, event: MouseEvent) {
 		console.log('Folder clicked:', folder.id, folder.name);
 		
@@ -201,6 +229,51 @@
 		// Set this document as the one being edited
 		editingTempDocumentId = tempDocument.id;
 		console.log('Set editingTempDocumentId to:', editingTempDocumentId);
+	}
+
+	function handleNewCharacter() {
+		console.log('Creating new character in folder:', currentFolderId);
+		
+		// Create a temporary character with a unique ID and "Untitled Character" name
+		const tempCharacter: ExplorerItem = {
+			id: `temp-char-${Date.now()}`,
+			name: 'Untitled Character',
+			type: 'character',
+			icon: '/icons/fantasy.png',
+			isTemp: true,
+			isEditing: true
+		};
+		
+		// Add to temporary characters for editing
+		temporaryCharacters = [...temporaryCharacters, tempCharacter];
+		editingTempCharacterId = tempCharacter.id;
+		
+		console.log('Temporary character created:', tempCharacter.id);
+	}
+
+	async function handleCharacterCreate(characterName: string, tempId: string) {
+		console.log('Creating character:', characterName, 'in folder:', currentFolderId);
+		try {
+			// Create the actual character using CharacterService
+			const character = new Character(characterName, null, null, currentFolderId, `/${currentFolderId}`, currentFolderId ? 1 : 0);
+			console.log('Character object created:', character.toJSON());
+			
+			const savedCharacter = await characterService.create(character);
+			console.log('Character saved to database:', savedCharacter.toJSON());
+			
+			// Remove the temporary character
+			temporaryCharacters = temporaryCharacters.filter(char => char.id !== tempId);
+			if (editingTempCharacterId === tempId) {
+				editingTempCharacterId = null;
+			}
+			
+			// Add the new character to the characters array
+			characters = [...characters, savedCharacter].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+			
+			console.log('Character created successfully!');
+		} catch (error) {
+			console.error('Failed to create character:', error);
+		}
 	}
 
 	function handleBack() {
@@ -396,15 +469,17 @@
 	const explorerData = $derived.by(() => {
 		if (!hasLoaded) return createExplorerData([], 'document', false);
 		
-		// Combine temporary folders, temporary documents, child folders, and documents
+		// Combine temporary folders, temporary documents, temporary characters, child folders, documents, and characters
 		const temporaryFolderItems = temporaryFolders.map(f => ({ ...f, isFolder: true }));
 		const temporaryDocumentItems = temporaryDocuments.map(d => ({ ...d, isFolder: false }));
+		const temporaryCharacterItems = temporaryCharacters.map(c => ({ ...c, isFolder: false, onClick: handleCharacterClick }));
 		const childFolderItems = convertListsToExplorerItems(childFolders, handleFolderClick);
 		const documentItems = convertDocumentsToExplorerItems(documents, handleDocumentClick);
+		const characterItems = convertCharactersToExplorerItems(characters, createCharacterClickHandler);
 		
-		// Show temporary items FIRST, then child folders, then documents
+		// Show temporary items FIRST, then child folders, then documents, then characters
 		return createExplorerData(
-			[...temporaryFolderItems, ...temporaryDocumentItems, ...childFolderItems, ...documentItems],
+			[...temporaryFolderItems, ...temporaryDocumentItems, ...temporaryCharacterItems, ...childFolderItems, ...documentItems, ...characterItems],
 			'document',
 			true
 		);
@@ -425,12 +500,15 @@
 			onDeleteSelected={handleDeleteSelected}
 			onNewFolder={handleNewFolder}
 			onNewDocument={handleNewDocument}
+			onNewCharacter={handleNewCharacter}
 			onFolderCreate={handleFolderCreate}
 			onFolderRename={handleFolderRename}
 			onDocumentCreate={handleDocumentCreate}
 			onDocumentRename={handleDocumentRename}
+			onCharacterCreate={handleCharacterCreate}
 			editingTempFolderId={editingTempFolderId}
 			editingTempDocumentId={editingTempDocumentId}
+			editingTempCharacterId={editingTempCharacterId}
 			folderIds={pathArray}
 		/>
 	{/if}

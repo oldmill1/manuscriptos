@@ -15,6 +15,7 @@
 		onFolderRename?: (folderId: string, newName: string) => void;
 		onDocumentCreate?: (documentName: string, tempId: string) => void;
 		onDocumentRename?: (documentId: string, newName: string) => void;
+		onCharacterCreate?: (characterName: string, tempId: string) => void;
 		forceEditing?: boolean;
 	}
 
@@ -26,6 +27,7 @@
 		onFolderRename,
 		onDocumentCreate,
 		onDocumentRename,
+		onCharacterCreate,
 		forceEditing = false
 	}: Props = $props();
 
@@ -52,9 +54,9 @@
 		// Editing should be a separate action from selection
 	});
 	
-	// Handle force editing for new folders and documents
+	// Handle force editing for new folders, documents, and characters
 	$effect(() => {
-		if (forceEditing && (item.icon === '/icons/folder.png' || item.icon === '/icons/new.png') && !isEditing) {
+		if (forceEditing && (item.icon === '/icons/folder.png' || item.icon === '/icons/new.png' || item.icon === '/icons/fantasy.png') && !isEditing) {
 			isEditing = true;
 			editingValue = item.name;
 			// Focus the input after it's rendered
@@ -150,10 +152,12 @@
 		if (event.key === 'Enter') {
 			event.preventDefault();
 			event.stopPropagation();
-			// Check if this is a temporary folder (starts with 'temp-' but NOT 'temp-doc-')
-			const isTempFolder = item.id.startsWith('temp-') && !item.id.startsWith('temp-doc-');
+			// Check if this is a temporary folder (starts with 'temp-' but NOT 'temp-doc-' or 'temp-char-')
+			const isTempFolder = item.id.startsWith('temp-') && !item.id.startsWith('temp-doc-') && !item.id.startsWith('temp-char-');
 			// Check if this is a temporary document (starts with 'temp-doc-')
 			const isTempDocument = item.id.startsWith('temp-doc-');
+			// Check if this is a temporary character (starts with 'temp-char-')
+			const isTempCharacter = item.id.startsWith('temp-char-');
 			
 			// Set flag to prevent blur from running
 			isExitingByEnter = true;
@@ -165,7 +169,10 @@
 				} else if (isTempDocument && onDocumentCreate) {
 					// Create new document
 					onDocumentCreate(editingValue, item.id);
-				} else if (!isTempFolder && !isTempDocument) {
+				} else if (isTempCharacter && onCharacterCreate) {
+					// Create new character
+					onCharacterCreate(editingValue, item.id);
+				} else if (!isTempFolder && !isTempDocument && !isTempCharacter) {
 					// Rename existing item
 					if (item.isFolder && onFolderRename) {
 						// Rename existing folder

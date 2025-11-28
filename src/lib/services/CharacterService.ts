@@ -40,6 +40,7 @@ export class CharacterService {
 			}
 
 			const characterData = character.toJSON();
+			console.log('CharacterService.create - characterData:', characterData);
 			
 			if (!characterData.id) {
 				throw new DocumentValidationError('id', characterData.id);
@@ -57,6 +58,7 @@ export class CharacterService {
 				createdAt: characterData.createdAt.toISOString(),
 				updatedAt: characterData.updatedAt.toISOString()
 			};
+			console.log('CharacterService.create - databaseCharacter:', databaseCharacter);
 			const result = await this.database.create(databaseCharacter);
 
 			// Return a new character instance with the saved data
@@ -224,17 +226,29 @@ export class CharacterService {
 					return row.type === 'character';
 				})
 				.map((row: any) => {
-					return Character.fromJSON({
-						id: row._id || row.id,
-						name: row.name,
-						dob: row.dob,
-						dod: row.dod,
-						parentId: row.parentId,
-						path: row.path || `/${row._id || row.id}`, // Default path if missing
-						level: row.level ?? (row.parentId ? 1 : 0), // Calculate level if missing
-						createdAt: new Date(row.createdAt),
-						updatedAt: new Date(row.updatedAt)
-					});
+					console.log('CharacterService.getByParentId - raw row from database:', row);
+					try {
+						const characterData = {
+							id: row._id || row.id,
+							name: row.name,
+							dob: row.dob,
+							dod: row.dod,
+							parentId: row.parentId,
+							path: row.path || `/${row._id || row.id}`, // Default path if missing
+							level: row.level ?? (row.parentId ? 1 : 0), // Calculate level if missing
+							createdAt: new Date(row.createdAt),
+							updatedAt: new Date(row.updatedAt)
+						};
+						console.log('CharacterService.getByParentId - characterData before fromJSON:', characterData);
+						return Character.fromJSON(characterData);
+					} catch (validationError) {
+						// Skip invalid characters (e.g., those with undefined names)
+						console.warn('Skipping invalid character:', row._id || row.id, validationError);
+						return null;
+					}
+				})
+				.filter((character: Character | null): character is Character => {
+					return character !== null;
 				});
 		} catch (error) {
 			if (error instanceof DatabaseError) {

@@ -17,6 +17,7 @@ export interface AppState {
 	characters: Character[];
 	temporaryFolders: ExplorerItem[];
 	temporaryDocuments: ExplorerItem[];
+	temporaryCharacters: ExplorerItem[];
 	
 	// UI State
 	loading: boolean;
@@ -26,6 +27,7 @@ export interface AppState {
 	// Editing state
 	editingTempFolderId: string | null;
 	editingTempDocumentId: string | null;
+	editingTempCharacterId: string | null;
 	
 	// Services (singleton instances, nullable for SSR)
 	documentService: DocumentService | null;
@@ -56,6 +58,7 @@ function createAppState() {
 		characters: [],
 		temporaryFolders: [],
 		temporaryDocuments: [],
+		temporaryCharacters: [],
 		
 		// UI State
 		loading: false,
@@ -65,6 +68,7 @@ function createAppState() {
 		// Editing state
 		editingTempFolderId: null,
 		editingTempDocumentId: null,
+		editingTempCharacterId: null,
 		
 		// Services
 		documentService,
@@ -362,6 +366,14 @@ function createAppState() {
 			state.temporaryDocuments = state.temporaryDocuments.filter(item => item.id !== itemId);
 		},
 
+		addTemporaryCharacter(item: ExplorerItem): void {
+			state.temporaryCharacters = [...state.temporaryCharacters, item];
+		},
+
+		removeTemporaryCharacter(itemId: string): void {
+			state.temporaryCharacters = state.temporaryCharacters.filter(item => item.id !== itemId);
+		},
+
 		// UI state management
 		setSelectionMode(enabled: boolean): void {
 			state.isSelectionMode = enabled;
@@ -375,10 +387,15 @@ function createAppState() {
 			state.editingTempDocumentId = documentId;
 		},
 
+		setEditingTempCharacterId(characterId: string | null): void {
+			state.editingTempCharacterId = characterId;
+		},
+
 		// Utility methods
 		clearTemporaryItems(): void {
 			state.temporaryFolders = [];
 			state.temporaryDocuments = [];
+			state.temporaryCharacters = [];
 		},
 
 		async refresh(): Promise<void> {
@@ -414,11 +431,13 @@ function createAppState() {
 		get characters() { return state.characters; },
 		get temporaryFolders() { return state.temporaryFolders; },
 		get temporaryDocuments() { return state.temporaryDocuments; },
+		get temporaryCharacters() { return state.temporaryCharacters; },
 		get loading() { return state.loading; },
 		get hasLoaded() { return state.hasLoaded; },
 		get isSelectionMode() { return state.isSelectionMode; },
 		get editingTempFolderId() { return state.editingTempFolderId; },
 		get editingTempDocumentId() { return state.editingTempDocumentId; },
+		get editingTempCharacterId() { return state.editingTempCharacterId; },
 		get documentService() { return state.documentService; },
 		get listService() { return state.listService; },
 		get characterService() { return state.characterService; },
