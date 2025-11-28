@@ -2,11 +2,19 @@
 	import { Motion } from 'svelte-motion';
 	import styles from './SwitchMini.module.scss';
 	
-	export let checked = false;
-	export let disabled = false;
-	export let label = '';
-	export let onchange: () => void = () => {};
-	export let onclick: (e: MouseEvent) => void = () => {};
+	let {
+		checked = false,
+		disabled = false,
+		label = '',
+		onchange = () => {},
+		onclick = () => {}
+	}: {
+		checked?: boolean;
+		disabled?: boolean;
+		label?: string;
+		onchange: () => void;
+		onclick: (e: MouseEvent) => void;
+	} = $props();
 	
 	function handleChange() {
 		if (!disabled) {
