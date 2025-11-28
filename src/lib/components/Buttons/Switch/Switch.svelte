@@ -2,14 +2,26 @@
     import { Motion } from 'svelte-motion';
     
     export let checked: boolean = false;
-    export let onchange: () => void = () => {};
+    export let onchange: (checked: boolean) => void = () => {};
     
     let isHovered: boolean = false;
     
     function handleChange(event: Event) {
         const target = event.target as HTMLInputElement;
         checked = target.checked;
-        onchange();
+        onchange(checked);
+    }
+    
+    function handleClick() {
+        checked = !checked;
+        onchange(checked);
+    }
+    
+    function handleKeydown(event: KeyboardEvent) {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            handleClick();
+        }
     }
 </script>
 
@@ -22,13 +34,18 @@
         ease: [0.4, 0, 0.2, 1] 
     }}
 >
-    <label 
+    <button 
+        type="button"
         class="switch" 
         use:motion
+        role="switch"
+        aria-checked={checked}
         onmouseenter={() => isHovered = true}
         onmouseleave={() => isHovered = false}
+        onclick={handleClick}
+        onkeydown={handleKeydown}
     >
-        <input type="checkbox" {checked} onchange={handleChange}>
+        <input type="checkbox" {checked} style="display: none;">
         
         <Motion 
             let:motion
@@ -64,7 +81,7 @@
                 </Motion>
             </span>
         </Motion>
-    </label>
+    </button>
 </Motion>
 
 <style>

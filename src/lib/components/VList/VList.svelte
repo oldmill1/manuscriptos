@@ -18,7 +18,7 @@
 		onEmptyButtonClick: () => void;
 		onItemClick: (item: T, event: MouseEvent) => void;
 		onToggleSelection: (item: T) => void;
-		onToggleSelectionMode: () => void;
+		onToggleSelectionMode: (enabled: boolean) => void;
 		onDeleteClick: () => void;
 		getItemId: (item: T) => string;
 		isItemSelected: (item: T) => boolean;
@@ -76,8 +76,13 @@
 		onToggleSelection(item);
 	}
 
-	function handleSwitchChange() {
-		onToggleSelectionMode();
+	function handleSwitchChange(enabled: boolean) {
+		console.log('=== VLIST SELECTION DEBUG ===');
+		console.log('VList handleSwitchChange called with:', enabled);
+		console.log('Current isSelectionMode before:', isSelectionMode);
+		onToggleSelectionMode(enabled);
+		console.log('Called onToggleSelectionMode with:', enabled);
+		console.log('=== END VLIST SELECTION DEBUG ===');
 	}
 
 	function handleDeleteClick() {
@@ -177,18 +182,18 @@
 				type="button"
 				transition:fade={{ duration: 300 }}
 			>
-			<div class={styles['selection-checkbox']}>
-	{#if isSelectionMode}
-		<input
-			type="checkbox"
-			checked={checkIfSelected(item)}
-			onchange={() => toggleItemSelection(item)}
-			onclick={(e) => e.stopPropagation()}
-		/>
-	{/if}
-</div>
-			{@render renderItemContent(item)}
-			<div class={styles['item-arrow']}>→</div>
+				<div class={styles['selection-checkbox']}>
+					{#if isSelectionMode}
+						<input
+							type="checkbox"
+							checked={checkIfSelected(item)}
+							onchange={() => toggleItemSelection(item)}
+							onclick={(e) => e.stopPropagation()}
+						/>
+					{/if}
+				</div>
+				{@render renderItemContent(item)}
+				<div class={styles['item-arrow']}>→</div>
 			</button>
 		</Motion>
 	{/each}

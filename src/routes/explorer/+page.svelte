@@ -58,8 +58,6 @@
 	});
 
 	function handleNewDocument() {
-		console.log('Creating new document...');
-		
 		// Create a temporary document with a unique ID and "Untitled Document" name
 		const tempId = `temp-doc-${crypto.randomUUID()}`;
 		const tempDocument: ExplorerItem = {
@@ -77,8 +75,6 @@
 
 	async function handleDocumentCreate(documentName: string, tempId: string) {
 		try {
-			console.log('Creating document:', documentName);
-			
 			// Create the actual document
 			const savedDocument = await app.createDocument(documentName, '', undefined);
 			
@@ -269,7 +265,7 @@
 		}} 
 		isSelectionMode={app.isSelectionMode}
 		showSelectionSwitch={true}
-		onSelectionToggle={app.setSelectionMode}
+		onSelectionToggle={handleSelectionToggle}
 		onDeleteSelected={handleDeleteSelected}
 		onNewFolder={handleNewFolder}
 		onNewDocument={handleNewDocument}

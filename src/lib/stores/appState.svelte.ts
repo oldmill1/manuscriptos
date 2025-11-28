@@ -5,6 +5,7 @@ import { ListService } from '$lib/services/ListService';
 import { browser } from '$app/environment';
 import { PouchDatabase } from '$lib/implementations/PouchDatabase';
 import type { ExplorerItem } from '$lib/components/Explorer/types';
+import { selectedDocuments } from '$lib/stores/selectedDocuments';
 
 // Global app state interface
 export interface AppState {
@@ -286,8 +287,15 @@ function createAppState() {
 		},
 
 		toggleDocumentSelection(item: any): void {
-			// This would integrate with selectedDocuments store
-			console.log('Toggle document selection:', item);
+			// Convert document to SelectableItem format
+			const selectableItem = {
+				id: item.id,
+				name: item.title || item.name || 'Untitled Document',
+				icon: item.icon || '/icons/ai.png'
+			};
+			
+			// Toggle selection using the selectedDocuments store
+			selectedDocuments.toggleDocument(selectableItem);
 		}
 	};
 

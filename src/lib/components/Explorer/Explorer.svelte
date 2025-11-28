@@ -103,10 +103,8 @@
 		return motionAction(node);
 	}
 
-	function handleSelectionToggle() {
-		const newMode = !isSelectionMode;
-		console.log('Selection mode toggled:', newMode ? 'ON' : 'OFF');
-		onSelectionToggle?.(newMode);
+	function handleSelectionToggle(enabled: boolean) {
+		onSelectionToggle?.(enabled);
 	}
 
 	function handleItemClick(item: any, event: MouseEvent) {

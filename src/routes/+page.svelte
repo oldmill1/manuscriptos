@@ -13,11 +13,11 @@
 
 	// Use centralized app state
 	const app = useAppState();
-	let isBrowser = false;
-	let recentDocs: Document[] = [];
-	let selectedCategory = 'Recents';
-	let hasLoaded = false;
-	let greeting = '';
+	let isBrowser = $state(false);
+	let recentDocs = $state<Document[]>([]);
+	let selectedCategory = $state('Recents');
+	let hasLoaded = $state(false);
+	let greeting = $state('');
 
 	onMount(async () => {
 		isBrowser = true;
@@ -68,17 +68,6 @@
 		await goto(`/docs/${docId}`);
 	}
 
-	function toggleDocumentSelection(doc: Document) {
-	}
-
-	function handleDeleteSelected(selectedDocs: any[]) {
-		// Similar to explorer but simpler for home page
-		selectedDocs.forEach(async (doc: any) => {
-			await app.deleteDocument(doc.id);
-		});
-		app.clearSelection();
-	}
-
 	function handleDocumentClick(doc: Document, event: MouseEvent) {
 		if (app.isSelectionMode) {
 			event.preventDefault();
@@ -93,7 +82,7 @@
 		}
 	}
 
-	$: selectedCount = selectedDocuments.getSelectedCount();
+	const selectedCount = $derived(selectedDocuments.getSelectedCount());
 </script>
 
 <svelte:head>
@@ -128,13 +117,16 @@
 				emptyMessage=""
 				buttonText="Create new document"
 				emptyButtonTopDrawerText="get started..."
-				emptyButtonBottomDrawerText="...it's easy!"
+				emptyButtonBottomDrawerText="...it\'s easy!"
 				onEmptyButtonClick={handleNewDocument}
 				onItemClick={handleDocumentClick}
 				onToggleSelection={app.toggleDocumentSelection}
 				onToggleSelectionMode={() => app.setSelectionMode(!app.isSelectionMode)}
 				onDeleteClick={async () => {
-					// Reload recent docs after deletion
+					// VList handles deletion, but we need to force reload the app data
+					await app.loadRootLevel();
+					
+					// Reload recent docs from the freshly loaded app.documents
 					const allDocs = [...app.documents];
 					recentDocs = allDocs
 						.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())

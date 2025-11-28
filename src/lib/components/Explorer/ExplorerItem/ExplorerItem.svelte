@@ -54,16 +54,7 @@
 	
 	// Handle force editing for new folders and documents
 	$effect(() => {
-		console.log('ExplorerItem effect:', {
-			itemId: item.id,
-			itemName: item.name,
-			forceEditing,
-			isEditing,
-			itemIcon: item.icon
-		});
-		
 		if (forceEditing && (item.icon === '/icons/folder.png' || item.icon === '/icons/new.png') && !isEditing) {
-			console.log('Setting isEditing to true for:', item.name);
 			isEditing = true;
 			editingValue = item.name;
 			// Focus the input after it's rendered
@@ -164,19 +155,15 @@
 			// Check if this is a temporary document (starts with 'temp-doc-')
 			const isTempDocument = item.id.startsWith('temp-doc-');
 			
-			console.log('handleInputKeydown:', { itemId: item.id, isTempFolder, isTempDocument });
-			
 			// Set flag to prevent blur from running
 			isExitingByEnter = true;
 			
 			if (editingValue) {
 				if (isTempFolder && onFolderCreate) {
 					// Create new folder
-					console.log('Creating folder:', editingValue);
 					onFolderCreate(editingValue, item.id);
 				} else if (isTempDocument && onDocumentCreate) {
 					// Create new document
-					console.log('Creating document:', editingValue);
 					onDocumentCreate(editingValue, item.id);
 				} else if (!isTempFolder && !isTempDocument) {
 					// Rename existing item
