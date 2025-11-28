@@ -3,16 +3,16 @@
 	import { onMount } from 'svelte';
 	import { shortcutsService } from '$lib/services/ShortcutsService';
 	import { editorFontSize } from '$lib/stores/editorFontSize';
+	import { dev } from '$app/environment';
+	import { inject } from '@vercel/analytics';
 
 	let { children } = $props();
-	let Analytics: any = $state();
 
-	// Load Analytics component on client side and initialize shortcuts
+	// Inject Vercel Analytics
+	inject({ mode: dev ? 'development' : 'production' });
+
+	// Initialize shortcuts
 	onMount(() => {
-		// Load analytics asynchronously
-		import('@vercel/analytics/sveltekit').then(analyticsModule => {
-			Analytics = analyticsModule.default;
-		});
 
 		// Register Option + "=" to increase font size
 		// Using 'code' instead of 'key' for Mac compatibility (Option + "+" produces "≠" character)
@@ -58,13 +58,8 @@
 	});
 </script>
 
-
 <svelte:head>
 	<title>manuscriptOS Novel Writer</title>
 </svelte:head>
 
 {@render children()}
-
-{#if Analytics}
-	<Analytics />
-{/if}
