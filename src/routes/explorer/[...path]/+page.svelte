@@ -14,6 +14,9 @@
 
 	let { data }: PageProps = $props();
 
+	// Extract pathArray from SvelteKit data.params
+	let pathArray = $state<string[]>([]);
+
 	let listService: ListService;
 	let documentService: DocumentService;
 	let characterService: CharacterService;
@@ -23,7 +26,6 @@
 	let childFolders = $state<List[]>([]);
 	let hasLoaded = $state(false);
 	let error = $state<string | null>(null);
-	let pathArray = $state<string[]>([]);
 	let currentFolderId = $state<string | undefined>(undefined);
 	let isSelectionMode = $state(false);
 	let editingTempFolderId = $state<string | null>(null);
@@ -44,31 +46,15 @@
 			documentService = new DocumentService(database);
 			characterService = new CharacterService(database);
 
-			// Load the list - first path segment is the list ID
-			console.log('Raw path data:', data.path);
-			console.log('Path type:', typeof data.path);
-			console.log('Path constructor:', data.path.constructor.name);
-			
-			// Handle both string and array cases for SvelteKit routing
-			if (typeof data.path === 'string') {
-				console.log('Path is string, splitting by /');
-				pathArray = (data.path as string).split('/').filter((segment: string) => segment.length > 0);
-			} else if (Array.isArray(data.path)) {
-				console.log('Path is array, using directly');
-				pathArray = data.path;
-			} else {
-				console.log('Path is unexpected type, using empty array');
-				pathArray = [];
-			}
-			
-			console.log('Processed path array:', pathArray);
-			// Take the LAST folder in the path as the current folder to load
+			// Load the list - extract pathArray from SvelteKit data
+			pathArray = data.path || [];
+			console.log('Debug: full pathArray:', pathArray);
+			console.log('Debug: pathArray length:', pathArray.length);
 			const listId = pathArray.length > 0 ? pathArray[pathArray.length - 1] : undefined;
-			console.log('Extracted listId:', listId);
+			console.log('Debug: extracted listId:', listId);
 			
 			// Set current folder ID for nested folder creation
 			currentFolderId = listId;
-			console.log('Set currentFolderId to:', currentFolderId);
 			if (!listId) {
 				error = 'No list specified';
 				hasLoaded = true;
@@ -76,7 +62,9 @@
 			}
 			
 			list = await listService.read(listId);
+			console.log('Debug: listService.read() returned:', list);
 			if (!list) {
+				console.log('Debug: list is null/undefined for ID:', listId);
 				error = 'List not found';
 				hasLoaded = true;
 				return;
