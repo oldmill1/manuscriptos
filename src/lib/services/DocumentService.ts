@@ -195,12 +195,7 @@ export class DocumentService {
 
 			return results
 				.filter((row: any) => {
-					// Handle backwards compatibility
-					if (!row.type) {
-						// Old documents without type field - assume document if not list: prefix
-						return !(row._id || row.id || '').startsWith('list:');
-					}
-					// New documents with type field
+					// Use consistent type field - no more prefix filtering needed
 					return row.type === 'document';
 				})
 				.map((row: any) => {
@@ -232,12 +227,7 @@ export class DocumentService {
 			
 			return results
 				.filter((row: any) => {
-					// Handle backwards compatibility
-					if (!row.type) {
-						// Old documents without type field - assume document if not list: prefix
-						return !(row._id || row.id || '').startsWith('list:');
-					}
-					// New documents with type field
+					// Use consistent type field - no more prefix filtering needed
 					return row.type === 'document';
 				})
 				.map((row: any) => {
