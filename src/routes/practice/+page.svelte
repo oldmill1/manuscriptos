@@ -80,7 +80,7 @@
             </button>
         </Motion>
         
-        <WolverineButton />
+        <WolverineButton onclick={() => console.log('WolverineButton clicked!')} />
         <Switch onchange={handleSwitchChange} />
         <button class={styles.practiceButton} on:click={openModal}>
             Open Modal

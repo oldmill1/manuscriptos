@@ -2,14 +2,22 @@
 	import { Motion, M } from 'svelte-motion';
 	import styles from './WolverineButton.module.scss';
 	
-	export let text: string = 'Create your first document';
-	export let onclick: () => void = () => {};
-	export let width: string = '190px';
-	export let topDrawerText: string = 'expires in...';
-	export let bottomDrawerText: string = '...8 hours';
+	let {
+		text = 'Create your first document',
+		onclick = () => {},
+		width = '190px',
+		topDrawerText = 'expires in...',
+		bottomDrawerText = '...8 hours'
+	}: {
+		text?: string;
+		onclick: () => void;
+		width?: string;
+		topDrawerText?: string;
+		bottomDrawerText?: string;
+	} = $props();
 	
-	let isHovered = false;
-	let isActive = false;
+	let isHovered = $state(false);
+	let isActive = $state(false);
 	
 	// Wrapper function to handle SVG type compatibility
 	function applyMotion(node: any, motionAction: any) {
