@@ -23,6 +23,7 @@ ol[role='list'] {
 /* Set core root defaults */
 html {
 	scroll-behavior: smooth;
+	background-color: rgb(16, 20, 23);
 }
 
 /* Set core body defaults */
@@ -34,6 +35,7 @@ body {
 		-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Playwrite US Trad Guides', sans-serif;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+	background-color: rgb(16, 20, 23);
 }
 
 /* A elements that don't have a class get default styles */
