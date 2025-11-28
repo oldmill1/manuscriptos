@@ -30,8 +30,9 @@
 		try {
 			const { ListService } = await import('$lib/services/ListService');
 			const { DocumentService } = await import('$lib/services/DocumentService');
+			const { PouchDatabase } = await import('$lib/implementations/PouchDatabase');
 			listService = new ListService();
-			documentService = new DocumentService();
+			documentService = new DocumentService(new PouchDatabase('manuscriptOS_DB'));
 
 			// Load lists - only root level (parentId: undefined)
 			const allLists = await listService.getByParentId(undefined);

@@ -31,9 +31,9 @@
 		try {
 			const { ListService } = await import('$lib/services/ListService');
 			const { DocumentService } = await import('$lib/services/DocumentService');
-			
+			const { PouchDatabase } = await import('$lib/implementations/PouchDatabase');
 			listService = new ListService();
-			documentService = new DocumentService();
+			documentService = new DocumentService(new PouchDatabase('manuscriptOS_DB'));
 
 			// Load the list - first path segment is the list ID
 			console.log('Raw path data:', data.path);

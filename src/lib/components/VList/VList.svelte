@@ -98,7 +98,8 @@
 		try {
 			if (!documentService) {
 				const { DocumentService } = await import('$lib/services/DocumentService');
-				documentService = new DocumentService();
+				const { PouchDatabase } = await import('$lib/implementations/PouchDatabase');
+				documentService = new DocumentService(new PouchDatabase('manuscriptOS_DB'));
 			}
 
 			const selectedDocs = $selectedDocuments.documents;

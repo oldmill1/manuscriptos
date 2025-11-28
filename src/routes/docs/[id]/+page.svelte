@@ -115,7 +115,8 @@
 		try {
 			// Initialize document service
 			const { DocumentService } = await import('$lib/services/DocumentService');
-			dbService = new DocumentService();
+			const { PouchDatabase } = await import('$lib/implementations/PouchDatabase');
+			dbService = new DocumentService(new PouchDatabase('manuscriptOS_DB'));
 
 			// Load the document
 			const document = await dbService.read(data.id);

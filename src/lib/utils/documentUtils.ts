@@ -16,7 +16,8 @@ export async function createNewDocument(): Promise<void> {
 
 		// Dynamically import DocumentService to ensure browser-only execution
 		const { DocumentService } = await import('$lib/services/DocumentService');
-		const documentService = new DocumentService();
+		const { PouchDatabase } = await import('$lib/implementations/PouchDatabase');
+		const documentService = new DocumentService(new PouchDatabase('manuscriptOS_DB'));
 
 		// Create a new document with time-based title
 		const newDoc = new Document();

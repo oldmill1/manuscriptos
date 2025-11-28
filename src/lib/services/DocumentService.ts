@@ -1,5 +1,5 @@
 import { Document, type DocumentContent } from '$lib/models/Document';
-// PouchDB is loaded via CDN and declared globally in app.d.ts
+import type { IDatabase } from '$lib/interfaces/IDatabase';
 
 interface DatabaseDocument {
 	_id: string;
@@ -12,30 +12,21 @@ interface DatabaseDocument {
 }
 
 export class DocumentService {
-	private db: any;
+	private database: IDatabase;
 
-	constructor(dbName: string = 'manuscriptOS_DB') {
-		this.db = new PouchDB(dbName);
+	constructor(database: IDatabase) {
+		this.database = database;
 	}
 
 	// Create a new document
 	async create(document: Document): Promise<Document> {
 		try {
 			const docData = document.toJSON();
-			const pouchDoc: DatabaseDocument = {
-				_id: docData.id,
-				title: docData.title,
-				content: docData.content,
-				parentId: docData.parentId,
-				createdAt: docData.createdAt.toISOString(),
-				updatedAt: docData.updatedAt.toISOString()
-			};
-
-			const result = await this.db.put(pouchDoc);
+			const result = await this.database.create(docData);
 
 			// Return a new document instance with the saved data
 			return Document.fromJSON({
-				id: result.id,
+				id: result.id || result._id,
 				title: docData.title,
 				content: docData.content,
 				parentId: docData.parentId,
@@ -50,19 +41,18 @@ export class DocumentService {
 	// Read a document by ID
 	async read(id: string): Promise<Document | null> {
 		try {
-			const pouchDoc = await this.db.get(id);
+			const result = await this.database.read(id);
+			if (!result) return null;
+			
 			return Document.fromJSON({
-				id: pouchDoc._id,
-				title: pouchDoc.title,
-				content: pouchDoc.content,
-				parentId: pouchDoc.parentId,
-				createdAt: new Date(pouchDoc.createdAt),
-				updatedAt: new Date(pouchDoc.updatedAt)
+				id: result._id || result.id,
+				title: result.title,
+				content: result.content,
+				parentId: result.parentId,
+				createdAt: new Date(result.createdAt),
+				updatedAt: new Date(result.updatedAt)
 			});
 		} catch (error) {
-			if ((error as any).status === 404) {
-				return null;
-			}
 			throw new Error(`Failed to read document: ${error}`);
 		}
 	}
@@ -70,24 +60,20 @@ export class DocumentService {
 	// Update an existing document
 	async update(document: Document): Promise<Document> {
 		try {
-			// Get the current document to obtain the _rev
-			const existingDoc = await this.db.get(document.id);
-
 			const docData = document.toJSON();
-			const pouchDoc: DatabaseDocument = {
+			const updateData = {
 				_id: docData.id,
-				_rev: existingDoc._rev,
 				title: docData.title,
 				content: docData.content,
 				parentId: docData.parentId,
 				createdAt: docData.createdAt.toISOString(),
 				updatedAt: docData.updatedAt.toISOString()
 			};
-
-			const result = await this.db.put(pouchDoc);
+			
+			const result = await this.database.update(updateData);
 
 			return Document.fromJSON({
-				id: result.id,
+				id: result.id || result._id,
 				title: docData.title,
 				content: docData.content,
 				parentId: docData.parentId,
@@ -102,13 +88,8 @@ export class DocumentService {
 	// Delete a document by ID
 	async delete(id: string): Promise<boolean> {
 		try {
-			const doc = await this.db.get(id);
-			await this.db.remove(doc);
-			return true;
+			return await this.database.delete(id);
 		} catch (error) {
-			if ((error as any).status === 404) {
-				return false;
-			}
 			throw new Error(`Failed to delete document: ${error}`);
 		}
 	}
@@ -116,21 +97,18 @@ export class DocumentService {
 	// List all documents
 	async list(): Promise<Document[]> {
 		try {
-			const result = await this.db.allDocs({
-				include_docs: true
-			});
+			const results = await this.database.list();
 
-			return result.rows
-				.filter((row: any) => row.doc && !row.doc._id.startsWith('list:')) // Filter out list entries
+			return results
+				.filter((row: any) => row && !(row._id || row.id || '').startsWith('list:')) // Filter out list entries
 				.map((row: any) => {
-					const doc = row.doc as DatabaseDocument;
 					return Document.fromJSON({
-						id: doc._id,
-						title: doc.title,
-						content: doc.content,
-						parentId: doc.parentId,
-						createdAt: new Date(doc.createdAt),
-						updatedAt: new Date(doc.updatedAt)
+						id: row._id || row.id,
+						title: row.title,
+						content: row.content,
+						parentId: row.parentId,
+						createdAt: new Date(row.createdAt),
+						updatedAt: new Date(row.updatedAt)
 					});
 				});
 		} catch (error) {
@@ -141,26 +119,20 @@ export class DocumentService {
 	// Get documents by parent ID (for nested folders)
 	async getByParentId(parentId?: string): Promise<Document[]> {
 		try {
-			const result = await this.db.allDocs({
-				include_docs: true
-			});
+			const results = await this.database.getByParentId(parentId);
 			
-			const documents = result.rows
-				.filter((row: any) => row.doc && !row.doc._id.startsWith('list:')) // Filter out list entries
+			return results
+				.filter((row: any) => row && !(row._id || row.id || '').startsWith('list:')) // Filter out list entries
 				.map((row: any) => {
-					const doc = row.doc as DatabaseDocument;
 					return Document.fromJSON({
-						id: doc._id,
-						title: doc.title,
-						content: doc.content,
-						parentId: doc.parentId,
-						createdAt: new Date(doc.createdAt),
-						updatedAt: new Date(doc.updatedAt)
+						id: row._id || row.id,
+						title: row.title,
+						content: row.content,
+						parentId: row.parentId,
+						createdAt: new Date(row.createdAt),
+						updatedAt: new Date(row.updatedAt)
 					});
-				})
-				.filter((doc: Document) => doc.parentId === parentId);
-			
-			return documents;
+				});
 		} catch (error) {
 			console.error('Failed to get documents by parent ID:', error);
 			return [];
@@ -170,14 +142,23 @@ export class DocumentService {
 	// Search documents by title or content
 	async search(query: string): Promise<Document[]> {
 		try {
-			const documents = await this.list();
+			const results = await this.database.search(query);
 			const lowerQuery = query.toLowerCase();
 
-			return documents.filter(
-				(doc) =>
+			return results.filter(
+				(doc: any) =>
 					doc.title.toLowerCase().includes(lowerQuery) ||
 					doc.content.toLowerCase().includes(lowerQuery)
-			);
+			).map((doc: any) => {
+				return Document.fromJSON({
+					id: doc._id || doc.id,
+					title: doc.title,
+					content: doc.content,
+					parentId: doc.parentId,
+					createdAt: new Date(doc.createdAt),
+					updatedAt: new Date(doc.updatedAt)
+				});
+			});
 		} catch (error) {
 			throw new Error(`Failed to search documents: ${error}`);
 		}
@@ -186,7 +167,7 @@ export class DocumentService {
 	// Get database info
 	async getInfo(): Promise<any> {
 		try {
-			return await this.db.info();
+			return await this.database.getInfo();
 		} catch (error) {
 			throw new Error(`Failed to get database info: ${error}`);
 		}
@@ -195,12 +176,12 @@ export class DocumentService {
 	// Destroy the database
 	async destroy(): Promise<void> {
 		try {
-			await this.db.destroy();
+			await this.database.destroy();
 		} catch (error) {
 			throw new Error(`Failed to destroy database: ${error}`);
 		}
 	}
 }
 
-// Note: DocumentService should be instantiated only in the browser
-// Use: const documentService = new DocumentService();
+// Note: DocumentService should be instantiated with a database implementation
+// Use: const documentService = new DocumentService(new PouchDatabase('manuscriptOS_DB'));

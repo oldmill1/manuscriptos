@@ -27,7 +27,8 @@
 
 		try {
 			const { DocumentService } = await import('$lib/services/DocumentService');
-			documentService = new DocumentService('manuscriptOS_DB');
+			const { PouchDatabase } = await import('$lib/implementations/PouchDatabase');
+			documentService = new DocumentService(new PouchDatabase('manuscriptOS_DB'));
 
 			// Load recent documents
 			await loadRecentDocs();
