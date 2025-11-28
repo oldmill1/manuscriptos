@@ -52,7 +52,7 @@
 	});
 
 	// Debounce variables
-	let debounceTimer: number;
+	let debounceTimer: ReturnType<typeof setTimeout>;
 	let isUpdatingFromWidget = $state(false);
 
 	// Track the previous content to detect actual prop changes
