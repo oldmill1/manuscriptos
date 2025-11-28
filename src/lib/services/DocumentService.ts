@@ -13,9 +13,14 @@ import {
 interface DatabaseDocument {
 	_id: string;
 	_rev?: string;
+	type: "document";
 	title: string;
 	content: string;
 	parentId?: string;
+	path: string;
+	level: number;
+	isInFavorites: boolean;
+	listIds: string[];
 	createdAt: string;
 	updatedAt: string;
 }
@@ -36,7 +41,25 @@ export class DocumentService {
 			}
 
 			const docData = document.toJSON();
-			const result = await this.database.create(docData);
+			
+			if (!docData.id) {
+				throw new DocumentValidationError('id', docData.id);
+			}
+			
+			const databaseDoc: DatabaseDocument = {
+				_id: docData.id,
+				type: "document",
+				title: docData.title,
+				content: docData.content,
+				parentId: docData.parentId,
+				path: docData.path,
+				level: docData.level,
+				isInFavorites: docData.isInFavorites,
+				listIds: docData.listIds,
+				createdAt: docData.createdAt.toISOString(),
+				updatedAt: docData.updatedAt.toISOString()
+			};
+			const result = await this.database.create(databaseDoc);
 
 			// Return a new document instance with the saved data
 			return Document.fromJSON({
@@ -44,6 +67,10 @@ export class DocumentService {
 				title: docData.title,
 				content: docData.content,
 				parentId: docData.parentId,
+				path: docData.path,
+				level: docData.level,
+				isInFavorites: docData.isInFavorites,
+				listIds: docData.listIds,
 				createdAt: docData.createdAt,
 				updatedAt: docData.updatedAt
 			});
@@ -65,12 +92,26 @@ export class DocumentService {
 			const result = await this.database.read(id);
 			if (!result) return null;
 			
+			// Handle backwards compatibility - old documents might not have type field
+			if (!result.type) {
+				result.type = "document"; // Assume it's a document if no type specified
+			}
+			
+			// Only process documents (skip lists that might be in same database)
+			if (result.type !== "document") {
+				return null;
+			}
+			
 			// Map PouchDB result to DocumentContent format
 			const documentContent = {
 				id: result._id || result.id,
 				title: result.title,
 				content: result.content,
 				parentId: result.parentId,
+				path: result.path || `/${result._id || result.id}`, // Default path if missing
+				level: result.level ?? (result.parentId ? 1 : 0), // Calculate level if missing
+				isInFavorites: result.isInFavorites ?? false, // Default to false
+				listIds: result.listIds || [], // Default to empty array
 				createdAt: new Date(result.createdAt),
 				updatedAt: new Date(result.updatedAt)
 			};
@@ -96,11 +137,16 @@ export class DocumentService {
 			}
 
 			const docData = document.toJSON();
-			const updateData = {
+			const updateData: DatabaseDocument = {
 				_id: docData.id,
+				type: "document",
 				title: docData.title,
 				content: docData.content,
 				parentId: docData.parentId,
+				path: docData.path,
+				level: docData.level,
+				isInFavorites: docData.isInFavorites,
+				listIds: docData.listIds,
 				createdAt: docData.createdAt.toISOString(),
 				updatedAt: docData.updatedAt.toISOString()
 			};
@@ -112,6 +158,10 @@ export class DocumentService {
 				title: docData.title,
 				content: docData.content,
 				parentId: docData.parentId,
+				path: docData.path,
+				level: docData.level,
+				isInFavorites: docData.isInFavorites,
+				listIds: docData.listIds,
 				createdAt: docData.createdAt,
 				updatedAt: docData.updatedAt
 			});
@@ -144,13 +194,25 @@ export class DocumentService {
 			const results = await this.database.list();
 
 			return results
-				.filter((row: any) => row && !(row._id || row.id || '').startsWith('list:')) // Filter out list entries
+				.filter((row: any) => {
+					// Handle backwards compatibility
+					if (!row.type) {
+						// Old documents without type field - assume document if not list: prefix
+						return !(row._id || row.id || '').startsWith('list:');
+					}
+					// New documents with type field
+					return row.type === 'document';
+				})
 				.map((row: any) => {
 					return Document.fromJSON({
 						id: row._id || row.id,
 						title: row.title,
 						content: row.content,
 						parentId: row.parentId,
+						path: row.path || `/${row._id || row.id}`, // Default path if missing
+						level: row.level ?? (row.parentId ? 1 : 0), // Calculate level if missing
+						isInFavorites: row.isInFavorites ?? false, // Default to false
+						listIds: row.listIds || [], // Default to empty array
 						createdAt: new Date(row.createdAt),
 						updatedAt: new Date(row.updatedAt)
 					});
@@ -169,13 +231,25 @@ export class DocumentService {
 			const results = await this.database.getByParentId(parentId);
 			
 			return results
-				.filter((row: any) => row && !(row._id || row.id || '').startsWith('list:')) // Filter out list entries
+				.filter((row: any) => {
+					// Handle backwards compatibility
+					if (!row.type) {
+						// Old documents without type field - assume document if not list: prefix
+						return !(row._id || row.id || '').startsWith('list:');
+					}
+					// New documents with type field
+					return row.type === 'document';
+				})
 				.map((row: any) => {
 					return Document.fromJSON({
 						id: row._id || row.id,
 						title: row.title,
 						content: row.content,
 						parentId: row.parentId,
+						path: row.path || `/${row._id || row.id}`, // Default path if missing
+						level: row.level ?? (row.parentId ? 1 : 0), // Calculate level if missing
+						isInFavorites: row.isInFavorites ?? false, // Default to false
+						listIds: row.listIds || [], // Default to empty array
 						createdAt: new Date(row.createdAt),
 						updatedAt: new Date(row.updatedAt)
 					});
@@ -208,6 +282,10 @@ export class DocumentService {
 					title: doc.title,
 					content: doc.content,
 					parentId: doc.parentId,
+					path: doc.path || `/${doc._id || doc.id}`, // Default path if missing
+					level: doc.level ?? (doc.parentId ? 1 : 0), // Calculate level if missing
+					isInFavorites: doc.isInFavorites ?? false, // Default to false
+					listIds: doc.listIds || [], // Default to empty array
 					createdAt: new Date(doc.createdAt),
 					updatedAt: new Date(doc.updatedAt)
 				});

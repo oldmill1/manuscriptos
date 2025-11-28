@@ -6,6 +6,10 @@ export interface DocumentContent {
 	title: string;
 	content: string;
 	parentId?: string;  // Parent folder ID for hierarchy
+	path: string;      // Computed full path like "/root/folder/subfolder"
+	level: number;     // Hierarchy depth (0 = root, 1 = child of root, etc.)
+	isInFavorites: boolean; // Denormalized for quick favorites filtering
+	listIds: string[];     // All lists this document belongs to
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -15,17 +19,21 @@ export class Document {
 	private _title: string;
 	private _content: string;
 	private _parentId?: string;
+	private _path: string;
+	private _level: number;
+	private _isInFavorites: boolean;
+	private _listIds: string[];
 	private _createdAt: Date;
 	private _updatedAt: Date;
 
-	constructor(title: string = '', content: string = '', parentId?: string) {
+	constructor(title: string = '', content: string = '', parentId?: string, path?: string, level?: number, isInFavorites?: boolean, listIds?: string[]) {
 		// Validate title
 		this.validateTitle(title);
 		
 		// Validate content
 		this.validateContent(content);
 		
-		// Validate parentId if provided
+		// Validate parentId
 		if (parentId !== undefined) {
 			this.validateParentId(parentId);
 		}
@@ -34,6 +42,10 @@ export class Document {
 		this._title = title || generateTimeBasedTitle();
 		this._content = content;
 		this._parentId = parentId;
+		this._path = path || this.generatePath(parentId); // Generate path if not provided
+		this._level = level ?? this.calculateLevel(parentId); // Calculate level if not provided
+		this._isInFavorites = isInFavorites ?? false; // Default to false
+		this._listIds = listIds ?? []; // Default to empty array
 		this._createdAt = new Date();
 		this._updatedAt = new Date();
 	}
@@ -95,6 +107,17 @@ export class Document {
 		}
 	}
 
+	// Helper methods for NoSQL optimization
+	private generatePath(parentId?: string): string {
+		// For now, simple path generation - will be enhanced later with full hierarchy
+		return parentId ? `/${parentId}/${this._id}` : `/${this._id}`;
+	}
+
+	private calculateLevel(parentId?: string): number {
+		// For now, simple level calculation - will be enhanced later with full hierarchy
+		return parentId ? 1 : 0; // Root level = 0, child level = 1
+	}
+
 	// Getters
 	get id(): string {
 		return this._id;
@@ -120,6 +143,22 @@ export class Document {
 		return this._parentId;
 	}
 
+	get path(): string {
+		return this._path;
+	}
+
+	get level(): number {
+		return this._level;
+	}
+
+	get isInFavorites(): boolean {
+		return this._isInFavorites;
+	}
+
+	get listIds(): string[] {
+		return [...this._listIds]; // Return copy to prevent external mutation
+	}
+
 	// Setters with automatic timestamp update and validation
 	set title(value: string) {
 		this.validateTitle(value);
@@ -138,6 +177,19 @@ export class Document {
 			this.validateParentId(value);
 		}
 		this._parentId = value;
+		// Recalculate path and level when parent changes
+		this._path = this.generatePath(value);
+		this._level = this.calculateLevel(value);
+		this._updatedAt = new Date();
+	}
+
+	set isInFavorites(value: boolean) {
+		this._isInFavorites = value;
+		this._updatedAt = new Date();
+	}
+
+	set listIds(value: string[]) {
+		this._listIds = [...value]; // Store copy to prevent external mutation
 		this._updatedAt = new Date();
 	}
 
@@ -154,6 +206,26 @@ export class Document {
 		this._updatedAt = new Date();
 	}
 
+	// List management methods for NoSQL optimization
+	addToList(listId: string): void {
+		if (!this._listIds.includes(listId)) {
+			this._listIds.push(listId);
+			this._updatedAt = new Date();
+		}
+	}
+
+	removeFromList(listId: string): void {
+		const index = this._listIds.indexOf(listId);
+		if (index > -1) {
+			this._listIds.splice(index, 1);
+			this._updatedAt = new Date();
+		}
+	}
+
+	isInList(listId: string): boolean {
+		return this._listIds.includes(listId);
+	}
+
 	// Serialize for storage
 	toJSON(): DocumentContent {
 		return {
@@ -161,6 +233,10 @@ export class Document {
 			title: this._title,
 			content: this._content,
 			parentId: this._parentId,
+			path: this._path,
+			level: this._level,
+			isInFavorites: this._isInFavorites,
+			listIds: [...this._listIds], // Return copy
 			createdAt: this._createdAt,
 			updatedAt: this._updatedAt
 		};
@@ -201,11 +277,24 @@ export class Document {
 			}
 		}
 
+		// Handle backwards compatibility for new fields
+		const path = data.path || undefined;
+		const level = data.level ?? undefined;
+		const isInFavorites = data.isInFavorites ?? false;
+		const listIds = data.listIds ?? [];
+
 		// Create document with validated data
-		const doc = new Document(data.title, data.content, data.parentId);
+		const doc = new Document(data.title, data.content, data.parentId, path, level, isInFavorites, listIds);
 		doc._id = data.id;
 		// IMPORTANT: Preserve the original title from JSON, don't regenerate it
 		doc._title = data.title;
+		
+		// Handle backwards compatibility for new fields
+		doc._path = data.path || doc.generatePath(data.parentId);
+		doc._level = data.level ?? doc.calculateLevel(data.parentId);
+		doc._isInFavorites = data.isInFavorites ?? false;
+		doc._listIds = data.listIds ?? [];
+		
 		doc._createdAt = data.createdAt;
 		doc._updatedAt = data.updatedAt;
 		return doc;

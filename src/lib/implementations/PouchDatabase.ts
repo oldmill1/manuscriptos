@@ -10,17 +10,25 @@ export class PouchDatabase implements IDatabase {
 
 	async create(data: any): Promise<any> {
 		try {
-			// Validate input
-			if (!data.id) {
+			// Validate input - check for _id (PouchDB format) or id (Document format)
+			if (!data._id && !data.id) {
 				throw createErrorFromPouchDBError('create', undefined, { status: 412, name: 'missing_id', message: '_id is required for puts' });
 			}
 
+			// Use _id if available, otherwise use id
+			const docId = data._id || data.id;
+
 			// Map Document format to PouchDB format
 			const pouchData = {
-				_id: data.id,  // Map id to _id for PouchDB
+				_id: docId,
+				type: data.type, // Include type field
 				title: data.title,
 				content: data.content,
 				parentId: data.parentId,
+				path: data.path,
+				level: data.level,
+				isInFavorites: data.isInFavorites,
+				listIds: data.listIds,
 				createdAt: data.createdAt?.toISOString?.() || data.createdAt,
 				updatedAt: data.updatedAt?.toISOString?.() || data.updatedAt
 			};
@@ -28,7 +36,7 @@ export class PouchDatabase implements IDatabase {
 			const result = await this.db.put(pouchData);
 			return { ...data, _id: result.id, _rev: result.rev };
 		} catch (error) {
-			throw createErrorFromPouchDBError('create', data.id, error);
+			throw createErrorFromPouchDBError('create', data._id || data.id, error);
 		}
 	}
 
@@ -55,9 +63,14 @@ export class PouchDatabase implements IDatabase {
 			const pouchData = {
 				_id: data._id,  // Use the _id that was passed in
 				_rev: existingDoc._rev,
+				type: data.type, // Include type field
 				title: data.title,
 				content: data.content,
 				parentId: data.parentId,
+				path: data.path,
+				level: data.level,
+				isInFavorites: data.isInFavorites,
+				listIds: data.listIds,
 				createdAt: data.createdAt?.toISOString?.() || data.createdAt,
 				updatedAt: data.updatedAt?.toISOString?.() || data.updatedAt
 			};

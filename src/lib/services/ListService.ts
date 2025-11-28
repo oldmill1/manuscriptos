@@ -4,10 +4,14 @@ import { List, type ListContent, type ListType } from '$lib/models/List';
 interface DatabaseList {
 	_id: string;
 	_rev?: string;
-	type: ListType;
+	type: "list"; // Consistent type field like documents
+	listType: ListType; // Renamed from type to avoid conflict
 	name: string;
 	itemIds: string[];
 	parentId?: string;
+	path: string;
+	level: number;
+	documentIds: string[];
 	createdAt: string;
 	updatedAt: string;
 }
@@ -24,11 +28,15 @@ export class ListService {
 		try {
 			const listData = list.toJSON();
 			const pouchList: DatabaseList = {
-				_id: `list:${listData.id}`, // Prefix to avoid conflicts with documents
-				type: listData.type,
+				_id: listData.id, // No more prefix - consistent with documents
+				type: "list", // Consistent type field
+				listType: listData.type, // Actual list type (favorites/custom)
 				name: listData.name,
 				itemIds: listData.itemIds,
 				parentId: listData.parentId,
+				path: listData.path,
+				level: listData.level,
+				documentIds: listData.documentIds,
 				createdAt: listData.createdAt.toISOString(),
 				updatedAt: listData.updatedAt.toISOString()
 			};
@@ -42,6 +50,9 @@ export class ListService {
 				name: listData.name,
 				itemIds: listData.itemIds,
 				parentId: listData.parentId,
+				path: listData.path,
+				level: listData.level,
+				documentIds: listData.documentIds,
 				createdAt: listData.createdAt,
 				updatedAt: listData.updatedAt
 			});
@@ -53,22 +64,30 @@ export class ListService {
 	// Read a list by ID
 	async read(id: string): Promise<List | null> {
 		try {
-			console.log('Attempting to read list with ID:', id);
-			const pouchList = await this.db.get(`list:${id}`);
-			console.log('Found pouch list:', pouchList);
+			// Try new unprefixed ID first, then fallback to old prefixed ID
+			let pouchList;
+			try {
+				pouchList = await this.db.get(id);
+			} catch (newIdError) {
+				// Try old prefixed ID as fallback
+				pouchList = await this.db.get(`list:${id}`);
+			}
+
+			// Handle backwards compatibility for new fields
 			return List.fromJSON({
-				id: pouchList._id.replace('list:', ''),
-				type: pouchList.type,
+				id: pouchList._id.replace('list:', ''), // Remove prefix if present
+				type: pouchList.listType || pouchList.type, // listType is the actual ListType, type is "list"
 				name: pouchList.name,
 				itemIds: pouchList.itemIds,
 				parentId: pouchList.parentId,
+				path: pouchList.path || `/${pouchList._id.replace('list:', '')}`, // Default path if missing
+				level: pouchList.level ?? (pouchList.parentId ? 1 : 0), // Calculate level if missing
+				documentIds: pouchList.documentIds || [], // Default to empty array
 				createdAt: new Date(pouchList.createdAt),
 				updatedAt: new Date(pouchList.updatedAt)
 			});
 		} catch (error) {
-			console.log('Error reading list:', error);
 			if ((error as any).status === 404) {
-				console.log('List not found (404)');
 				return null;
 			}
 			throw new Error(`Failed to read list: ${error}`);
@@ -78,21 +97,31 @@ export class ListService {
 	// Get lists by parent ID (for nested folders)
 	async getByParentId(parentId?: string): Promise<List[]> {
 		try {
+			// Get all documents and filter for lists (both old prefixed and new unprefixed)
 			const result = await this.db.allDocs({
-				include_docs: true,
-				startkey: 'list:',
-				endkey: 'list:\uffff'
+				include_docs: true
 			});
 			
 			const lists = result.rows
+				.filter((row: any) => {
+					const doc = row.doc;
+					// Handle backwards compatibility - check both old and new patterns
+					const isList = doc.type === 'list' || 
+								  (doc._id && doc._id.startsWith('list:')) ||
+								  (doc.type && (doc.type === 'favorites' || doc.type === 'custom'));
+					return isList;
+				})
 				.map((row: any) => {
 					const doc = row.doc;
 					return List.fromJSON({
-						id: doc._id.replace('list:', ''),
-						type: doc.type,
+						id: doc._id.replace('list:', ''), // Remove prefix if present
+						type: doc.listType || doc.type, // listType is the actual ListType, type is "list"
 						name: doc.name,
 						itemIds: doc.itemIds,
 						parentId: doc.parentId,
+						path: doc.path || `/${doc._id.replace('list:', '')}`, // Default path if missing
+						level: doc.level ?? (doc.parentId ? 1 : 0), // Calculate level if missing
+						documentIds: doc.documentIds || [], // Default to empty array
 						createdAt: new Date(doc.createdAt),
 						updatedAt: new Date(doc.updatedAt)
 					});
@@ -109,17 +138,27 @@ export class ListService {
 	// Update an existing list
 	async update(list: List): Promise<List> {
 		try {
-			// Get the current list to obtain the _rev
-			const existingList = await this.db.get(`list:${list.id}`);
+			// Try to get existing list with new unprefixed ID first, then fallback to old prefixed ID
+			let existingList;
+			try {
+				existingList = await this.db.get(list.id);
+			} catch (newIdError) {
+				// Try old prefixed ID as fallback
+				existingList = await this.db.get(`list:${list.id}`);
+			}
 
 			const listData = list.toJSON();
 			const pouchList: DatabaseList = {
-				_id: `list:${listData.id}`,
+				_id: listData.id, // Use new unprefixed ID
 				_rev: existingList._rev,
-				type: listData.type,
+				type: "list", // Consistent type field
+				listType: listData.type, // Actual list type
 				name: listData.name,
 				itemIds: listData.itemIds,
 				parentId: listData.parentId,
+				path: listData.path,
+				level: listData.level,
+				documentIds: listData.documentIds,
 				createdAt: listData.createdAt.toISOString(),
 				updatedAt: listData.updatedAt.toISOString()
 			};
@@ -132,6 +171,9 @@ export class ListService {
 				name: listData.name,
 				itemIds: listData.itemIds,
 				parentId: listData.parentId,
+				path: listData.path,
+				level: listData.level,
+				documentIds: listData.documentIds,
 				createdAt: listData.createdAt,
 				updatedAt: listData.updatedAt
 			});
@@ -143,7 +185,14 @@ export class ListService {
 	// Delete a list by ID
 	async delete(id: string): Promise<boolean> {
 		try {
-			const list = await this.db.get(`list:${id}`);
+			// Try to get list with new unprefixed ID first, then fallback to old prefixed ID
+			let list;
+			try {
+				list = await this.db.get(id);
+			} catch (newIdError) {
+				// Try old prefixed ID as fallback
+				list = await this.db.get(`list:${id}`);
+			}
 			await this.db.remove(list);
 			return true;
 		} catch (error) {
