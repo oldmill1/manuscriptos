@@ -1,4 +1,5 @@
 import type { IDatabase } from '$lib/interfaces/IDatabase';
+import { createErrorFromPouchDBError } from '$lib/errors/DatabaseErrors';
 
 export class PouchDatabase implements IDatabase {
 	private db: any;
@@ -9,6 +10,11 @@ export class PouchDatabase implements IDatabase {
 
 	async create(data: any): Promise<any> {
 		try {
+			// Validate input
+			if (!data.id) {
+				throw createErrorFromPouchDBError('create', undefined, { status: 412, name: 'missing_id', message: '_id is required for puts' });
+			}
+
 			// Map Document format to PouchDB format
 			const pouchData = {
 				_id: data.id,  // Map id to _id for PouchDB
@@ -22,28 +28,43 @@ export class PouchDatabase implements IDatabase {
 			const result = await this.db.put(pouchData);
 			return { ...data, _id: result.id, _rev: result.rev };
 		} catch (error) {
-			throw new Error(`Failed to create record: ${error}`);
+			throw createErrorFromPouchDBError('create', data.id, error);
 		}
 	}
 
 	async read(id: string): Promise<any> {
 		try {
+			if (!id) {
+				throw new Error('Document ID is required for read operation');
+			}
 			return await this.db.get(id);
 		} catch (error) {
-			if ((error as any).status === 404) {
-				return null;
-			}
-			throw new Error(`Failed to read record: ${error}`);
+			throw createErrorFromPouchDBError('read', id, error);
 		}
 	}
 
 	async update(data: any): Promise<any> {
 		try {
-			const existingDoc = await this.db.get(data.id);
+			// Debug logging
+			console.log('PouchDatabase.update called with:', {
+				dataId: data.id,
+				dataIdType: typeof data.id,
+				hasDataId: !!data.id,
+				dataUnderscoreId: data._id,
+				dataUnderscoreIdType: typeof data._id,
+				hasDataUnderscoreId: !!data._id,
+				dataObject: data
+			});
+			
+			if (!data._id) {
+				throw new Error('Document ID is required for update operation');
+			}
+
+			const existingDoc = await this.db.get(data._id);
 			
 			// Map Document format to PouchDB format
 			const pouchData = {
-				_id: data.id,  // Map id to _id for PouchDB
+				_id: data._id,  // Use the _id that was passed in
 				_rev: existingDoc._rev,
 				title: data.title,
 				content: data.content,
@@ -55,20 +76,24 @@ export class PouchDatabase implements IDatabase {
 			const result = await this.db.put(pouchData);
 			return { ...data, _id: result.id, _rev: result.rev };
 		} catch (error) {
-			throw new Error(`Failed to update record: ${error}`);
+			throw createErrorFromPouchDBError('update', data._id, error);
 		}
 	}
 
 	async delete(id: string): Promise<boolean> {
 		try {
+			if (!id) {
+				throw new Error('Document ID is required for delete operation');
+			}
+			
 			const doc = await this.db.get(id);
 			await this.db.remove(doc);
 			return true;
 		} catch (error) {
 			if ((error as any).status === 404) {
-				return false;
+				return false; // Document doesn't exist, considered successfully deleted
 			}
-			throw new Error(`Failed to delete record: ${error}`);
+			throw createErrorFromPouchDBError('delete', id, error);
 		}
 	}
 
@@ -79,7 +104,7 @@ export class PouchDatabase implements IDatabase {
 			});
 			return result.rows.map((row: any) => row.doc);
 		} catch (error) {
-			throw new Error(`Failed to list records: ${error}`);
+			throw createErrorFromPouchDBError('list', undefined, error);
 		}
 	}
 
@@ -93,12 +118,16 @@ export class PouchDatabase implements IDatabase {
 				.map((row: any) => row.doc)
 				.filter((doc: any) => doc.parentId === parentId);
 		} catch (error) {
-			throw new Error(`Failed to get records by parent ID: ${error}`);
+			throw createErrorFromPouchDBError('getByParentId', parentId, error);
 		}
 	}
 
 	async search(query: string): Promise<any[]> {
 		try {
+			if (!query || query.trim() === '') {
+				return [];
+			}
+
 			const records = await this.list();
 			const lowerQuery = query.toLowerCase();
 			
@@ -107,7 +136,7 @@ export class PouchDatabase implements IDatabase {
 				(record.content && record.content.toLowerCase().includes(lowerQuery))
 			);
 		} catch (error) {
-			throw new Error(`Failed to search records: ${error}`);
+			throw createErrorFromPouchDBError('search', query, error);
 		}
 	}
 
@@ -115,7 +144,7 @@ export class PouchDatabase implements IDatabase {
 		try {
 			return await this.db.info();
 		} catch (error) {
-			throw new Error(`Failed to get database info: ${error}`);
+			throw createErrorFromPouchDBError('getInfo', undefined, error);
 		}
 	}
 
@@ -123,7 +152,7 @@ export class PouchDatabase implements IDatabase {
 		try {
 			await this.db.destroy();
 		} catch (error) {
-			throw new Error(`Failed to destroy database: ${error}`);
+			throw createErrorFromPouchDBError('destroy', undefined, error);
 		}
 	}
 }
