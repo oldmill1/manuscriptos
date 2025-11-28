@@ -10,6 +10,7 @@
 	
 	let showModal = false;
 	let inputValue = '';
+	let switchState = false;
 	
 	function openModal() {
 		showModal = true;
@@ -17,6 +18,11 @@
 	
 	function closeModal() {
 		showModal = false;
+	}
+	
+	function handleSwitchChange(checked: boolean) {
+		switchState = checked;
+		console.log('Switch changed to:', checked);
 	}
 </script>
 
@@ -75,7 +81,7 @@
         </Motion>
         
         <WolverineButton />
-        <Switch />
+        <Switch onchange={handleSwitchChange} />
         <button class={styles.practiceButton} on:click={openModal}>
             Open Modal
         </button>

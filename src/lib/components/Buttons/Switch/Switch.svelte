@@ -1,10 +1,15 @@
 <script lang="ts">
     import { Motion } from 'svelte-motion';
     
-    export let checked: boolean = false;
-    export let onchange: (checked: boolean) => void = () => {};
+    let {
+        checked = false,
+        onchange = () => {}
+    }: {
+        checked?: boolean;
+        onchange: (checked: boolean) => void;
+    } = $props();
     
-    let isHovered: boolean = false;
+    let isHovered = $state(false);
     
     function handleChange(event: Event) {
         const target = event.target as HTMLInputElement;
