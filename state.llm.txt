@@ -1,0 +1,184 @@
+# Homepage List Display & Selection System Recovery
+
+## Summary
+This documents the complete recovery of a broken homepage list display and selection system that required 29+ attempts to fix. The core issue was a combination of Svelte 5 reactivity problems and stale data management.
+
+## The Problem
+- **Homepage list disappeared completely** - Users saw blank page instead of document list
+- **Selection switch not working** - Toggle failed to enable selection mode
+- **Delete required manual refresh** - After deleting documents, list wouldn't update
+- **Complex reactivity breaking basic functionality** - Multiple failed attempts with `$effect`, `$derived`, and complex state management
+
+## Root Causes Identified
+
+### 1. Svelte 5 Reactivity Issues
+```typescript
+// BROKEN - Regular let variables don't trigger updates
+let recentDocs: Document[] = [];
+let hasLoaded = false;
+
+// FIXED - Must use $state() for reactivity
+let recentDocs = $state<Document[]>([]);
+let hasLoaded = $state(false);
+```
+
+### 2. Stale Data After Deletion
+```typescript
+// BROKEN - VList deleted from DB but recentDocs stayed stale
+onDeleteClick={async () => {
+  const allDocs = [...app.documents]; // app.documents not updated yet
+  recentDocs = allDocs.sort(...).slice(0, 10);
+}}
+
+// FIXED - Force reload data from database
+onDeleteClick={async () => {
+  await app.loadRootLevel(); // Force fresh data
+  const allDocs = [...app.documents];
+  recentDocs = allDocs.sort(...).slice(0, 10);
+}}
+```
+
+### 3. Component Interface Mismatches
+```typescript
+// BROKEN - Wrong function signatures
+onToggleSelectionMode={(enabled: boolean) => app.setSelectionMode(enabled)}
+
+// FIXED - Proper toggle behavior
+onToggleSelectionMode={() => app.setSelectionMode(!app.isSelectionMode)}
+```
+
+## The Failed Attempts (What NOT to Do)
+
+### ❌ Complex Reactive Logic
+- Using `$effect` to sync `recentDocs` with `app.documents`
+- Creating `localSelectionMode` variables
+- Conditional rendering of VList component
+- Multiple `$derived` statements
+
+### ❌ Debug Logging Hell
+- Console.log statements everywhere
+- Complex debug tracking that masked real issues
+- Removed all functionality in attempts to "simplify"
+
+### ❌ Wrong Component Patterns
+- Trying to pass invalid props to components
+- Mixing reactive and non-reactive variable declarations
+- Assuming Svelte 4 patterns work in Svelte 5
+
+## The Working Solution
+
+### 1. Proper Svelte 5 State Declaration
+```typescript
+// All variables that update the UI must be $state()
+let isBrowser = $state(false);
+let recentDocs = $state<Document[]>([]);
+let selectedCategory = $state('Recents');
+let hasLoaded = $state(false);
+let greeting = $state('');
+```
+
+### 2. Simple Data Loading
+```typescript
+onMount(async () => {
+  isBrowser = true;
+  await app.loadRootLevel();
+  
+  // Get recent documents (all documents sorted by date)
+  const allDocs = [...app.documents];
+  recentDocs = allDocs
+    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+    .slice(0, 10);
+  
+  hasLoaded = true;
+});
+```
+
+### 3. Clean VList Integration
+```typescript
+<VList
+  items={recentDocs}
+  {hasLoaded}
+  isSelectionMode={app.isSelectionMode}
+  onToggleSelectionMode={() => app.setSelectionMode(!app.isSelectionMode)}
+  onDeleteClick={async () => {
+    // Force reload after VList handles deletion
+    await app.loadRootLevel();
+    const allDocs = [...app.documents];
+    recentDocs = allDocs
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .slice(0, 10);
+  }}
+  // ... other props
+/>
+```
+
+## Key Lessons Learned
+
+### 1. Svelte 5 is Different from Svelte 4
+- `$state()` is required for reactive variables
+- Regular `let` variables don't trigger template updates
+- Component interfaces are stricter
+
+### 2. Don't Over-Engineer Basic Functionality
+- Simple data loading works better than complex reactive sync
+- Manual state updates are sometimes necessary
+- Avoid complex `$effect` chains for simple operations
+
+### 3. Database Operations Need Explicit Refresh
+- Deleting from database doesn't automatically update local arrays
+- Must explicitly reload data after mutations
+- `app.loadRootLevel()` is the reliable way to refresh
+
+### 4. Component Props Must Match Exactly
+- Function signatures must match component expectations
+- Wrong signatures cause silent failures
+- TypeScript warnings are your friend
+
+## Debugging Strategy That Finally Worked
+
+1. **Start with manual rendering** - Replace VList with simple `{#each}` to test data
+2. **Add minimal console logs** - Track data flow without overwhelming output  
+3. **Fix reactivity first** - Ensure variables update templates
+4. **Restore component step by step** - Add VList back once data flows
+5. **Test mutations** - Verify delete/create operations update properly
+
+## Final Working Architecture
+```
+Homepage (+page.svelte)
+├── $state() variables for UI reactivity
+├── Simple onMount data loading
+├── Direct VList integration
+├── Manual data refresh after mutations
+└── Clean component interfaces
+
+VList Component
+├── Handles selection UI
+├── Manages deletion operations
+├── Calls parent callbacks for data refresh
+└── Maintains internal state properly
+
+App State (appState.svelte.ts)
+├── Centralized data management
+├── Database operations
+├── Reactive state via getters
+└── loadRootLevel() for data refresh
+```
+
+## Why This Was So Hard
+
+1. **Svelte 5 Migration Issues** - Reactivity model changed significantly
+2. **Silent Failures** - Wrong function signatures didn't throw errors
+3. **Data Staleness** - Database updates didn't propagate to UI
+4. **Component Complexity** - VList had internal state management
+5. **Debugging Noise** - Too many console logs masked real issues
+
+## Prevention Checklist
+
+- [ ] Use `$state()` for all UI-updating variables
+- [ ] Match component prop signatures exactly
+- [ ] Test data flow with manual rendering first
+- [ ] Force reload after database mutations
+- [ ] Keep debug logging minimal and focused
+- [ ] Verify Svelte 5 compliance, not Svelte 4 patterns
+
+**Result: Fully functional homepage list with selection and deletion working without manual refresh.**
