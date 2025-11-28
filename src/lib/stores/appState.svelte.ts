@@ -1,7 +1,9 @@
 import { Document } from '$lib/models/Document';
 import { List } from '$lib/models/List';
+import { Character } from '$lib/models/Character';
 import { DocumentService } from '$lib/services/DocumentService';
 import { ListService } from '$lib/services/ListService';
+import { CharacterService } from '$lib/services/CharacterService';
 import { browser } from '$app/environment';
 import { PouchDatabase } from '$lib/implementations/PouchDatabase';
 import type { ExplorerItem } from '$lib/components/Explorer/types';
@@ -12,6 +14,7 @@ export interface AppState {
 	// Data
 	documents: Document[];
 	lists: List[];
+	characters: Character[];
 	temporaryFolders: ExplorerItem[];
 	temporaryDocuments: ExplorerItem[];
 	
@@ -27,6 +30,7 @@ export interface AppState {
 	// Services (singleton instances, nullable for SSR)
 	documentService: DocumentService | null;
 	listService: ListService | null;
+	characterService: CharacterService | null;
 }
 
 // Create the global app state
@@ -35,11 +39,13 @@ function createAppState() {
 	let database: PouchDatabase | null = null;
 	let documentService: DocumentService | null = null;
 	let listService: ListService | null = null;
+	let characterService: CharacterService | null = null;
 
 	if (browser) {
 		database = new PouchDatabase('manuscriptOS_DB');
 		documentService = new DocumentService(database);
 		listService = new ListService();
+		characterService = new CharacterService(database);
 	}
 
 	// State using Svelte 5 $state
@@ -47,6 +53,7 @@ function createAppState() {
 		// Data
 		documents: [],
 		lists: [],
+		characters: [],
 		temporaryFolders: [],
 		temporaryDocuments: [],
 		
@@ -61,14 +68,15 @@ function createAppState() {
 		
 		// Services
 		documentService,
-		listService
+		listService,
+		characterService
 	});
 
 	// Actions/methods for state management
 	const actions = {
 		// Loading methods
 		async loadRootLevel(): Promise<void> {
-			if (!browser || state.loading || !state.documentService || !state.listService) return;
+			if (!browser || state.loading || !state.documentService || !state.listService || !state.characterService) return;
 			
 			state.loading = true;
 			try {
@@ -79,6 +87,10 @@ function createAppState() {
 				// Load documents - only root level (parentId: undefined)
 				const rootDocuments = await state.documentService.getByParentId(undefined);
 				state.documents = rootDocuments.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+				
+				// Load characters - only root level (parentId: undefined)
+				const rootCharacters = await state.characterService.getByParentId(undefined);
+				state.characters = rootCharacters.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 				
 				state.hasLoaded = true;
 			} catch (error) {
@@ -183,6 +195,90 @@ function createAppState() {
 			} catch (error) {
 				console.error('Failed to delete document:', error);
 				throw error;
+			}
+		},
+
+		// Character operations
+		async createCharacter(name: string, dob?: string | null, dod?: string | null, parentId?: string): Promise<Character> {
+			if (!browser || !state.characterService) {
+				throw new Error('Database not available on server');
+			}
+			try {
+				const character = new Character(name, dob, dod, parentId);
+				const savedCharacter = await state.characterService.create(character);
+				
+				// Add to state if it's at the current level
+				if (savedCharacter.parentId === undefined) {
+					const updatedCharacters = [...state.characters, savedCharacter];
+					state.characters = updatedCharacters.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+				}
+				
+				return savedCharacter;
+			} catch (error) {
+				console.error('Failed to create character:', error);
+				throw error;
+			}
+		},
+
+		async updateCharacter(character: Character): Promise<Character> {
+			if (!browser || !state.characterService) {
+				throw new Error('Database not available on server');
+			}
+			try {
+				const updatedCharacter = await state.characterService.update(character);
+				
+				// Update in state if it exists
+				const index = state.characters.findIndex(char => char.id === updatedCharacter.id);
+				if (index !== -1) {
+					const newCharacters = [...state.characters];
+					newCharacters[index] = updatedCharacter;
+					state.characters = newCharacters.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+				}
+				
+				return updatedCharacter;
+			} catch (error) {
+				console.error('Failed to update character:', error);
+				throw error;
+			}
+		},
+
+		async deleteCharacter(characterId: string): Promise<boolean> {
+			if (!browser || !state.characterService) {
+				throw new Error('Database not available on server');
+			}
+			try {
+				const success = await state.characterService.delete(characterId);
+				
+				if (success) {
+					// Remove from state
+					state.characters = state.characters.filter(char => char.id !== characterId);
+				}
+				
+				return success;
+			} catch (error) {
+				console.error('Failed to delete character:', error);
+				throw error;
+			}
+		},
+
+		async loadCharactersByParentId(parentId?: string): Promise<Character[]> {
+			if (!browser || !state.characterService) return [];
+			try {
+				const characters = await state.characterService.getByParentId(parentId);
+				return characters.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+			} catch (error) {
+				console.error('Failed to load characters by parent ID:', error);
+				return [];
+			}
+		},
+
+		async searchCharacters(query: string): Promise<Character[]> {
+			if (!browser || !state.characterService) return [];
+			try {
+				return await state.characterService.search(query);
+			} catch (error) {
+				console.error('Failed to search characters:', error);
+				return [];
 			}
 		},
 
@@ -315,6 +411,7 @@ function createAppState() {
 		// Return state as reactive
 		get documents() { return state.documents; },
 		get lists() { return state.lists; },
+		get characters() { return state.characters; },
 		get temporaryFolders() { return state.temporaryFolders; },
 		get temporaryDocuments() { return state.temporaryDocuments; },
 		get loading() { return state.loading; },
@@ -324,6 +421,7 @@ function createAppState() {
 		get editingTempDocumentId() { return state.editingTempDocumentId; },
 		get documentService() { return state.documentService; },
 		get listService() { return state.listService; },
+		get characterService() { return state.characterService; },
 
 		// Return actions
 		...actions
