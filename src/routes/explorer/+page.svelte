@@ -126,6 +126,12 @@
 
 	async function handleDocumentRename(documentId: string, newName: string) {
 		try {
+			// Check if documentService is available (SSR compatibility)
+			if (!app.documentService) {
+				console.error('Document service not available');
+				return;
+			}
+			
 			// Get the latest version of the document from the database
 			const currentDocument = await app.documentService.read(documentId);
 			if (!currentDocument) {
