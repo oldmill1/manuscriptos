@@ -82,10 +82,22 @@ function createAppState() {
 				
 				state.hasLoaded = true;
 			} catch (error) {
-				console.error('Failed to load root level data:', error);
-				throw error;
+				console.error('Failed to load root level:', error);
 			} finally {
 				state.loading = false;
+			}
+		},
+
+		// Load all documents from entire system (for homepage recents)
+		async loadAllDocuments(): Promise<Document[]> {
+			if (!browser || !state.documentService) return [];
+			
+			try {
+				const allDocuments = await state.documentService.list();
+				return allDocuments.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+			} catch (error) {
+				console.error('Failed to load all documents:', error);
+				return [];
 			}
 		},
 

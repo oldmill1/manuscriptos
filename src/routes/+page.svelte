@@ -23,11 +23,9 @@
 		isBrowser = true;
 		await app.loadRootLevel();
 		
-		// Get recent documents (all documents sorted by date)
-		const allDocs = [...app.documents];
-		recentDocs = allDocs
-			.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-			.slice(0, 10); // Get last 10 documents
+		// Get recent documents from ALL documents in system, not just root level
+		const allDocs = await app.loadAllDocuments();
+		recentDocs = allDocs.slice(0, 10); // Get last 10 documents created anywhere
 		
 		hasLoaded = true;
 	});
@@ -126,11 +124,9 @@
 					// VList handles deletion, but we need to force reload the app data
 					await app.loadRootLevel();
 					
-					// Reload recent docs from the freshly loaded app.documents
-					const allDocs = [...app.documents];
-					recentDocs = allDocs
-						.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-						.slice(0, 10);
+					// Reload recent docs from ALL documents in system
+					const allDocs = await app.loadAllDocuments();
+					recentDocs = allDocs.slice(0, 10);
 				}}
 				getItemId={(doc) => doc.id}
 				isItemSelected={(doc) => selectedDocuments.isSelected(doc.id)}
