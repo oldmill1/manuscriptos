@@ -65,14 +65,6 @@ export class DocumentService {
 			const result = await this.database.read(id);
 			if (!result) return null;
 			
-			// Debug logging
-			console.log('DocumentService.read result:', {
-				requestedId: id,
-				pouchResult: result,
-				resultId: result._id || result.id,
-				hasResultId: !!(result._id || result.id)
-			});
-			
 			// Map PouchDB result to DocumentContent format
 			const documentContent = {
 				id: result._id || result.id,
@@ -83,22 +75,7 @@ export class DocumentService {
 				updatedAt: new Date(result.updatedAt)
 			};
 			
-			console.log('DocumentService.read mapped content:', {
-				documentContent,
-				mappedId: documentContent.id,
-				hasMappedId: !!documentContent.id
-			});
-			
-			const document = Document.fromJSON(documentContent);
-			
-			console.log('DocumentService.read final document:', {
-				documentId: document.id,
-				documentTitle: document.title,
-				hasDocumentId: !!document.id,
-				documentIdType: typeof document.id
-			});
-			
-			return document;
+			return Document.fromJSON(documentContent);
 		} catch (error) {
 			if (error instanceof DatabaseError) {
 				throw error; // Re-throw our custom errors
@@ -110,22 +87,8 @@ export class DocumentService {
 	// Update an existing document
 	async update(document: Document): Promise<Document> {
 		try {
-			// Debug logging
-			console.log('DocumentService.update called with:', {
-				documentId: document.id,
-				documentTitle: document.title,
-				hasId: !!document.id,
-				idType: typeof document.id,
-				idValue: document.id
-			});
-			
 			// Validate document
 			if (!document.id?.trim()) {
-				console.error('Document validation failed - ID is missing:', {
-					id: document.id,
-					trimmed: document.id?.trim(),
-					documentObject: document
-				});
 				throw new DocumentValidationError('id', document.id);
 			}
 			if (!document.title?.trim()) {
@@ -141,14 +104,6 @@ export class DocumentService {
 				createdAt: docData.createdAt.toISOString(),
 				updatedAt: docData.updatedAt.toISOString()
 			};
-			
-			// Debug logging
-			console.log('DocumentService.update calling database.update with:', {
-				docData,
-				updateData,
-				updateDataId: updateData._id,
-				hasUpdateDataId: !!updateData._id
-			});
 			
 			const result = await this.database.update(updateData);
 

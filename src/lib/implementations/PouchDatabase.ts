@@ -45,17 +45,6 @@ export class PouchDatabase implements IDatabase {
 
 	async update(data: any): Promise<any> {
 		try {
-			// Debug logging
-			console.log('PouchDatabase.update called with:', {
-				dataId: data.id,
-				dataIdType: typeof data.id,
-				hasDataId: !!data.id,
-				dataUnderscoreId: data._id,
-				dataUnderscoreIdType: typeof data._id,
-				hasDataUnderscoreId: !!data._id,
-				dataObject: data
-			});
-			
 			if (!data._id) {
 				throw new Error('Document ID is required for update operation');
 			}
