@@ -4,6 +4,9 @@ export interface ExplorerItem {
 	icon: string;
 	onClick?: (item: ExplorerItem, event: MouseEvent) => void;
 	isFolder?: boolean;
+	type?: 'list' | 'document';
+	isTemp?: boolean;
+	isEditing?: boolean;
 }
 
 export type ExplorerItemType = 'list' | 'document';

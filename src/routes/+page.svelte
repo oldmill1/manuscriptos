@@ -5,88 +5,50 @@
 	import MenuBar from '$lib/components/MenuBar/MenuBar.svelte';
 	import VList from '$lib/components/VList/VList.svelte';
 	import { Document } from '$lib/models/Document';
-	import { DocumentService } from '$lib/services/DocumentService';
 	import { savedNotification } from '$lib/stores/savedNotificationStore';
 	import { selectedDocuments } from '$lib/stores/selectedDocuments';
 	import { onMount } from 'svelte';
+	import { useAppState } from '$lib/stores/appState.svelte';
 	import styles from './+page.module.scss';
 
-	let documentService: DocumentService;
+	// Use centralized app state
+	const app = useAppState();
 	let isBrowser = false;
 	let recentDocs: Document[] = [];
 	let selectedCategory = 'Recents';
 	let hasLoaded = false;
-	let isSelectionMode = false;
 	let greeting = '';
 
 	onMount(async () => {
 		isBrowser = true;
+		await app.loadRootLevel();
 		
-		// Set time-based greeting
-		greeting = getTimeBasedGreeting();
-
-		try {
-			const { DocumentService } = await import('$lib/services/DocumentService');
-			const { PouchDatabase } = await import('$lib/implementations/PouchDatabase');
-			documentService = new DocumentService(new PouchDatabase('manuscriptOS_DB'));
-
-			// Load recent documents
-			await loadRecentDocs();
-		} catch (error) {
-			console.error('Failed to initialize database:', error);
-		}
+		// Get recent documents (all documents sorted by date)
+		const allDocs = [...app.documents];
+		recentDocs = allDocs
+			.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+			.slice(0, 10); // Get last 10 documents
+		
+		hasLoaded = true;
 	});
-
-	function getTimeBasedGreeting(): string {
-		const hour = new Date().getHours();
-		
-		if (hour >= 5 && hour < 12) {
-			return 'Good Morning';
-		} else if (hour >= 12 && hour < 17) {
-			return 'Good Afternoon';
-		} else if (hour >= 17 && hour < 21) {
-			return 'Good Evening';
-		} else {
-			return 'Good Night';
-		}
-	}
-
-	async function loadRecentDocs() {
-		try {
-			if (!documentService) return;
-
-			const docs = await documentService.list();
-
-			// Filter out documents with empty titles (these are likely corrupted/accidental)
-			const validDocs = docs.filter(doc => doc.title && doc.title.trim() !== '');
-
-			// Sort by updatedAt to get the latest documents and take 6
-			recentDocs = validDocs.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()).slice(0, 6);
-		} catch (error) {
-			console.error('Failed to load recent documents:', error);
-		} finally {
-			hasLoaded = true;
-		}
-	}
 
 	async function handleNewDocument() {
 		try {
-			if (!isBrowser || !documentService) {
-				throw new Error('Database not initialized');
-			}
-
 			const newDoc = new Document();
-			const savedDoc = await documentService.create(newDoc);
+			const savedDoc = await app.createDocument(newDoc.title, newDoc.content, newDoc.parentId);
 
 			// Show saved notification
 			savedNotification.show();
 
 			// Refresh recent docs before navigating
-			await loadRecentDocs();
+			const allDocs = [...app.documents];
+			recentDocs = allDocs
+				.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+				.slice(0, 10);
 
 			await goto(`/docs/${savedDoc.id}`);
 		} catch (error) {
-			console.error('Failed to create new document:', error);
+			console.error('Failed to create document:', error);
 		}
 	}
 
@@ -107,26 +69,25 @@
 	}
 
 	function toggleDocumentSelection(doc: Document) {
-		// Convert Document to SelectableItem format
-		const selectableItem = {
-			id: doc.id,
-			name: doc.title,
-			icon: '/icons/new.png'
-		};
-		selectedDocuments.toggleDocument(selectableItem);
 	}
 
-	function toggleSelectionMode() {
-		isSelectionMode = !isSelectionMode;
-		if (!isSelectionMode) {
-			selectedDocuments.clearSelection();
-		}
+	function handleDeleteSelected(selectedDocs: any[]) {
+		// Similar to explorer but simpler for home page
+		selectedDocs.forEach(async (doc: any) => {
+			await app.deleteDocument(doc.id);
+		});
+		app.clearSelection();
 	}
 
 	function handleDocumentClick(doc: Document, event: MouseEvent) {
-		if (isSelectionMode) {
+		if (app.isSelectionMode) {
 			event.preventDefault();
-			toggleDocumentSelection(doc);
+			const selectableItem = {
+				id: doc.id,
+				name: doc.title,
+				icon: '/icons/new.png'
+			};
+			app.toggleDocumentSelection(selectableItem);
 		} else {
 			openDocument(doc.id);
 		}
@@ -163,16 +124,22 @@
 			<VList
 				items={recentDocs}
 				{hasLoaded}
-				{isSelectionMode}
+				isSelectionMode={app.isSelectionMode}
 				emptyMessage=""
 				buttonText="Create new document"
 				emptyButtonTopDrawerText="get started..."
 				emptyButtonBottomDrawerText="...it's easy!"
 				onEmptyButtonClick={handleNewDocument}
 				onItemClick={handleDocumentClick}
-				onToggleSelection={toggleDocumentSelection}
-				onToggleSelectionMode={toggleSelectionMode}
-				onDeleteClick={loadRecentDocs}
+				onToggleSelection={app.toggleDocumentSelection}
+				onToggleSelectionMode={() => app.setSelectionMode(!app.isSelectionMode)}
+				onDeleteClick={async () => {
+					// Reload recent docs after deletion
+					const allDocs = [...app.documents];
+					recentDocs = allDocs
+						.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+						.slice(0, 10);
+				}}
 				getItemId={(doc) => doc.id}
 				isItemSelected={(doc) => selectedDocuments.isSelected(doc.id)}
 				renderItemContent={documentContentSnippet}

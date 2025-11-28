@@ -1,13 +1,14 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { selectedDocuments } from '$lib/stores/selectedDocuments';
-	import type { SelectableItem } from '$lib/stores/selectedDocuments';
+	import type { ExplorerItem } from '$lib/components/Explorer/types';
 	import { onDestroy } from 'svelte';
 	import { Motion } from 'svelte-motion';
 	import SwitchMini from '../../SwitchMini/SwitchMini.svelte';
 	import styles from './ExplorerItem.module.scss';
 
 	interface Props {
-		item: SelectableItem;
+		item: ExplorerItem;
 		isSelectionMode?: boolean;
 		onItemClick?: (item: any, event: MouseEvent) => void;
 		onFolderCreate?: (folderName: string, tempId: string) => void;
@@ -37,7 +38,7 @@
 	let inputElement = $state<HTMLInputElement>();
 	
 	// Track long press for editing
-	let pressTimer = $state<number | null>(null);
+	let pressTimer = $state<ReturnType<typeof setTimeout> | null>(null);
 	let isPressed = $state(false);
 	
 	// Flag to prevent blur after Enter key
@@ -53,9 +54,23 @@
 	
 	// Handle force editing for new folders and documents
 	$effect(() => {
+		console.log('ExplorerItem effect:', {
+			itemId: item.id,
+			itemName: item.name,
+			forceEditing,
+			isEditing,
+			itemIcon: item.icon
+		});
+		
 		if (forceEditing && (item.icon === '/icons/folder.png' || item.icon === '/icons/new.png') && !isEditing) {
+			console.log('Setting isEditing to true for:', item.name);
 			isEditing = true;
 			editingValue = item.name;
+			// Focus the input after it's rendered
+			setTimeout(() => {
+				inputElement?.focus();
+				inputElement?.select();
+			}, 0);
 		}
 	});
 	
@@ -99,7 +114,7 @@
 		// Allow editing for both folders and documents
 		if (item.icon === '/icons/folder.png' || !item.isFolder) {
 			isEditing = true;
-			editingValue = item.name || item.title;
+			editingValue = item.name;
 		}
 	}
 
@@ -115,12 +130,9 @@
 	}
 
 	function toggleItemSelection(item: any) {
-		console.log('Toggling selection for:', item.name);
 		if (selectedDocuments.isSelected(item.id)) {
-			console.log('Removing document from selection');
 			selectedDocuments.removeDocument(item.id);
 		} else {
-			console.log('Adding document to selection');
 			selectedDocuments.addDocument(item);
 		}
 	}
@@ -252,7 +264,7 @@
 				}}
 			/>
 		{:else}
-			<span class={styles.label}>{item.name || item.title}</span>
+			<span class={styles.label}>{item.name}</span>
 		{/if}
 	</div>
 </Motion>
