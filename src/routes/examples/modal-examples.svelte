@@ -56,6 +56,26 @@
 	</button>
 </div>
 
+{#snippet deleteContent()}
+	<h2 style="margin: 0 0 16px 0; font-size: 28px; font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Delete Item</h2>
+	<p style="margin: 0; color: #666;">Are you sure you want to delete this item?</p>
+{/snippet}
+
+{#snippet saveContent()}
+	<h2 style="margin: 0 0 16px 0; font-size: 28px; font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Save Document</h2>
+	<p style="margin: 0; color: #666;">Do you want to save your changes?</p>
+{/snippet}
+
+{#snippet submitContent()}
+	<h2 style="margin: 0 0 16px 0; font-size: 28px; font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Submit Form</h2>
+	<p style="margin: 0; color: #666;">Ready to submit your form data?</p>
+{/snippet}
+
+{#snippet customContent()}
+	<h2 style="margin: 0 0 16px 0; font-size: 28px; font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Choose Action</h2>
+	<p style="margin: 0; color: #666;">Select one of the available options:</p>
+{/snippet}
+
 <!-- Delete Confirmation Modal -->
 <Modal 
 	isOpen={showDeleteModal} 
@@ -65,10 +85,7 @@
 		{ text: 'Delete', callback: handleDelete, primary: true }
 	]}
 >
-	{#snippet content()}
-		<h2 style="margin: 0 0 16px 0; font-size: 28px; font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Delete Item</h2>
-		<p style="margin: 0; color: #666;">Are you sure you want to delete this item?</p>
-	{/snippet}
+	{@render deleteContent()}
 </Modal>
 
 <!-- Save Document Modal -->
@@ -80,10 +97,7 @@
 		{ text: 'Save', callback: handleSave, primary: true }
 	]}
 >
-	{#snippet content()}
-		<h2 style="margin: 0 0 16px 0; font-size: 28px; font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Save Document</h2>
-		<p style="margin: 0; color: #666;">Do you want to save your changes?</p>
-	{/snippet}
+	{@render saveContent()}
 </Modal>
 
 <!-- Submit Form Modal -->
@@ -95,10 +109,7 @@
 		{ text: 'Submit', callback: handleSubmit, primary: true }
 	]}
 >
-	{#snippet content()}
-		<h2 style="margin: 0 0 16px 0; font-size: 28px; font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Submit Form</h2>
-		<p style="margin: 0; color: #666;">Ready to submit your form data?</p>
-	{/snippet}
+	{@render submitContent()}
 </Modal>
 
 <!-- Custom 3-Button Modal -->
@@ -111,8 +122,5 @@
 		{ text: 'Option 3', callback: handleCustomAction3, primary: true }
 	]}
 >
-	{#snippet content()}
-		<h2 style="margin: 0 0 16px 0; font-size: 28px; font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Choose Action</h2>
-		<p style="margin: 0; color: #666;">Select one of the available options:</p>
-	{/snippet}
+	{@render customContent()}
 </Modal>

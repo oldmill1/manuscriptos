@@ -241,6 +241,10 @@
 	</div>
 {/if}
 
+{#snippet content()}
+	<h2 style="margin: 0; font-size: 28px; font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Confirm Deletion</h2>
+{/snippet}
+
 <Modal 
 	isOpen={isDeleteModalOpen}
 	dark={true}
@@ -249,7 +253,5 @@
 		{ text: 'Delete', callback: handleConfirmDelete, primary: true }
 	]}
 >
-	{#snippet content()}
-		<h2 style="margin: 0; font-size: 28px; font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Confirm Deletion</h2>
-	{/snippet}
+	{@render content()}
 </Modal>

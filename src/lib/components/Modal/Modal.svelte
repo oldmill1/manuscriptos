@@ -3,27 +3,37 @@
 	import AquaButton from '../Buttons/AquaButton/AquaButton.svelte';
 	import styles from './Modal.module.scss';
 
-	export let content: any = null;
-	export let isOpen: boolean = false;
-	export let dark: boolean = false;
-	export let buttons: Array<{ text: string; callback: () => void; primary?: boolean; disabled?: boolean }> = [];
+	let {
+		children,
+		isOpen = false,
+		dark = false,
+		buttons = []
+	}: {
+		children?: any;
+		isOpen?: boolean;
+		dark?: boolean;
+		buttons?: Array<{ text: string; callback: () => void; primary?: boolean; disabled?: boolean }>;
+	} = $props();
 
-	let animationStage: 'closed' | 'opening' | 'settling' | 'open' = 'closed';
+	// Use $state for reactive variables
+	let animationStage = $state<'closed' | 'opening' | 'settling' | 'open'>('closed');
 
-	// Trigger animation when modal opens
-	$: if (isOpen && animationStage === 'closed') {
-		animationStage = 'opening';
-		// Move to settling stage (scale back to 100%)
-		setTimeout(() => {
-			animationStage = 'settling';
-		}, 200);
-		// Move to final open stage
-		setTimeout(() => {
-			animationStage = 'open';
-		}, 400);
-	} else if (!isOpen) {
-		animationStage = 'closed';
-	}
+	// Use $effect instead of $:
+	$effect(() => {
+		if (isOpen && animationStage === 'closed') {
+			animationStage = 'opening';
+			// Move to settling stage (scale back to 100%)
+			setTimeout(() => {
+				animationStage = 'settling';
+			}, 200);
+			// Move to final open stage
+			setTimeout(() => {
+				animationStage = 'open';
+			}, 400);
+		} else if (!isOpen) {
+			animationStage = 'closed';
+		}
+	});
 
 	function handleBackdropClick() {
 		isOpen = false;
@@ -81,7 +91,7 @@
 				onkeydown={handleModalKeydown}
 				use:motion
 			>
-				{@render content?.()}
+				{@render children()}
 				
 				{#if buttons.length > 0}
 					<div class={styles['modal-buttons']}>

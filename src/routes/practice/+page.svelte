@@ -91,9 +91,7 @@
                 { text: 'Delete', callback: closeModal, primary: true }
             ]}
         >
-            {#snippet content()}
-                <h2 style="margin: 0 0 16px 0; font-size: 28px; font-weight: 600; font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Confirm Deletion</h2>
-            {/snippet}
+            <h2 style="margin: 0 0 16px 0; font-size: 28px; font-weight: 600; font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Confirm Deletion</h2>
         </Modal>
     {/if}
 </div>
