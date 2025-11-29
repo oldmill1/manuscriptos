@@ -25,7 +25,7 @@
 		
 		// Get recent documents from ALL documents in system, not just root level
 		const allDocs = await app.loadAllDocuments();
-		recentDocs = allDocs.slice(0, 10); // Get last 10 documents created anywhere
+		recentDocs = allDocs.slice(0, 5); // Get last 5 documents created anywhere
 		
 		hasLoaded = true;
 	});
@@ -42,7 +42,7 @@
 			const allDocs = [...app.documents];
 			recentDocs = allDocs
 				.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-				.slice(0, 10);
+				.slice(0, 5);
 
 			await goto(`/docs/${savedDoc.id}`);
 		} catch (error) {
@@ -126,7 +126,7 @@
 					
 					// Reload recent docs from ALL documents in system
 					const allDocs = await app.loadAllDocuments();
-					recentDocs = allDocs.slice(0, 10);
+					recentDocs = allDocs.slice(0, 5);
 				}}
 				getItemId={(doc) => doc.id}
 				isItemSelected={(doc) => selectedDocuments.isSelected(doc.id)}
