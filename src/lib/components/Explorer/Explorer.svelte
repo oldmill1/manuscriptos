@@ -83,6 +83,8 @@
 	// Calculate if delete should be disabled based on selection mode and selected items
 	let selectedCount = $derived(selectedDocs.length);
 	let isDeleteButtonDisabled = $derived(!isSelectionMode || selectedCount === 0);
+	let isCutCopyButtonDisabled = $derived(!isSelectionMode || selectedCount === 0);
+	let isPasteButtonDisabled = $derived(!hasClipboardItems);
 
 	function handleDeleteClick() {
 		if (!isDeleteButtonDisabled) {
@@ -237,31 +239,64 @@
 							<!-- Cut, Copy, Paste buttons -->
 							<Motion 
 								let:motion
-								whileHover={{ y: -2 }}
-								whileTap={{ scale: 0.9 }}
+								whileHover={!isCutCopyButtonDisabled ? { y: -2 } : {}}
+								whileTap={!isCutCopyButtonDisabled ? { scale: 0.9 } : {}}
 								transition={{ duration: 0.1, ease: [0.4, 0, 0.2, 1] }}
 							>
-								<div class={styles.actionButton} use:motion role="button" tabindex="0" onclick={onCutSelected} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { onCutSelected?.(); } }}>
+								<div 
+									class={`${styles.actionButton} ${isCutCopyButtonDisabled ? styles.disabled : ''}`} 
+									use:motion 
+									role="button" 
+									tabindex={isCutCopyButtonDisabled ? -1 : 0} 
+									onclick={!isCutCopyButtonDisabled ? onCutSelected : undefined} 
+									onkeydown={(e) => { 
+										if (!isCutCopyButtonDisabled && (e.key === 'Enter' || e.key === ' ')) { 
+											onCutSelected?.(); 
+										} 
+									}}
+								>
 									<span>✂️</span>
 								</div>
 							</Motion>
 							<Motion 
 								let:motion
-								whileHover={{ y: -2 }}
-								whileTap={{ scale: 0.9 }}
+								whileHover={!isCutCopyButtonDisabled ? { y: -2 } : {}}
+								whileTap={!isCutCopyButtonDisabled ? { scale: 0.9 } : {}}
 								transition={{ duration: 0.1, ease: [0.4, 0, 0.2, 1] }}
 							>
-								<div class={styles.actionButton} use:motion role="button" tabindex="0" onclick={onCopySelected} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { onCopySelected?.(); } }}>
+								<div 
+									class={`${styles.actionButton} ${isCutCopyButtonDisabled ? styles.disabled : ''}`} 
+									use:motion 
+									role="button" 
+									tabindex={isCutCopyButtonDisabled ? -1 : 0} 
+									onclick={!isCutCopyButtonDisabled ? onCopySelected : undefined} 
+									onkeydown={(e) => { 
+										if (!isCutCopyButtonDisabled && (e.key === 'Enter' || e.key === ' ')) { 
+											onCopySelected?.(); 
+										} 
+									}}
+								>
 									<span>📋</span>
 								</div>
 							</Motion>
 							<Motion 
 								let:motion
-								whileHover={{ y: -2 }}
-								whileTap={{ scale: 0.9 }}
+								whileHover={!isPasteButtonDisabled ? { y: -2 } : {}}
+								whileTap={!isPasteButtonDisabled ? { scale: 0.9 } : {}}
 								transition={{ duration: 0.1, ease: [0.4, 0, 0.2, 1] }}
 							>
-								<div class={styles.actionButton} use:motion role="button" tabindex="0" onclick={onPasteSelected} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { onPasteSelected?.(); } }}>
+								<div 
+									class={`${styles.actionButton} ${isPasteButtonDisabled ? styles.disabled : ''}`} 
+									use:motion 
+									role="button" 
+									tabindex={isPasteButtonDisabled ? -1 : 0} 
+									onclick={!isPasteButtonDisabled ? onPasteSelected : undefined} 
+									onkeydown={(e) => { 
+										if (!isPasteButtonDisabled && (e.key === 'Enter' || e.key === ' ')) { 
+											onPasteSelected?.(); 
+										} 
+									}}
+								>
 									<span>📄</span>
 								</div>
 							</Motion>
