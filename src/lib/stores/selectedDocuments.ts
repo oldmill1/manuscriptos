@@ -11,12 +11,16 @@ export interface SelectableItem {
 export interface SelectedDocumentsState {
 	documents: SelectableItem[];
 	lastUpdated: Date | null;
+	copiedItems: SelectableItem[];
+	copyOperation: 'copy' | 'cut' | null;
 }
 
 function createSelectedDocumentsStore() {
 	const { subscribe, set, update } = writable<SelectedDocumentsState>({
 		documents: [],
-		lastUpdated: null
+		lastUpdated: null,
+		copiedItems: [],
+		copyOperation: null
 	});
 
 	return {
@@ -31,6 +35,7 @@ function createSelectedDocumentsStore() {
 				}
 
 				return {
+					...state,
 					documents: [...state.documents, document],
 					lastUpdated: new Date()
 				};
@@ -40,6 +45,7 @@ function createSelectedDocumentsStore() {
 		// Remove a document from the selected list
 		removeDocument: (documentId: string) => {
 			update((state) => ({
+				...state,
 				documents: state.documents.filter((doc) => doc.id !== documentId),
 				lastUpdated: new Date()
 			}));
@@ -52,11 +58,13 @@ function createSelectedDocumentsStore() {
 
 				if (isSelected) {
 					return {
+						...state,
 						documents: state.documents.filter((doc) => doc.id !== document.id),
 						lastUpdated: new Date()
 					};
 				} else {
 					return {
+						...state,
 						documents: [...state.documents, document],
 						lastUpdated: new Date()
 					};
@@ -67,6 +75,7 @@ function createSelectedDocumentsStore() {
 		// Clear all selected documents
 		clearSelection: () => {
 			update((state) => ({
+				...state,
 				documents: [],
 				lastUpdated: new Date()
 			}));
@@ -100,12 +109,48 @@ function createSelectedDocumentsStore() {
 		},
 
 		// Set the entire selection
-
 		setSelection: (documents: SelectableItem[]) => {
 			set({
 				documents,
-				lastUpdated: new Date()
+				lastUpdated: new Date(),
+				copiedItems: [],
+				copyOperation: null
 			});
+		},
+
+		// Copy selected items to clipboard
+		copySelected: () => {
+			update((state) => ({
+				...state,
+				copiedItems: [...state.documents],
+				copyOperation: 'copy',
+				lastUpdated: new Date()
+			}));
+		},
+
+		// Cut selected items to clipboard
+		cutSelected: () => {
+			update((state) => ({
+				documents: [],
+				copiedItems: [...state.documents],
+				copyOperation: 'cut',
+				lastUpdated: new Date()
+			}));
+		},
+
+		// Paste items from clipboard
+		pasteItems: (targetParentId?: string) => {
+			// This will be implemented later when we add the actual paste functionality
+			// For now, just return the current clipboard state
+			let clipboardItems: SelectableItem[] = [];
+			let operation: 'copy' | 'cut' | null = null;
+			
+			subscribe((state) => {
+				clipboardItems = state.copiedItems;
+				operation = state.copyOperation;
+			})();
+
+			return { items: clipboardItems, operation, targetParentId };
 		}
 	};
 }
