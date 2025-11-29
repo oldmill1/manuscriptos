@@ -1,8 +1,7 @@
 <script lang="ts">
-	import styles from './BreadcrumbTrail.module.scss';
-	import type { Snippet } from 'svelte';
 	import { ListService } from '$lib/services/ListService';
 	import { Motion } from 'svelte-motion';
+	import styles from './BreadcrumbTrail.module.scss';
 
 	interface BreadcrumbItem {
 		id: string;
