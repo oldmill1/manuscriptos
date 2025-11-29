@@ -85,6 +85,8 @@
 	justify-content: center;
 	align-items: flex-start;
 	padding-top: 20px;
+	padding-left: 60px;
+	padding-right: 60px;
 }
 
 .rightSection {
@@ -155,11 +157,27 @@
 	text-transform: none;
 }
 
+.logoButton {
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 4px 8px;
+	border-radius: 2px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	&:focus {
+		outline: 2px solid #007bff;
+		outline-offset: 1px;
+	}
+}
+
 .logo {
-	height: 120px;
+	height: 40px;
 	width: auto;
 	display: block;
-	border-radius: 20px;
+	border-radius: 8px;
 }
 
 .titleInput {
