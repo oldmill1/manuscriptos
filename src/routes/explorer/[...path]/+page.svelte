@@ -78,14 +78,9 @@
 
 	async function handleFolderCreate(folderName: string, tempId: string) {
 		try {
-			console.log('Creating folder:', folderName, 'from temp:', tempId);
-			console.log('Using currentFolderId:', currentFolderId);
-			
 			// Create the real folder using ListService with parentId
-			const newFolder = new List('custom', folderName, currentFolderId);
+			const newFolder = new List(null, folderName, currentFolderId);
 			const savedFolder = await listService.create(newFolder);
-			
-			console.log('Folder created successfully with parentId:', currentFolderId);
 			
 			// Remove the temporary folder
 			temporaryFolders = temporaryFolders.filter(f => f.id !== tempId);
@@ -202,12 +197,8 @@
 			const foldersToDelete = selectedDocs.filter(doc => doc.isFolder);
 			const documentsToDelete = selectedDocs.filter(doc => !doc.isFolder);
 			
-			console.log('Starting cascade delete for folders in', currentFolderId, ':', foldersToDelete.map(f => ({ id: f.id, name: f.name })));
-			console.log('Documents to delete:', documentsToDelete.map(d => ({ id: d.id, title: d.title })));
-			
 			// 1. Get ALL descendant folders recursively
 			const allFoldersToDelete = await getAllDescendantFolders(foldersToDelete);
-			console.log('All folders to delete (including descendants):', allFoldersToDelete.map(f => ({ id: f.id, name: f.name })));
 			
 			// 2. Delete all documents in all those folders
 			await deleteAllDocumentsInFolders(allFoldersToDelete);
@@ -219,7 +210,6 @@
 			if (documentsToDelete.length > 0) {
 				const documentDeletePromises = documentsToDelete.map(async (doc) => {
 					await documentService.delete(doc.id);
-					console.log('Deleted document:', doc.id);
 				});
 				await Promise.all(documentDeletePromises);
 			}
@@ -227,7 +217,6 @@
 			// 5. Update local state
 			childFolders = childFolders.filter(folder => !allFoldersToDelete.some(deleted => deleted.id === folder.id));
 			documents = documents.filter(doc => !documentsToDelete.some(deleted => deleted.id === doc.id));
-			console.log('Cascade delete completed in folder:', currentFolderId);
 			
 		} catch (error) {
 			console.error('Failed to delete items:', error);
@@ -256,7 +245,6 @@
 		for (const folder of folders) {
 			const documentsInFolder = await documentService.getByParentId(folder.id);
 			if (documentsInFolder.length > 0) {
-				console.log(`Deleting ${documentsInFolder.length} documents in folder: ${folder.name}`);
 				const documentDeletePromises = documentsInFolder.map(async (doc) => {
 					await documentService.delete(doc.id);
 				});
@@ -276,7 +264,6 @@
 		
 		for (const folder of foldersByDepth) {
 			await listService.delete(folder.id);
-			console.log('Deleted folder:', folder.name);
 		}
 	}
 
@@ -316,8 +303,6 @@
 			});
 			childFolders = updatedChildFolders;
 			
-			console.log('Folder renamed successfully:', newName);
-			
 		} catch (error) {
 			console.error('Failed to rename folder:', error);
 		}
@@ -343,8 +328,6 @@
 				return document;
 			});
 			documents = updatedDocuments;
-			
-			console.log('Document renamed successfully:', newName);
 			
 		} catch (error) {
 			console.error('Failed to rename document:', error);
