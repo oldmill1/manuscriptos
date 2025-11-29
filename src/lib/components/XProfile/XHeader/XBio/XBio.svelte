@@ -22,35 +22,6 @@
 		],
 		onTraitChange
 	}: Props = $props();
-
-	let editingIndex = $state<number | null>(null);
-	let editingValue = $state('');
-
-	function handleTraitClick(index: number) {
-		editingIndex = index;
-		editingValue = traits[index].value;
-	}
-
-	function handleTraitSubmit() {
-		if (editingIndex !== null && editingValue.trim()) {
-			onTraitChange?.(editingIndex, editingValue.trim());
-		}
-		editingIndex = null;
-		editingValue = '';
-	}
-
-	function handleTraitKeydown(event: KeyboardEvent) {
-		if (event.key === 'Enter') {
-			handleTraitSubmit();
-		} else if (event.key === 'Escape') {
-			editingIndex = null;
-			editingValue = '';
-		}
-	}
-
-	function handleTraitBlur() {
-		handleTraitSubmit();
-	}
 </script>
 
 <div class={styles.bio}>
@@ -58,30 +29,9 @@
 		{#each traits as trait, index}
 			<div class={styles.trait}>
 				<span class={styles.traitLabel}>{trait.label}</span>
-				{#if editingIndex === index}
-					<input
-						bind:value={editingValue}
-						class={styles.traitInput}
-						onkeydown={handleTraitKeydown}
-						onblur={handleTraitBlur}
-						placeholder={`Enter ${trait.label.toLowerCase()}`}
-					/>
-				{:else}
-					<span 
-						class={styles.traitValue}
-						role="button"
-						tabindex="0"
-						onclick={() => handleTraitClick(index)}
-						onkeydown={(e) => {
-							if (e.key === 'Enter' || e.key === ' ') {
-								e.preventDefault();
-								handleTraitClick(index);
-							}
-						}}
-					>
-						{trait.value || 'Click to edit'}
-					</span>
-				{/if}
+				<span class={styles.traitValue}>
+					{trait.value || 'Click to edit'}
+				</span>
 			</div>
 		{/each}
 	</div>
