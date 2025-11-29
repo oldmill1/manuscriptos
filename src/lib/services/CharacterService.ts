@@ -226,7 +226,6 @@ export class CharacterService {
 					return row.type === 'character';
 				})
 				.map((row: any) => {
-					console.log('CharacterService.getByParentId - raw row from database:', row);
 					try {
 						const characterData = {
 							id: row._id || row.id,
@@ -239,11 +238,9 @@ export class CharacterService {
 							createdAt: new Date(row.createdAt),
 							updatedAt: new Date(row.updatedAt)
 						};
-						console.log('CharacterService.getByParentId - characterData before fromJSON:', characterData);
 						return Character.fromJSON(characterData);
 					} catch (validationError) {
 						// Skip invalid characters (e.g., those with undefined names)
-						console.warn('Skipping invalid character:', row._id || row.id, validationError);
 						return null;
 					}
 				})

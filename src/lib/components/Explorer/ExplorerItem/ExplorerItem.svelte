@@ -16,6 +16,7 @@
 		onDocumentCreate?: (documentName: string, tempId: string) => void;
 		onDocumentRename?: (documentId: string, newName: string) => void;
 		onCharacterCreate?: (characterName: string, tempId: string) => void;
+		onCharacterRename?: (characterId: string, newName: string) => void;
 		forceEditing?: boolean;
 	}
 
@@ -28,6 +29,7 @@
 		onDocumentCreate,
 		onDocumentRename,
 		onCharacterCreate,
+		onCharacterRename,
 		forceEditing = false
 	}: Props = $props();
 
@@ -180,6 +182,9 @@
 					} else if (!item.isFolder && onDocumentRename) {
 						// Rename existing document
 						onDocumentRename(item.id, editingValue);
+					} else if (item.type === 'character' && onCharacterRename) {
+						// Rename existing character
+						onCharacterRename(item.id, editingValue);
 					}
 				}
 			}

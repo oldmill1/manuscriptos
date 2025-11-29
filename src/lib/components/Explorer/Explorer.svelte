@@ -26,6 +26,7 @@
 		onDocumentCreate?: (documentName: string, tempId: string) => void;
 		onDocumentRename?: (documentId: string, newName: string) => void;
 		onCharacterCreate?: (characterName: string, tempId: string) => void;
+		onCharacterRename?: (characterId: string, newName: string) => void;
 		editingTempFolderId?: string | null;
 		editingTempDocumentId?: string | null;
 		editingTempCharacterId?: string | null;
@@ -48,6 +49,7 @@
 		onDocumentCreate,
 		onDocumentRename,
 		onCharacterCreate,
+		onCharacterRename,
 		editingTempFolderId,
 		editingTempDocumentId,
 		editingTempCharacterId,
@@ -207,6 +209,7 @@
 						onDocumentCreate={onDocumentCreate}
 						onDocumentRename={onDocumentRename}
 						onCharacterCreate={onCharacterCreate}
+						onCharacterRename={onCharacterRename}
 						forceEditing={editingTempFolderId === item.id || editingTempDocumentId === item.id || editingTempCharacterId === item.id}
 					/>
 				{/each}

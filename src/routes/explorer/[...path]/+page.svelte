@@ -48,10 +48,7 @@
 
 			// Load the list - extract pathArray from SvelteKit data
 			pathArray = data.path || [];
-			console.log('Debug: full pathArray:', pathArray);
-			console.log('Debug: pathArray length:', pathArray.length);
 			const listId = pathArray.length > 0 ? pathArray[pathArray.length - 1] : undefined;
-			console.log('Debug: extracted listId:', listId);
 			
 			// Set current folder ID for nested folder creation
 			currentFolderId = listId;
@@ -62,9 +59,7 @@
 			}
 			
 			list = await listService.read(listId);
-			console.log('Debug: listService.read() returned:', list);
 			if (!list) {
-				console.log('Debug: list is null/undefined for ID:', listId);
 				error = 'List not found';
 				hasLoaded = true;
 				return;
@@ -74,19 +69,16 @@
 			childFolders = await listService.getByParentId(currentFolderId);
 			// Sort by creation date, newest first
 			childFolders.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-			console.log('Loaded child folders:', childFolders.map(f => ({ id: f.id, name: f.name, parentId: f.parentId })));
 
 			// Load documents in this folder using parentId
 			documents = await documentService.getByParentId(currentFolderId);
 			// Sort by creation date, newest first
 			documents.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-			console.log('Loaded documents in folder:', documents.map(d => ({ id: d.id, title: d.title, parentId: d.parentId })));
 
 			// Load characters in this folder using parentId
 			characters = await characterService.getByParentId(currentFolderId);
 			// Sort by creation date, newest first
 			characters.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-			console.log('Loaded characters in folder:', characters.map(c => ({ id: c.id, name: c.name, parentId: c.parentId })));
 
 		} catch (err) {
 			console.error('Failed to load list documents:', err);
@@ -453,6 +445,32 @@
 		}
 	}
 
+	async function handleCharacterRename(characterId: string, newName: string) {
+		try {
+			const currentCharacter = await characterService.read(characterId);
+			if (!currentCharacter) {
+				console.error('Character not found for renaming:', characterId);
+				return;
+			}
+			
+			currentCharacter.name = newName;
+			await characterService.update(currentCharacter);
+			
+			// Update just the renamed character in the local array
+			const updatedCharacters = characters.map(character => {
+				if (character.id === characterId) {
+					character.name = newName;
+					return character;
+				}
+				return character;
+			});
+			characters = updatedCharacters;
+			
+		} catch (error) {
+			console.error('Failed to rename character:', error);
+		}
+	}
+
 	// Create standardized data for Explorer
 	const explorerData = $derived.by(() => {
 		if (!hasLoaded) return createExplorerData([], 'document', false);
@@ -494,6 +512,7 @@
 			onDocumentCreate={handleDocumentCreate}
 			onDocumentRename={handleDocumentRename}
 			onCharacterCreate={handleCharacterCreate}
+			onCharacterRename={handleCharacterRename}
 			editingTempFolderId={editingTempFolderId}
 			editingTempDocumentId={editingTempDocumentId}
 			editingTempCharacterId={editingTempCharacterId}
