@@ -101,6 +101,31 @@
 		}
 	}
 
+	async function handleCharacterCreate(characterName: string, tempId: string) {
+		try {
+			// Create the real character list using ListService with parentId
+			const newCharacter = new List('character', characterName, currentFolderId);
+			const savedCharacter = await listService.create(newCharacter);
+			
+			// Remove the temporary character
+			temporaryFolders = temporaryFolders.filter(f => f.id !== tempId);
+			
+			// Clear editing state
+			if (editingTempFolderId === tempId) {
+				editingTempFolderId = null;
+			}
+			
+			// Add the new character to childFolders to show it immediately
+			const updatedChildFolders = [...childFolders, savedCharacter];
+			// Sort by creation date, newest first
+			updatedChildFolders.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+			childFolders = updatedChildFolders;
+			
+		} catch (error) {
+			console.error('Failed to create character:', error);
+		}
+	}
+
 	async function handleDocumentCreate(documentName: string, tempId: string) {
 		try {
 			// Create the real document using DocumentService with parentId
@@ -158,6 +183,25 @@
 		
 		// Set this document as the one being edited
 		editingTempDocumentId = tempDocument.id;
+	}
+
+	function handleNewCharacter() {
+		// Create a temporary character list with a unique ID and "New Character" name
+		const tempId = `temp-char-${Date.now()}`;
+		const tempCharacter = {
+			id: tempId,
+			name: 'New Character',
+			icon: '/icons/folder.png',
+			onClick: (item: any, event: MouseEvent) => {
+				// Handle click on temporary character (optional - could open rename dialog)
+			}
+		};
+		
+		// Add to temporary folders array
+		temporaryFolders = [...temporaryFolders, tempCharacter];
+		
+		// Set this character as the one being edited
+		editingTempFolderId = tempId;
 	}
 
 	
@@ -361,24 +405,29 @@
 		</div>
 	{:else}
 		<Explorer 
-			data={explorerData} 
-			{isSelectionMode}
+			data={{
+				items: explorerData.items,
+				type: explorerData.type,
+				hasLoaded: explorerData.hasLoaded
+			}} 
+			isSelectionMode={isSelectionMode}
 			showSelectionSwitch={true}
 			onSelectionToggle={handleSelectionToggle}
 			onDeleteSelected={handleDeleteSelected}
 			onNewFolder={handleNewFolder}
 			onNewDocument={handleNewDocument}
+			onNewCharacter={handleNewCharacter}
 			onFolderCreate={handleFolderCreate}
 			onFolderRename={handleFolderRename}
 			onDocumentCreate={handleDocumentCreate}
 			onDocumentRename={handleDocumentRename}
+			onCharacterCreate={handleCharacterCreate}
 			editingTempFolderId={editingTempFolderId}
 			editingTempDocumentId={editingTempDocumentId}
 			folderIds={pathArray}
 		/>
 	{/if}
 </div>
-
 
 <style>
 	.explorer-container {
