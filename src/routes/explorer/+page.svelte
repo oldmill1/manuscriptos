@@ -302,7 +302,9 @@
 
 	async function handlePasteSelected() {
 		console.log('🔥 handlePasteSelected called - PASTE BUTTON WORKS!');
-		await app.pasteClipboard();
+		const currentParentId = getCurrentParentId();
+		console.log('🔥 Current parent ID for paste:', currentParentId);
+		await app.pasteClipboard(currentParentId);
 	}
 </script>
 

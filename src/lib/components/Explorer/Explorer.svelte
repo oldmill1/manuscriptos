@@ -163,6 +163,7 @@
 	}
 
 	async function handlePaste() {
+		console.log('🔥 NORMAL MODE PASTE BUTTON CLICKED!');
 		console.log('🔥 Explorer handlePaste called - PASTE BUTTON CLICKED!');
 		// Call the parent's paste handler
 		onPasteSelected?.();
@@ -204,11 +205,6 @@
 					}] : [])
 				]}
 			/>
-			{#if hasClipboardItems}
-				<div style="background: red; color: white; padding: 5px; position: fixed; top: 10px; right: 10px; z-index: 9999;">
-					PASTE BUTTON SHOULD BE VISIBLE!
-				</div>
-			{/if}
 			<BreadcrumbTrail {folderIds} />
 			<div class={styles.desktop}>
 			{#if data.hasLoaded}
@@ -229,7 +225,7 @@
 		</div>
 
 			<!-- Selection switch -->
-			{#if showSelectionSwitch && data.hasLoaded && data.items.length > 0}
+			{#if showSelectionSwitch && data.hasLoaded}
 				<div class={styles.selectionSwitch}>
 					<Switch 
 						checked={isSelectionMode} 

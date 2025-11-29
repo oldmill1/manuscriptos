@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import { List } from '$lib/models/List';
 	import { Document } from '$lib/models/Document';
@@ -9,6 +10,8 @@
 	import type { ExplorerItem } from '$lib/components/Explorer/types';
 	import { convertDocumentsToExplorerItems, convertListsToExplorerItems, createExplorerData } from '$lib/components/Explorer/utils';
 	import type { PageProps } from './$types';
+	import { useAppState } from '$lib/stores/appState.svelte';
+	import { selectedDocuments } from '$lib/stores/selectedDocuments';
 
 	let { data }: PageProps = $props();
 
@@ -28,6 +31,46 @@
 	let editingTempDocumentId = $state<string | null>(null);
 	let temporaryFolders = $state<any[]>([]);
 	let temporaryDocuments = $state<ExplorerItem[]>([]);
+
+	// Use centralized app state
+	const app = useAppState();
+
+	// Copy/Paste handlers
+	async function handleCopySelected() {
+		console.log('🔥 handleCopySelected called (subfolder)');
+		await app.copySelected();
+	}
+
+	async function handleCutSelected() {
+		console.log('🔥 handleCutSelected called (subfolder)');
+		app.cutSelected();
+	}
+
+	async function handlePasteSelected() {
+		console.log('🔥 handlePasteSelected called (subfolder)');
+		const currentParentId = currentFolderId;
+		console.log('🔥 Current parent ID for paste (subfolder):', currentParentId);
+		await app.pasteClipboard(currentParentId);
+		
+		// Refresh the local data to show the pasted item
+		await loadFolderContents();
+	}
+
+	async function loadFolderContents() {
+		try {
+			// Load child folders
+			childFolders = await listService.getByParentId(currentFolderId);
+			// Sort by creation date, newest first
+			childFolders.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+			// Load documents in this folder using parentId
+			documents = await documentService.getByParentId(currentFolderId);
+			// Sort by creation date, newest first
+			documents.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+		} catch (err) {
+			console.error('Failed to refresh folder contents:', err);
+		}
+	}
 
 	onMount(async () => {
 		try {
@@ -408,11 +451,7 @@
 		</div>
 	{:else}
 		<Explorer 
-			data={{
-				items: explorerData.items,
-				type: explorerData.type,
-				hasLoaded: explorerData.hasLoaded
-			}} 
+			data={explorerData}
 			isSelectionMode={isSelectionMode}
 			showSelectionSwitch={true}
 			onSelectionToggle={handleSelectionToggle}
@@ -425,6 +464,9 @@
 			onDocumentCreate={handleDocumentCreate}
 			onDocumentRename={handleDocumentRename}
 			onCharacterCreate={handleCharacterCreate}
+			onCopySelected={handleCopySelected}
+			onCutSelected={handleCutSelected}
+			onPasteSelected={handlePasteSelected}
 			editingTempFolderId={editingTempFolderId}
 			editingTempDocumentId={editingTempDocumentId}
 			folderIds={pathArray}
