@@ -44,7 +44,7 @@
 				if (clickedItem.type === 'document') {
 					goto(`/docs/${clickedItem.id}`);
 				} else if (clickedItem.type === 'character') {
-					// TODO: Navigate to character page when implemented
+					goto(`/xers/${clickedItem.id}`);
 				} else if (clickedItem.type === 'list') {
 					goto(`/explorer/${clickedItem.id}`);
 				} else {
