@@ -176,18 +176,14 @@
 					onCharacterCreate(editingValue, item.id);
 				} else if (!isTempFolder && !isTempDocument && !isTempCharacter) {
 					// Rename existing item
-					console.log('Debug: renaming item:', { id: item.id, type: item.type, isFolder: item.isFolder, name: item.name });
-					console.log('Debug: available functions:', { onFolderRename: !!onFolderRename, onCharacterRename: !!onCharacterRename, onDocumentRename: !!onDocumentRename });
 					if (item.isFolder && onFolderRename) {
 						// Rename existing folder
 						onFolderRename(item.id, editingValue);
 					} else if (item.type === 'character' && onCharacterRename) {
 						// Rename existing character
-						console.log('Debug: calling onCharacterRename for:', item.id);
 						onCharacterRename(item.id, editingValue);
 					} else if (!item.isFolder && onDocumentRename) {
 						// Rename existing document
-						console.log('Debug: calling onDocumentRename for:', item.id);
 						onDocumentRename(item.id, editingValue);
 					}
 				}

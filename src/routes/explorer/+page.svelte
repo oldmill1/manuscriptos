@@ -28,10 +28,6 @@
 
 	// Create a reactive effect to update explorer data when app state changes
 	$effect(() => {
-		console.log('=== Explorer data update ===');
-		console.log('App characters:', app.characters);
-		console.log('App temporary characters:', app.temporaryCharacters);
-		
 		const allItems = [
 			...convertListsToExplorerItems(app.lists),
 			...convertDocumentsToExplorerItems(app.documents),
@@ -41,8 +37,6 @@
 			...app.temporaryCharacters
 		];
 		
-		console.log('All items before click handlers:', allItems);
-		
 		// Add onClick function to each item for navigation
 		const itemsWithClickHandlers = allItems.map(item => ({
 			...item,
@@ -50,7 +44,6 @@
 				if (clickedItem.type === 'document') {
 					goto(`/docs/${clickedItem.id}`);
 				} else if (clickedItem.type === 'character') {
-					console.log('The character file was clicked!');
 					// TODO: Navigate to character page when implemented
 				} else if (clickedItem.type === 'list') {
 					goto(`/explorer/${clickedItem.id}`);
@@ -289,13 +282,19 @@
 				icon: item.icon
 			})));
 
-			// Separate documents and folders
-			const documentsToDelete = selectedDocs.filter(item => !item.isFolder);
+			// Separate documents, folders, and characters
+			const documentsToDelete = selectedDocs.filter(item => !item.isFolder && item.type !== 'character');
 			const foldersToDelete = selectedDocs.filter(item => item.isFolder);
+			const charactersToDelete = selectedDocs.filter(item => item.type === 'character');
 
 			// Delete documents
 			for (const doc of documentsToDelete) {
 				await app.deleteDocument(doc.id);
+			}
+
+			// Delete characters
+			for (const character of charactersToDelete) {
+				await app.deleteCharacter(character.id);
 			}
 
 			// Delete folders (recursively)
