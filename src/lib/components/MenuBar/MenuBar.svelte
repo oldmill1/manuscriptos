@@ -169,7 +169,10 @@
 				onkeydown={handleKeydown}
 				onblur={saveTitle}
 			/>
-		{:else if title}
+		{/if}
+	</div>
+	<div class={styles.rightSection}>
+		{#if title && !isEditing}
 			{#if titleEditable}
 				<button
 					type="button"
@@ -185,8 +188,6 @@
 				</span>
 			{/if}
 		{/if}
-	</div>
-	<div class={styles.rightSection}>
 		<div class={styles.taskDrawer}>
 			<!-- Task drawer is now empty -->
 		</div>
