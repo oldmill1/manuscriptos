@@ -134,21 +134,16 @@
 	}
 
 	async function handleNewFolder() {
-		console.log('New folder clicked');
 		// Call the parent's new folder handler
 		onNewFolder?.();
 	}
 
 	async function handleNewDocument() {
-		console.log('New document button clicked in Explorer component');
-		console.log('onNewDocument function:', onNewDocument);
-		console.log('onNewDocument type:', typeof onNewDocument);
 		// Call the parent's new document handler
 		onNewDocument?.();
 	}
 
 	async function handleNewCharacter() {
-		console.log('New character button clicked');
 		// Call the parent's new character handler
 		onNewCharacter?.();
 	}

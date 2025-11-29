@@ -101,8 +101,6 @@
 	}
 
 	function handleNewFolder() {
-		console.log('Creating new folder...');
-		
 		// Create a temporary folder with a unique ID and "New List" name
 		const tempId = `temp-${crypto.randomUUID()}`;
 		const tempFolder: ExplorerItem = {
@@ -119,8 +117,6 @@
 	}
 
 	function handleNewCharacter() {
-		console.log('Creating new character...');
-		
 		// Create a temporary character list with a unique ID and "New Character" name
 		const tempId = `temp-char-${crypto.randomUUID()}`;
 		const tempCharacter: ExplorerItem = {
@@ -190,7 +186,8 @@
 
 	
 	function handleFavorites() {
-		console.log('Favorites clicked');
+		// Navigate to favorites page
+		goto('/favorites');
 	}
 
 	function handleSelectionToggle(enabled: boolean) {
@@ -199,14 +196,6 @@
 
 	async function handleDeleteSelected(selectedDocs: any[]) {
 		try {
-			console.log('Raw selected items:', selectedDocs.map(item => ({
-				id: item.id,
-				name: item.name,
-				title: item.title,
-				isFolder: item.isFolder,
-				icon: item.icon
-			})));
-
 			// Separate documents and folders
 			const documentsToDelete = selectedDocs.filter(item => !item.isFolder);
 			const foldersToDelete = selectedDocs.filter(item => item.isFolder);
@@ -228,12 +217,9 @@
 
 	async function handleFolderDelete(folderId: string) {
 		try {
-			console.log('Deleting folder:', folderId);
-			
 			// First, delete all documents in this folder
 			const documentsInFolder = await app.loadDocumentsByParentId(folderId);
 			if (documentsInFolder.length > 0) {
-				console.log(`Deleting ${documentsInFolder.length} documents in folder`);
 				const documentDeletePromises = documentsInFolder.map(async (doc) => {
 					await app.deleteDocument(doc.id);
 				});
@@ -243,7 +229,6 @@
 			// Then, delete all subfolders recursively
 			const subfolders = await app.loadListsByParentId(folderId);
 			if (subfolders.length > 0) {
-				console.log(`Deleting ${subfolders.length} subfolders recursively`);
 				const folderDeletePromises = subfolders.map(async (subfolder) => {
 					await handleFolderDelete(subfolder.id); // Recursive call
 				});
@@ -260,7 +245,6 @@
 
 	async function handleDocumentDelete(documentId: string) {
 		try {
-			console.log('Deleting document:', documentId);
 			await app.deleteDocument(documentId);
 		} catch (error) {
 			console.error('Failed to delete document:', error);
@@ -269,8 +253,6 @@
 
 	async function handleFolderCreate(folderName: string, tempId: string) {
 		try {
-			console.log('Creating folder:', folderName);
-			
 			// Create the actual folder
 			const savedFolder = await app.createList(folderName, undefined);
 			
@@ -287,8 +269,6 @@
 
 	async function handleCharacterCreate(characterName: string, tempId: string) {
 		try {
-			console.log('Creating character:', characterName);
-			
 			// Create the actual character list
 			const savedCharacter = await app.createCharacterList(characterName, undefined);
 			
@@ -304,7 +284,6 @@
 	}
 
 	function handleItemSelect(item: ExplorerItem) {
-		console.log('Selected item:', item);
 		// Selection logic will be handled by selectedDocuments store
 	}
 </script>

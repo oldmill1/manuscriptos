@@ -100,9 +100,6 @@
 			// Sort by creation date, newest first
 			updatedChildFolders.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 			childFolders = updatedChildFolders;
-			console.log('Added new folder to childFolders:', savedFolder.name);
-			
-			console.log('Folder creation completed - folder added to view');
 			
 		} catch (error) {
 			console.error('Failed to create folder:', error);
@@ -111,14 +108,9 @@
 
 	async function handleDocumentCreate(documentName: string, tempId: string) {
 		try {
-			console.log('Creating document:', documentName, 'from temp:', tempId);
-			console.log('Using currentFolderId:', currentFolderId);
-			
 			// Create the real document using DocumentService with parentId
 			const newDocument = new Document(documentName, '', currentFolderId);
 			const savedDocument = await documentService.create(newDocument);
-			
-			console.log('Document created successfully with parentId:', currentFolderId);
 			
 			// Remove the temporary document
 			temporaryDocuments = temporaryDocuments.filter(d => d.id !== tempId);
@@ -133,9 +125,6 @@
 			// Sort by creation date, newest first
 			updatedDocuments.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 			documents = updatedDocuments;
-			console.log('Added new document to documents:', savedDocument.title);
-			
-			console.log('Document creation completed - document added to view');
 			
 		} catch (error) {
 			console.error('Failed to create document:', error);
@@ -143,28 +132,22 @@
 	}
 
 	function handleDocumentClick(doc: Document, event: MouseEvent) {
-		console.log('Document clicked:', doc.id, doc.title);
-		console.log('Document parentId:', doc.parentId); // Add this log
 		// Navigate to the document in the Editor
 		window.location.href = `/docs/${doc.id}`;
 	}
 
 	
 	function handleFolderClick(folder: List, event: MouseEvent) {
-		console.log('Folder clicked:', folder.id, folder.name);
 		
 		// Build the full path by appending current folder to existing path
 		const fullPath = [...pathArray, folder.id];
 		const navigationPath = fullPath.join('/');
-		console.log('Navigating to full path:', navigationPath);
 		
 		// Navigate to the folder with full path
 		window.location.href = `/explorer/${navigationPath}`;
 	}
 
 	function handleNewDocument() {
-		console.log('New document clicked in folder:', currentFolderId);
-		
 		// Create a temporary document with a unique ID and "Untitled Document" name
 		const tempDocument = {
 			id: `temp-doc-${Date.now()}`, // Unique ID using timestamp
@@ -175,16 +158,11 @@
 			}
 		};
 		
-		console.log('Created temp document:', tempDocument.id);
-		console.log('Temp document object:', tempDocument);
-		
 		// Add to temporary documents array
 		temporaryDocuments = [...temporaryDocuments, tempDocument];
-		console.log('Temporary documents array:', temporaryDocuments);
 		
 		// Set this document as the one being edited
 		editingTempDocumentId = tempDocument.id;
-		console.log('Set editingTempDocumentId to:', editingTempDocumentId);
 	}
 
 	
@@ -193,8 +171,6 @@
 	}
 
 	function handleNewFolder() {
-		console.log('New folder clicked');
-		
 		// Create a temporary folder with a unique ID and "New List" name
 		const tempFolder = {
 			id: `temp-${Date.now()}`, // Unique ID using timestamp
@@ -204,8 +180,6 @@
 				// Handle click on temporary folder (optional - could open rename dialog)
 			}
 		};
-		
-		console.log('Created temp folder:', tempFolder.id);
 		
 		// Add to temporary folders array
 		temporaryFolders = [...temporaryFolders, tempFolder];
