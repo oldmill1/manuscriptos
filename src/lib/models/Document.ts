@@ -1,5 +1,6 @@
 import { generateTimeBasedTitle } from '$lib/utils/timeTitle';
 import { DocumentValidationError } from '$lib/errors/DatabaseErrors';
+import type { FileSystemItem } from '$lib/interfaces/FileSystemItem';
 
 export type DocumentType = 'scene' | 'character' | null;
 
@@ -17,7 +18,7 @@ export interface DocumentContent {
 	updatedAt: Date;
 }
 
-export class Document {
+export class Document implements FileSystemItem {
 	private _id: string;
 	private _title: string;
 	private _content: string;
@@ -124,49 +125,21 @@ export class Document {
 	}
 
 	// Getters
-	get id(): string {
-		return this._id;
-	}
+	// FileSystemItem interface implementation
+	get id(): string { return this._id; }
+	get name(): string { return this._title; }
+	get parentId(): string | undefined { return this._parentId; }
+	get path(): string { return this._path; }
+	get level(): number { return this._level; }
+	get createdAt(): Date { return this._createdAt; }
+	get updatedAt(): Date { return this._updatedAt; }
 
-	get title(): string {
-		return this._title;
-	}
-
-	get content(): string {
-		return this._content;
-	}
-
-	get createdAt(): Date {
-		return this._createdAt;
-	}
-
-	get updatedAt(): Date {
-		return this._updatedAt;
-	}
-
-	get parentId(): string | undefined {
-		return this._parentId;
-	}
-
-	get path(): string {
-		return this._path;
-	}
-
-	get level(): number {
-		return this._level;
-	}
-
-	get isInFavorites(): boolean {
-		return this._isInFavorites;
-	}
-
-	get listIds(): string[] {
-		return [...this._listIds]; // Return copy to prevent external mutation
-	}
-
-	get type(): DocumentType | undefined {
-		return this._type;
-	}
+	// Document-specific properties
+	get title(): string { return this._title; }
+	get content(): string { return this._content; }
+	get isInFavorites(): boolean { return this._isInFavorites; }
+	get listIds(): string[] { return [...this._listIds]; }
+	get type(): DocumentType | undefined { return this._type; }
 
 	// Setters with automatic timestamp update and validation
 	set title(value: string) {

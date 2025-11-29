@@ -1,3 +1,5 @@
+import type { FileSystemItem } from '$lib/interfaces/FileSystemItem';
+
 export type ListType = null | undefined | 'character';
 
 export interface ListContent {
@@ -13,7 +15,7 @@ export interface ListContent {
 	updatedAt: Date;
 }
 
-export class List {
+export class List implements FileSystemItem {
 	private _id: string;
 	private _type: ListType;
 	private _name: string;
@@ -50,45 +52,19 @@ export class List {
 	}
 
 	// Getters
-	get id(): string {
-		return this._id;
-	}
+	// FileSystemItem interface implementation
+	get id(): string { return this._id; }
+	get name(): string { return this._name; }
+	get parentId(): string | undefined { return this._parentId; }
+	get path(): string { return this._path; }
+	get level(): number { return this._level; }
+	get createdAt(): Date { return this._createdAt; }
+	get updatedAt(): Date { return this._updatedAt; }
 
-	get type(): ListType {
-		return this._type;
-	}
-
-	get name(): string {
-		return this._name;
-	}
-
-	get itemIds(): string[] {
-		return [...this._itemIds];
-	}
-
-	get createdAt(): Date {
-		return this._createdAt;
-	}
-
-	get updatedAt(): Date {
-		return this._updatedAt;
-	}
-
-	get parentId(): string | undefined {
-		return this._parentId;
-	}
-
-	get path(): string {
-		return this._path;
-	}
-
-	get level(): number {
-		return this._level;
-	}
-
-	get documentIds(): string[] {
-		return [...this._documentIds]; // Return copy to prevent external mutation
-	}
+	// List-specific properties
+	get type(): ListType { return this._type; }
+	get itemIds(): string[] { return [...this._itemIds]; }
+	get documentIds(): string[] { return [...this._documentIds]; } // Return copy to prevent external mutation
 
 	// Setters with automatic timestamp update
 	set name(value: string) {
