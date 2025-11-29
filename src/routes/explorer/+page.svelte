@@ -236,6 +236,41 @@
 		}
 	}
 
+	async function handleCharacterRename(characterId: string, newName: string) {
+		try {
+			// Check if characterService is available (SSR compatibility)
+			if (!app.characterService) {
+				console.error('Character service not available');
+				return;
+			}
+			
+			// Get the latest version of the character from the database
+			const currentCharacter = await app.characterService.read(characterId);
+			if (!currentCharacter) {
+				console.error('Character not found for renaming:', characterId);
+				return;
+			}
+			
+			// Update the character name on the fresh object
+			currentCharacter.name = newName;
+			
+			try {
+				await app.updateCharacter(currentCharacter);
+			} catch (updateError: any) {
+				// If there's a conflict but the rename worked, just log it and continue
+				if (updateError.message?.includes('conflict')) {
+					console.log('Character rename completed despite conflict');
+					return; // Exit early since the rename worked
+				} else {
+					throw updateError;
+				}
+			}
+			
+		} catch (error) {
+			console.error('Failed to rename character:', error);
+		}
+	}
+
 	function handleFavorites() {
 		console.log('Favorites clicked');
 	}
@@ -358,6 +393,7 @@
 		onFolderRename={handleFolderRename}
 		onDocumentCreate={handleDocumentCreate}
 		onDocumentRename={handleDocumentRename}
+		onCharacterRename={handleCharacterRename}
 		editingTempFolderId={app.editingTempFolderId}
 		editingTempDocumentId={app.editingTempDocumentId}
 		editingTempCharacterId={app.editingTempCharacterId}

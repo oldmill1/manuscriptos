@@ -56,14 +56,6 @@
 		folderIds = []
 	}: Props = $props();
 
-	// Debug: Log all received props
-	console.log('=== Explorer component props ===');
-	console.log('onNewFolder:', !!onNewFolder);
-	console.log('onNewDocument:', !!onNewDocument);
-	console.log('onNewCharacter:', !!onNewCharacter);
-	console.log('onCharacterCreate:', !!onCharacterCreate);
-	console.log('=== End Explorer props ===');
-
 	// Track selected documents from the store
 	let selectedDocs = $state<any[]>([]);
 	let isDeleteModalOpen = $state(false);
