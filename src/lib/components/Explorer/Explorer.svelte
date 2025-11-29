@@ -143,6 +143,10 @@
 		onNewDocument?.();
 	}
 
+	async function handleNewCharacter() {
+		console.log("New character button clicked");
+	}
+
 	</script>
 
 <div class={styles.container}>
@@ -164,6 +168,12 @@
 						label: 'New Document',
 						icon: '📄',
 						onClick: handleNewDocument
+					},
+					{
+						id: 'character',
+						label: 'New Character',
+						icon: '👤',
+						onClick: handleNewCharacter
 					},
 									]}
 			/>
