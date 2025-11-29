@@ -2,14 +2,16 @@
 	import styles from './ActionRow.module.scss';
 	
 	let {
-		items = []
+		children
 	}: {
-		items?: any[];
+		children: any;
 	} = $props();
 </script>
 
 <div class={styles['action-row']}>
-	{#each items as item}
-		{@render item()}
-	{/each}
+	<div class={styles.columns}>
+		<div class={styles.column}>
+			{@render children()}
+		</div>
+	</div>
 </div>
