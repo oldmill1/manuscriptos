@@ -1,19 +1,14 @@
 <script lang="ts">
 	import styles from './XHeader.module.scss';
-	import { XBio } from './XBio';
 
 	interface Props {
 		name?: string;
 		onNameChange?: (newName: string) => void;
-		traits?: import('./XBio').BioTrait[];
-		onTraitChange?: (index: number, value: string) => void;
 	}
 
 	let { 
 		name = 'Character Name', 
-		onNameChange,
-		traits,
-		onTraitChange
+		onNameChange
 	}: Props = $props();
 	
 	let isEditingName = $state(false);
@@ -84,5 +79,4 @@
 			</div>
 		</div>
 	</div>
-	<XBio {traits} onTraitChange={onTraitChange} />
 </header>
