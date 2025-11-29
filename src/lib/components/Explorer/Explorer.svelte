@@ -20,10 +20,12 @@
 		onSelectionToggle?: (enabled: boolean) => void;
 		onNewFolder?: () => void;
 		onNewDocument?: () => void;
+		onNewCharacter?: () => void;
 		onFolderCreate?: (folderName: string, tempId: string) => void;
 		onFolderRename?: (folderId: string, newName: string) => void;
 		onDocumentCreate?: (documentName: string, tempId: string) => void;
 		onDocumentRename?: (documentId: string, newName: string) => void;
+		onCharacterCreate?: (characterName: string, tempId: string) => void;
 		editingTempFolderId?: string | null;
 		editingTempDocumentId?: string | null;
 		folderIds?: string[]; // For breadcrumb trail
@@ -39,10 +41,12 @@
 		onSelectionToggle,
 		onNewFolder,
 		onNewDocument,
+		onNewCharacter,
 		onFolderCreate,
 		onFolderRename,
 		onDocumentCreate,
 		onDocumentRename,
+		onCharacterCreate,
 		editingTempFolderId,
 		editingTempDocumentId,
 				folderIds = []
@@ -144,7 +148,9 @@
 	}
 
 	async function handleNewCharacter() {
-		console.log("New character button clicked");
+		console.log('New character button clicked');
+		// Call the parent's new character handler
+		onNewCharacter?.();
 	}
 
 	</script>
@@ -189,6 +195,7 @@
 						onFolderRename={onFolderRename}
 						onDocumentCreate={onDocumentCreate}
 						onDocumentRename={onDocumentRename}
+						onCharacterCreate={onCharacterCreate}
 						forceEditing={editingTempFolderId === item.id || editingTempDocumentId === item.id}
 					/>
 				{/each}

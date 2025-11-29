@@ -210,6 +210,27 @@ function createAppState() {
 			}
 		},
 
+		async createCharacterList(name: string, parentId?: string): Promise<List> {
+			if (!browser || !state.listService) {
+				throw new Error('Database not available on server');
+			}
+			try {
+				const list = new List('character', name, parentId);
+				const savedList = await state.listService.create(list);
+				
+				// Add to state if it's at the current level
+				if (savedList.parentId === undefined) {
+					const updatedLists = [...state.lists, savedList];
+					state.lists = updatedLists.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+				}
+				
+				return savedList;
+			} catch (error) {
+				console.error('Failed to create character list:', error);
+				throw error;
+			}
+		},
+
 		async updateList(list: List): Promise<List> {
 			if (!browser || !state.listService) {
 				throw new Error('Database not available on server');

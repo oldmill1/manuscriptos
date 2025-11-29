@@ -118,6 +118,24 @@
 		app.setEditingTempFolderId(tempId);
 	}
 
+	function handleNewCharacter() {
+		console.log('Creating new character...');
+		
+		// Create a temporary character list with a unique ID and "New Character" name
+		const tempId = `temp-char-${crypto.randomUUID()}`;
+		const tempCharacter: ExplorerItem = {
+			id: tempId,
+			name: 'New Character',
+			type: 'list',
+			icon: '/icons/folder.png',
+			isTemp: true,
+			isEditing: true
+		};
+		
+		app.addTemporaryFolder(tempCharacter);
+		app.setEditingTempFolderId(tempId);
+	}
+
 	async function handleFolderRename(folderId: string, newName: string) {
 		try {
 			const folder = app.lists.find((f: List) => f.id === folderId);
@@ -267,6 +285,24 @@
 		}
 	}
 
+	async function handleCharacterCreate(characterName: string, tempId: string) {
+		try {
+			console.log('Creating character:', characterName);
+			
+			// Create the actual character list
+			const savedCharacter = await app.createCharacterList(characterName, undefined);
+			
+			// Remove the temporary character
+			app.removeTemporaryFolder(tempId);
+			if (app.editingTempFolderId === tempId) {
+				app.setEditingTempFolderId(null);
+			}
+			
+		} catch (error) {
+			console.error('Failed to create character:', error);
+		}
+	}
+
 	function handleItemSelect(item: ExplorerItem) {
 		console.log('Selected item:', item);
 		// Selection logic will be handled by selectedDocuments store
@@ -287,10 +323,12 @@
 		onDeleteSelected={handleDeleteSelected}
 		onNewFolder={handleNewFolder}
 		onNewDocument={handleNewDocument}
+		onNewCharacter={handleNewCharacter}
 		onFolderCreate={handleFolderCreate}
 		onFolderRename={handleFolderRename}
 		onDocumentCreate={handleDocumentCreate}
 		onDocumentRename={handleDocumentRename}
+		onCharacterCreate={handleCharacterCreate}
 		editingTempFolderId={app.editingTempFolderId}
 		editingTempDocumentId={app.editingTempDocumentId}
 		folderIds={[]}
