@@ -312,7 +312,7 @@
 										} 
 									}}
 								>
-									<span>📋</span>
+									<img src="/icons/paste.png" alt="Paste" />
 								</div>
 							</Motion>
 							
