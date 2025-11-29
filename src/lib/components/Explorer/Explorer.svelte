@@ -234,8 +234,23 @@
 						onchange={handleSelectionToggle}
 					/>
 					
-					{#if isSelectionMode}
-						<div class={styles.actionButtons}>
+					<Motion 
+						let:motion
+						animate={isSelectionMode ? {
+							opacity: 1,
+							width: 'auto',
+							maxWidth: 200
+						} : {
+							opacity: 0,
+							width: 0,
+							maxWidth: 0
+						}}
+						transition={{ 
+							duration: 0.3, 
+							ease: [0.4, 0, 0.2, 1] 
+						}}
+					>
+						<div class={styles.actionButtons} use:motion>
 							<!-- Cut, Copy, Paste buttons -->
 							<Motion 
 								let:motion
@@ -331,7 +346,7 @@
 								</div>
 							</Motion>
 						</div>
-					{/if}
+					</Motion>
 				</div>
 			{/if}
 
