@@ -1,6 +1,8 @@
 import { generateTimeBasedTitle } from '$lib/utils/timeTitle';
 import { DocumentValidationError } from '$lib/errors/DatabaseErrors';
 
+export type DocumentType = 'scene' | 'character' | null;
+
 export interface DocumentContent {
 	id: string;
 	title: string;
@@ -10,6 +12,7 @@ export interface DocumentContent {
 	level: number;     // Hierarchy depth (0 = root, 1 = child of root, etc.)
 	isInFavorites: boolean; // Denormalized for quick favorites filtering
 	listIds: string[];     // All lists this document belongs to
+	type?: DocumentType;   // Document type (undefined/null = regular document)
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -23,10 +26,11 @@ export class Document {
 	private _level: number;
 	private _isInFavorites: boolean;
 	private _listIds: string[];
+	private _type?: DocumentType;
 	private _createdAt: Date;
 	private _updatedAt: Date;
 
-	constructor(title: string = '', content: string = '', parentId?: string, path?: string, level?: number, isInFavorites?: boolean, listIds?: string[]) {
+	constructor(title: string = '', content: string = '', parentId?: string, path?: string, level?: number, isInFavorites?: boolean, listIds?: string[], type?: DocumentType) {
 		// Validate title
 		this.validateTitle(title);
 		
@@ -46,6 +50,7 @@ export class Document {
 		this._level = level ?? this.calculateLevel(parentId); // Calculate level if not provided
 		this._isInFavorites = isInFavorites ?? false; // Default to false
 		this._listIds = listIds ?? []; // Default to empty array
+		this._type = type; // Document type (undefined/null = regular document)
 		this._createdAt = new Date();
 		this._updatedAt = new Date();
 	}
@@ -159,6 +164,10 @@ export class Document {
 		return [...this._listIds]; // Return copy to prevent external mutation
 	}
 
+	get type(): DocumentType | undefined {
+		return this._type;
+	}
+
 	// Setters with automatic timestamp update and validation
 	set title(value: string) {
 		this.validateTitle(value);
@@ -190,6 +199,11 @@ export class Document {
 
 	set listIds(value: string[]) {
 		this._listIds = [...value]; // Store copy to prevent external mutation
+		this._updatedAt = new Date();
+	}
+
+	set type(value: DocumentType | undefined) {
+		this._type = value;
 		this._updatedAt = new Date();
 	}
 
@@ -237,6 +251,7 @@ export class Document {
 			level: this._level,
 			isInFavorites: this._isInFavorites,
 			listIds: [...this._listIds], // Return copy
+			type: this._type, // Include document type
 			createdAt: this._createdAt,
 			updatedAt: this._updatedAt
 		};
@@ -282,9 +297,10 @@ export class Document {
 		const level = data.level ?? undefined;
 		const isInFavorites = data.isInFavorites ?? false;
 		const listIds = data.listIds ?? [];
+		const type = data.type ?? undefined;
 
 		// Create document with validated data
-		const doc = new Document(data.title, data.content, data.parentId, path, level, isInFavorites, listIds);
+		const doc = new Document(data.title, data.content, data.parentId, path, level, isInFavorites, listIds, type);
 		doc._id = data.id;
 		// IMPORTANT: Preserve the original title from JSON, don't regenerate it
 		doc._title = data.title;
@@ -294,6 +310,7 @@ export class Document {
 		doc._level = data.level ?? doc.calculateLevel(data.parentId);
 		doc._isInFavorites = data.isInFavorites ?? false;
 		doc._listIds = data.listIds ?? [];
+		doc._type = data.type ?? undefined;
 		
 		doc._createdAt = data.createdAt;
 		doc._updatedAt = data.updatedAt;
