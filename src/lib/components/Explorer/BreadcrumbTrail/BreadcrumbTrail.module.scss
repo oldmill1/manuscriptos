@@ -22,6 +22,7 @@
 	display: flex;
 	align-items: center;
 	margin-right: 0;
+	transition: background 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
 	&:first-of-type {
 		border-top-left-radius: 8px;
@@ -44,6 +45,15 @@
 		border-top: 18px solid transparent;
 		border-bottom: 18px solid transparent;
 		border-left: 8px solid #334155;
+		transition: border-left-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+	}
+
+	&:hover {
+		background: #2c3440;
+
+		&:not(:last-child)::after {
+			border-left-color: #2c3440;
+		}
 	}
 }
 
