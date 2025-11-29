@@ -23,15 +23,10 @@
 .profileCard {
 	width: 100%;
 	max-width: 800px;
-	background: linear-gradient(135deg, rgba(30, 35, 40, 0.95), rgba(20, 25, 30, 0.9));
-	backdrop-filter: blur(20px);
-	border-radius: 20px;
 	display: flex;
 	flex-direction: column;
-	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 8px 20px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 	overflow: hidden;
 	position: relative;
-	border: 1px solid rgba(255, 255, 255, 0.08);
 
 	// Responsive adjustments
 	@media (max-width: 768px) {
