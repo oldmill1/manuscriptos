@@ -270,7 +270,7 @@
 										} 
 									}}
 								>
-									<span>✂️</span>
+									<img src="/icons/cut.png" alt="Cut" />
 								</div>
 							</Motion>
 							<Motion 
@@ -291,7 +291,7 @@
 										} 
 									}}
 								>
-									<span>📄</span>
+									<img src="/icons/copy.png" alt="Copy" />
 								</div>
 							</Motion>
 							<Motion 
