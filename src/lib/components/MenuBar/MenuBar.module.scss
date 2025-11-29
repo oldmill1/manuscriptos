@@ -157,6 +157,28 @@
 	text-transform: none;
 }
 
+.largeLogoButton {
+	background: none;
+	border: none;
+	cursor: pointer;
+	border-radius: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	&:focus {
+		outline: 2px solid #007bff;
+		outline-offset: 1px;
+	}
+}
+
+.largeLogo {
+	height: 100px;
+	width: auto;
+	display: block;
+	border-radius: 12px;
+}
+
 .logoButton {
 	background: none;
 	border: none;

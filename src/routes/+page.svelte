@@ -90,7 +90,7 @@
 
 <div class={styles['app-container']}>
 	<!-- MenuBar -->
-	<MenuBar logo="/icons/full-logo.png" hideLeftButton={true} />
+	<MenuBar logo="/icons/logo-small.png" hideLeftButton={true} largeLogo={true} />
 	
 	<!-- Main Content -->
 	<main>

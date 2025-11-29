@@ -13,9 +13,10 @@
 		backButton?: boolean;
 		onBackClick?: () => void;
 		hideLeftButton?: boolean;
+		largeLogo?: boolean;
 	}
 
-	let { title = '', logo, titleEditable = false, documentId, dbService, backButton = false, onBackClick, hideLeftButton = false }: Props = $props();
+	let { title = '', logo, titleEditable = false, documentId, dbService, backButton = false, onBackClick, hideLeftButton = false, largeLogo = false }: Props = $props();
 
 	let isEditing = $state(false);
 	let editingTitle = $state('');
@@ -185,12 +186,12 @@
 			>
 				<button
 					type="button"
-					class={styles.logoButton}
+					class={largeLogo ? styles.largeLogoButton : styles.logoButton}
 					onclick={handleTitleClick}
 					onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && handleTitleClick()}
 					use:motion
 				>
-					<img src={logo} alt="Logo" class={styles.logo} />
+					<img src={logo} alt="Logo" class={largeLogo ? styles.largeLogo : styles.logo} />
 				</button>
 			</Motion>
 		{:else if isEditing}
