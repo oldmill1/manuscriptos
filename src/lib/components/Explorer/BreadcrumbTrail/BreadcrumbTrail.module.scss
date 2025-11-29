@@ -21,11 +21,6 @@
 	font-size: inherit;
 	font-weight: 400;
 
-	&:hover {
-		color: #e0e0e0;
-		background: rgba(255, 255, 255, 0.05);
-	}
-
 	&:active {
 		background: rgba(255, 255, 255, 0.1);
 	}

@@ -2,6 +2,7 @@
 	import styles from './BreadcrumbTrail.module.scss';
 	import type { Snippet } from 'svelte';
 	import { ListService } from '$lib/services/ListService';
+	import { Motion } from 'svelte-motion';
 
 	interface BreadcrumbItem {
 		id: string;
@@ -81,13 +82,21 @@
 				<span class={styles.current}>{item.name}</span>
 			{:else}
 				<!-- Parent folder - clickable -->
-				<button 
-					class={styles.breadcrumb}
-					onclick={() => handleBreadcrumbClick(item)}
-					type="button"
+				<Motion 
+					let:motion
+					whileHover={{ scale: 1.05 }}
+					whileTap={{ scale: 0.95 }}
+					transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
 				>
-					{item.name}
-				</button>
+					<button 
+						class={styles.breadcrumb}
+						onclick={() => handleBreadcrumbClick(item)}
+						type="button"
+						use:motion
+					>
+						{item.name}
+					</button>
+				</Motion>
 			{/if}
 		{/each}
 	</div>
