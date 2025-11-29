@@ -5,6 +5,7 @@ import { ListService } from '$lib/services/ListService';
 import { browser } from '$app/environment';
 import { PouchDatabase } from '$lib/implementations/PouchDatabase';
 import type { ExplorerItem } from '$lib/components/Explorer/types';
+import type { ClipboardItem } from '$lib/interfaces/ClipboardItem';
 import { selectedDocuments } from '$lib/stores/selectedDocuments';
 
 // Global app state interface
@@ -333,6 +334,98 @@ function createAppState() {
 			
 			// Toggle selection using the selectedDocuments store
 			selectedDocuments.toggleDocument(selectableItem);
+		},
+
+		// Clipboard methods
+		async copySelected(): Promise<void> {
+			if (!browser || !state.documentService || !state.listService) return;
+			
+			try {
+				// Get current selected items
+				const selectedItems = selectedDocuments.getDocuments();
+				
+				// Convert to ClipboardItem format with full data
+				const clipboardItems: ClipboardItem[] = [];
+				
+				for (const item of selectedItems) {
+					// Try to get document data first
+					const document = await state.documentService.read(item.id);
+					if (document) {
+						clipboardItems.push({
+							id: document.id,
+							type: 'document',
+							name: document.title,
+							data: document,
+							originalParentId: document.parentId
+						});
+					} else {
+						// Try to get list data if document not found
+						const list = await state.listService.read(item.id);
+						if (list) {
+							clipboardItems.push({
+								id: list.id,
+								type: 'list',
+								name: list.name,
+								data: list,
+								originalParentId: list.parentId
+							});
+						}
+					}
+				}
+				
+				// For now, just trigger the existing copySelected method
+				// We'll enhance the selectedDocuments store later to support rich clipboard data
+				selectedDocuments.copySelected();
+				
+			} catch (error) {
+				console.error('Failed to copy selected items:', error);
+			}
+		},
+
+		cutSelected(): void {
+			// For now, just use the existing cutSelected from selectedDocuments
+			selectedDocuments.cutSelected();
+		},
+
+		async pasteClipboard(targetParentId?: string): Promise<void> {
+			if (!browser || !state.documentService || !state.listService) return;
+			
+			try {
+				// Get clipboard state from selectedDocuments store
+				const clipboardState = selectedDocuments.pasteItems(targetParentId);
+				
+				if (!clipboardState.items.length) {
+					console.log('No items to paste');
+					return;
+				}
+
+				// Perform paste operations based on operation type
+				if (clipboardState.operation === 'copy') {
+					// Duplicate items using the IDs from clipboard
+					for (const item of clipboardState.items) {
+						// Try to duplicate as document first
+						try {
+							await state.documentService.duplicate(item.id, targetParentId);
+						} catch (docError) {
+							// If document duplication fails, try as list
+							try {
+								await state.listService.duplicate(item.id, targetParentId);
+							} catch (listError) {
+								console.error(`Failed to duplicate item ${item.id} as document or list:`, listError);
+							}
+						}
+					}
+				} else if (clipboardState.operation === 'cut') {
+					// Move items (would need move functionality in services)
+					console.log('Cut/paste not implemented yet - would move items to', targetParentId);
+				}
+
+				// Refresh the current view
+				await this.loadRootLevel();
+				
+			} catch (error) {
+				console.error('Failed to paste clipboard items:', error);
+			}
 		}
 	};
 

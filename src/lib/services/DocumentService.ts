@@ -188,6 +188,36 @@ export class DocumentService {
 		}
 	}
 
+	// Duplicate a document by ID (for copy functionality)
+	async duplicate(documentId: string, newParentId?: string): Promise<Document> {
+		try {
+			if (!documentId?.trim()) {
+				throw new DocumentValidationError('documentId', documentId);
+			}
+
+			// Get the original document
+			const originalDocument = await this.read(documentId);
+			if (!originalDocument) {
+				throw new DocumentNotFoundError(documentId, new Error('Document not found for duplication'));
+			}
+
+			// Create a new document with copied content
+			const duplicatedDocument = new Document(
+				`${originalDocument.title} (Copy)`,
+				originalDocument.content,
+				newParentId || originalDocument.parentId
+			);
+
+			// Save the duplicated document
+			return await this.create(duplicatedDocument);
+		} catch (error) {
+			if (error instanceof DatabaseError) {
+				throw error; // Re-throw our custom errors
+			}
+			throw new DocumentCreationError(`duplicate of ${documentId}`, error as Error);
+		}
+	}
+
 	// List all documents
 	async list(): Promise<Document[]> {
 		try {
