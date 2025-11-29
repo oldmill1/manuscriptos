@@ -11,6 +11,8 @@ export function convertListsToExplorerItems(
 		name: list.name || 'Untitled List',
 		icon: '/icons/folder.png',
 		isFolder: true,
+		type: 'list',
+		listType: list.type,
 		onClick: onListClick ? (item: ExplorerItem, event: MouseEvent) => {
 			const originalList = lists.find(l => l.id === item.id);
 			if (originalList) onListClick(originalList, event);

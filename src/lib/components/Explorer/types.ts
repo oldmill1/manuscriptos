@@ -7,6 +7,7 @@ export interface ExplorerItem {
 	type?: 'list' | 'document';
 	isTemp?: boolean;
 	isEditing?: boolean;
+	listType?: 'character' | null; // List type for determining special icons
 }
 
 export type ExplorerItemType = 'list' | 'document';

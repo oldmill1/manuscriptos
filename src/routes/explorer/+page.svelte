@@ -125,7 +125,8 @@
 			type: 'list',
 			icon: '/icons/folder.png',
 			isTemp: true,
-			isEditing: true
+			isEditing: true,
+			listType: 'character'
 		};
 		
 		app.addTemporaryFolder(tempCharacter);

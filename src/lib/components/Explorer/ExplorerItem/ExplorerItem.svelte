@@ -31,6 +31,14 @@
 		forceEditing = false
 	}: Props = $props();
 
+	// Compute the correct icon based on list type
+	const displayIcon = $derived.by(() => {
+		if (item.listType === 'character') {
+			return '/icons/fantasy.png';
+		}
+		return item.icon;
+	});
+
 	// Track global selection state for documents
 	let globallySelected = $state(false);
 	
@@ -241,7 +249,7 @@
 				/>
 			</div>
 		{/if}
-		<img src={item.icon} alt={item.name} class={styles.icon} />
+		<img src={displayIcon} alt={item.name} class={styles.icon} />
 		{#if isEditing && (item.icon === '/icons/folder.png' || item.icon === '/icons/new.png' || !item.isFolder)}
 			<input 
 				type="text" 

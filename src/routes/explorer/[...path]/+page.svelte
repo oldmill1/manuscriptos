@@ -194,7 +194,10 @@
 			icon: '/icons/folder.png',
 			onClick: (item: any, event: MouseEvent) => {
 				// Handle click on temporary character (optional - could open rename dialog)
-			}
+			},
+			isFolder: true,
+			type: 'list',
+			listType: 'character'
 		};
 		
 		// Add to temporary folders array
