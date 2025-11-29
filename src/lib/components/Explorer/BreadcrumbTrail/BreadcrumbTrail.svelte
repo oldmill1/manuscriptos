@@ -33,7 +33,7 @@
 				// Always start with manuscriptOS Novel Writer
 				trail.push({
 					id: 'root',
-					name: 'manuscriptOS Novel Writer',
+					name: 'manuscriptOS',
 					path: '/explorer'
 				});
 
@@ -73,7 +73,7 @@
 	<div class={styles.breadcrumbContainer}>
 		{#each breadcrumbs as item, index}
 			{#if index > 0}
-				<span class={styles.separator}>></span>
+				<span class={styles.separator}>›</span>
 			{/if}
 			
 			{#if index === breadcrumbs.length - 1}
