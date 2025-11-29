@@ -6,7 +6,7 @@
 		title?: string;
 	}
 	
-	let { children, title = "Explorer" }: LayoutProps = $props();
+	let { children, title = "manuscriptOS" }: LayoutProps = $props();
 </script>
 
 <svelte:head>

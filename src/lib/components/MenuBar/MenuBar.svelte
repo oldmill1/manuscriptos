@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import styles from './MenuBar.module.scss';
 	import { toggleWidgetVisibility } from '$lib/stores/widgetVisibility';
 	import { Motion } from 'svelte-motion';
@@ -114,6 +115,22 @@
 	function goHome() {
 		window.location.href = '/';
 	}
+
+	function handleTitleClick() {
+		// Check if we're in the explorer section
+		const currentPath = window.location.pathname;
+		
+		if (currentPath === '/explorer') {
+			// If we're at the root explorer, go to home
+			goto('/');
+		} else if (currentPath.startsWith('/explorer')) {
+			// If we're in a nested explorer path, go back to /explorer
+			goto('/explorer');
+		} else {
+			// Otherwise, go to home
+			goto('/');
+		}
+	}
 </script>
 
 <div class={styles.menubar}>
@@ -169,10 +186,7 @@
 				onkeydown={handleKeydown}
 				onblur={saveTitle}
 			/>
-		{/if}
-	</div>
-	<div class={styles.rightSection}>
-		{#if title && !isEditing}
+		{:else if title}
 			{#if titleEditable}
 				<button
 					type="button"
@@ -183,11 +197,26 @@
 					{title}
 				</button>
 			{:else}
-				<span class={styles.documentTitle}>
-					{title}
-				</span>
+				<Motion 
+					let:motion
+					whileHover={{ scale: 1.02, y: -1 }}
+					whileTap={{ scale: 0.98, y: 0 }}
+					transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+				>
+					<button
+						type="button"
+						class={styles.documentTitle}
+						onclick={handleTitleClick}
+						onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && handleTitleClick()}
+						use:motion
+					>
+						{title}
+					</button>
+				</Motion>
 			{/if}
 		{/if}
+	</div>
+	<div class={styles.rightSection}>
 		<div class={styles.taskDrawer}>
 			<!-- Task drawer is now empty -->
 		</div>
