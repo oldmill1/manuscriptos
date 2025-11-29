@@ -2,6 +2,7 @@
 	import styles from './XProfile.module.scss';
 	import { XHeader } from './XHeader';
 	import { XBio, type BioTrait } from './XBio';
+	import { ActionRow } from './ActionRow';
 
 	interface Props {
 		characterId: string;
@@ -29,6 +30,11 @@
 			name={name}
 			onNameChange={handleNameChange}
 		/>
+		
 		<XBio {traits} onTraitChange={handleTraitChange} />
+		
+		<div class={styles.actionsSection}>
+			<ActionRow items={[]} />
+		</div>
 	</div>
 </div>
