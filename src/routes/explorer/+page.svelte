@@ -3,7 +3,7 @@
 	import Dock from '$lib/components/Dock/Dock.svelte';
 	import Explorer from '$lib/components/Explorer/Explorer.svelte';
 	import type { ExplorerItem } from '$lib/components/Explorer/types';
-	import { convertDocumentsToExplorerItems, convertListsToExplorerItems, convertCharactersToExplorerItems, createExplorerData } from '$lib/components/Explorer/utils';
+	import { convertDocumentsToExplorerItems, convertListsToExplorerItems, createExplorerData } from '$lib/components/Explorer/utils';
 	import MenuBar from '$lib/components/MenuBar/MenuBar.svelte';
 	import { Document } from '$lib/models/Document';
 	import { List } from '$lib/models/List';
@@ -31,10 +31,8 @@
 		const allItems = [
 			...convertListsToExplorerItems(app.lists),
 			...convertDocumentsToExplorerItems(app.documents),
-			...convertCharactersToExplorerItems(app.characters),
 			...app.temporaryFolders,
-			...app.temporaryDocuments,
-			...app.temporaryCharacters
+			...app.temporaryDocuments
 		];
 		
 		// Add onClick function to each item for navigation
@@ -43,8 +41,6 @@
 			onClick: (clickedItem: any, event: MouseEvent) => {
 				if (clickedItem.type === 'document') {
 					goto(`/docs/${clickedItem.id}`);
-				} else if (clickedItem.type === 'character') {
-					goto(`/xers/${clickedItem.id}`);
 				} else if (clickedItem.type === 'list') {
 					goto(`/explorer/${clickedItem.id}`);
 				} else {
@@ -93,62 +89,7 @@
 		}
 	}
 
-	function handleNewCharacter() {
-		console.log('=== PARENT handleNewCharacter called ===');
-		console.log('Creating new character...');
-		
-		// Create a temporary character with a unique ID and "Untitled Character" name
-		const tempId = `temp-char-${crypto.randomUUID()}`;
-		console.log('Created temp character ID:', tempId);
-		
-		const tempCharacter: ExplorerItem = {
-			id: tempId,
-			name: 'Untitled Character',
-			type: 'character',
-			icon: '/icons/fantasy.png',
-			isTemp: true,
-			isEditing: true
-		};
-		
-		console.log('Temporary character object:', tempCharacter);
-		
-		// Add to temporary characters for editing
-		app.addTemporaryCharacter(tempCharacter);
-		app.setEditingTempCharacterId(tempId);
-		
-		console.log('Current temporary characters:', app.temporaryCharacters);
-		console.log('Current editing temp character ID:', app.editingTempCharacterId);
-		console.log('=== END PARENT handleNewCharacter ===');
-	}
-
-	async function createCharacterDirectly(name: string) {
-		try {
-			// Create the actual character immediately
-			const savedCharacter = await app.createCharacter(name, null, null, undefined);
-			console.log('New character created:', savedCharacter);
-		} catch (error) {
-			console.error('Failed to create character:', error);
-		}
-	}
-
-	async function handleCharacterCreate(characterName: string, tempId: string) {
-		try {
-			// Create the actual character with the current folder as parent
-			const currentParentId = getCurrentParentId(); // Get current folder context
-			const savedCharacter = await app.createCharacter(characterName, null, null, currentParentId);
-			
-			// Remove the temporary character
-			app.removeTemporaryCharacter(tempId);
-			if (app.editingTempCharacterId === tempId) {
-				app.setEditingTempCharacterId(null);
-			}
-			
-			console.log('Character created successfully:', savedCharacter);
-		} catch (error) {
-			console.error('Failed to create character:', error);
-		}
-	}
-
+	
 	// Helper function to get current parent ID based on URL path
 	function getCurrentParentId(): string | undefined {
 		// Extract parent ID from URL if we're in a nested folder
@@ -229,41 +170,7 @@
 		}
 	}
 
-	async function handleCharacterRename(characterId: string, newName: string) {
-		try {
-			// Check if characterService is available (SSR compatibility)
-			if (!app.characterService) {
-				console.error('Character service not available');
-				return;
-			}
-			
-			// Get the latest version of the character from the database
-			const currentCharacter = await app.characterService.read(characterId);
-			if (!currentCharacter) {
-				console.error('Character not found for renaming:', characterId);
-				return;
-			}
-			
-			// Update the character name on the fresh object
-			currentCharacter.name = newName;
-			
-			try {
-				await app.updateCharacter(currentCharacter);
-			} catch (updateError: any) {
-				// If there's a conflict but the rename worked, just log it and continue
-				if (updateError.message?.includes('conflict')) {
-					console.log('Character rename completed despite conflict');
-					return; // Exit early since the rename worked
-				} else {
-					throw updateError;
-				}
-			}
-			
-		} catch (error) {
-			console.error('Failed to rename character:', error);
-		}
-	}
-
+	
 	function handleFavorites() {
 		console.log('Favorites clicked');
 	}
@@ -282,19 +189,13 @@
 				icon: item.icon
 			})));
 
-			// Separate documents, folders, and characters
-			const documentsToDelete = selectedDocs.filter(item => !item.isFolder && item.type !== 'character');
+			// Separate documents and folders
+			const documentsToDelete = selectedDocs.filter(item => !item.isFolder);
 			const foldersToDelete = selectedDocs.filter(item => item.isFolder);
-			const charactersToDelete = selectedDocs.filter(item => item.type === 'character');
 
 			// Delete documents
 			for (const doc of documentsToDelete) {
 				await app.deleteDocument(doc.id);
-			}
-
-			// Delete characters
-			for (const character of charactersToDelete) {
-				await app.deleteCharacter(character.id);
 			}
 
 			// Delete folders (recursively)
@@ -386,16 +287,12 @@
 		onDeleteSelected={handleDeleteSelected}
 		onNewFolder={handleNewFolder}
 		onNewDocument={handleNewDocument}
-		onNewCharacter={handleNewCharacter}
-		onCharacterCreate={handleCharacterCreate}
 		onFolderCreate={handleFolderCreate}
 		onFolderRename={handleFolderRename}
 		onDocumentCreate={handleDocumentCreate}
 		onDocumentRename={handleDocumentRename}
-		onCharacterRename={handleCharacterRename}
 		editingTempFolderId={app.editingTempFolderId}
 		editingTempDocumentId={app.editingTempDocumentId}
-		editingTempCharacterId={app.editingTempCharacterId}
 		folderIds={[]}
 	/>
 </div>

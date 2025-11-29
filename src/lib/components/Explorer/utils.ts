@@ -1,6 +1,5 @@
 import { List } from '$lib/models/List';
 import { Document } from '$lib/models/Document';
-import { Character } from '$lib/models/Character';
 import type { ExplorerItem, ExplorerData } from './types';
 
 export function convertListsToExplorerItems(
@@ -35,26 +34,10 @@ export function convertDocumentsToExplorerItems(
 	}));
 }
 
-export function convertCharactersToExplorerItems(
-	characters: Character[], 
-	onCharacterClick?: (char: Character, event: MouseEvent) => void
-): ExplorerItem[] {
-	return characters.map(char => ({
-		id: char.id,
-		name: char.name || 'Untitled Character',
-		icon: '/icons/fantasy.png', // Using existing fantasy icon
-		isFolder: false,
-		type: 'character',
-		onClick: onCharacterClick ? (item: ExplorerItem, event: MouseEvent) => {
-			const originalChar = characters.find(c => c.id === item.id);
-			if (originalChar) onCharacterClick(originalChar, event);
-		} : undefined
-	}));
-}
 
 export function createExplorerData(
 	items: ExplorerItem[], 
-	type: 'list' | 'document' | 'character', 
+	type: 'list' | 'document', 
 	hasLoaded: boolean = true
 ): ExplorerData {
 	return {

@@ -15,8 +15,6 @@
 		onFolderRename?: (folderId: string, newName: string) => void;
 		onDocumentCreate?: (documentName: string, tempId: string) => void;
 		onDocumentRename?: (documentId: string, newName: string) => void;
-		onCharacterCreate?: (characterName: string, tempId: string) => void;
-		onCharacterRename?: (characterId: string, newName: string) => void;
 		forceEditing?: boolean;
 	}
 
@@ -28,8 +26,6 @@
 		onFolderRename,
 		onDocumentCreate,
 		onDocumentRename,
-		onCharacterCreate,
-		onCharacterRename,
 		forceEditing = false
 	}: Props = $props();
 
@@ -56,9 +52,9 @@
 		// Editing should be a separate action from selection
 	});
 	
-	// Handle force editing for new folders, documents, and characters
+	// Handle force editing for new folders and documents
 	$effect(() => {
-		if (forceEditing && (item.icon === '/icons/folder.png' || item.icon === '/icons/new.png' || item.icon === '/icons/fantasy.png') && !isEditing) {
+		if (forceEditing && (item.icon === '/icons/folder.png' || item.icon === '/icons/new.png') && !isEditing) {
 			isEditing = true;
 			editingValue = item.name;
 			// Focus the input after it's rendered
@@ -158,8 +154,6 @@
 			const isTempFolder = item.id.startsWith('temp-') && !item.id.startsWith('temp-doc-') && !item.id.startsWith('temp-char-');
 			// Check if this is a temporary document (starts with 'temp-doc-')
 			const isTempDocument = item.id.startsWith('temp-doc-');
-			// Check if this is a temporary character (starts with 'temp-char-')
-			const isTempCharacter = item.id.startsWith('temp-char-');
 			
 			// Set flag to prevent blur from running
 			isExitingByEnter = true;
@@ -171,17 +165,11 @@
 				} else if (isTempDocument && onDocumentCreate) {
 					// Create new document
 					onDocumentCreate(editingValue, item.id);
-				} else if (isTempCharacter && onCharacterCreate) {
-					// Create new character
-					onCharacterCreate(editingValue, item.id);
-				} else if (!isTempFolder && !isTempDocument && !isTempCharacter) {
+				} else if (!isTempFolder && !isTempDocument) {
 					// Rename existing item
 					if (item.isFolder && onFolderRename) {
 						// Rename existing folder
 						onFolderRename(item.id, editingValue);
-					} else if (item.type === 'character' && onCharacterRename) {
-						// Rename existing character
-						onCharacterRename(item.id, editingValue);
 					} else if (!item.isFolder && onDocumentRename) {
 						// Rename existing document
 						onDocumentRename(item.id, editingValue);

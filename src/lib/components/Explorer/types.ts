@@ -4,12 +4,12 @@ export interface ExplorerItem {
 	icon: string;
 	onClick?: (item: ExplorerItem, event: MouseEvent) => void;
 	isFolder?: boolean;
-	type?: 'list' | 'document' | 'character';
+	type?: 'list' | 'document';
 	isTemp?: boolean;
 	isEditing?: boolean;
 }
 
-export type ExplorerItemType = 'list' | 'document' | 'character';
+export type ExplorerItemType = 'list' | 'document';
 
 export interface ExplorerData {
 	items: ExplorerItem[];
