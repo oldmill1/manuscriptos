@@ -180,13 +180,7 @@
 						icon: '📄',
 						onClick: handleNewDocument
 					},
-					{
-						id: 'character',
-						label: 'New Character',
-						icon: '🧙',
-						onClick: handleNewCharacter
-					}
-				]}
+									]}
 			/>
 			<BreadcrumbTrail {folderIds} />
 			<div class={styles.desktop}>
