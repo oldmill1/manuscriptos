@@ -1,7 +1,8 @@
 import { writable } from 'svelte/store';
 import type { Document } from '$lib/models/Document';
+import type { ClipboardItem } from '$lib/interfaces/ClipboardItem';
 
-// Base interface for items that can be selected
+// Base interface for items that can be selected (kept for backward compatibility)
 export interface SelectableItem {
 	id: string;
 	name: string;
@@ -11,7 +12,7 @@ export interface SelectableItem {
 export interface SelectedDocumentsState {
 	documents: SelectableItem[];
 	lastUpdated: Date | null;
-	copiedItems: SelectableItem[];
+	copiedItems: ClipboardItem[];
 	copyOperation: 'copy' | 'cut' | null;
 }
 
@@ -120,22 +121,46 @@ function createSelectedDocumentsStore() {
 
 		// Copy selected items to clipboard
 		copySelected: () => {
-			update((state) => ({
-				...state,
-				copiedItems: [...state.documents],
-				copyOperation: 'copy',
-				lastUpdated: new Date()
-			}));
+			update((state) => {
+				// Convert SelectableItem[] to ClipboardItem[] for now
+				// We'll enhance this later when we have service methods to get full data
+				const clipboardItems: ClipboardItem[] = state.documents.map(doc => ({
+					id: doc.id,
+					type: 'document' as const, // Default to document for now
+					name: doc.name,
+					data: null as any, // Temporary - will be populated when we integrate with services
+					originalParentId: undefined
+				}));
+
+				return {
+					...state,
+					copiedItems: clipboardItems,
+					copyOperation: 'copy',
+					lastUpdated: new Date()
+				};
+			});
 		},
 
 		// Cut selected items to clipboard
 		cutSelected: () => {
-			update((state) => ({
-				documents: [],
-				copiedItems: [...state.documents],
-				copyOperation: 'cut',
-				lastUpdated: new Date()
-			}));
+			update((state) => {
+				// Convert SelectableItem[] to ClipboardItem[] for now
+				// We'll enhance this later when we have service methods to get full data
+				const clipboardItems: ClipboardItem[] = state.documents.map(doc => ({
+					id: doc.id,
+					type: 'document' as const, // Default to document for now
+					name: doc.name,
+					data: null as any, // Temporary - will be populated when we integrate with services
+					originalParentId: undefined
+				}));
+
+				return {
+					documents: [],
+					copiedItems: clipboardItems,
+					copyOperation: 'cut',
+					lastUpdated: new Date()
+				};
+			});
 		},
 
 		// Paste items from clipboard
