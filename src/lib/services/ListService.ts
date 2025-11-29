@@ -215,6 +215,29 @@ export class ListService {
 		}
 	}
 
+	// Move a list to a new parent (for cut/paste functionality)
+	async move(listId: string, newParentId?: string): Promise<List> {
+		try {
+			if (!listId?.trim()) {
+				throw new Error('List ID is required for moving');
+			}
+
+			// Get the original list
+			const originalList = await this.read(listId);
+			if (!originalList) {
+				throw new Error(`List with ID ${listId} not found for moving`);
+			}
+
+			// Update only the parent ID (level and path are read-only, will be recalculated by the class)
+			originalList.parentId = newParentId;
+
+			// Save the updated list
+			return await this.update(originalList);
+		} catch (error) {
+			throw new Error(`Failed to move list ${listId}: ${error}`);
+		}
+	}
+
 	// List all lists
 	async list(): Promise<List[]> {
 		try {

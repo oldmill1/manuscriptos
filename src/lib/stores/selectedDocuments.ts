@@ -120,15 +120,24 @@ function createSelectedDocumentsStore() {
 		},
 
 		// Copy selected items to clipboard
-		copySelected: () => {
+		copySelected: (richClipboardItems?: ClipboardItem[]) => {
 			update((state) => {
-				// Convert SelectableItem[] to ClipboardItem[] for now
-				// We'll enhance this later when we have service methods to get full data
+				// If rich clipboard data is provided (from appState), use it
+				if (richClipboardItems) {
+					return {
+						...state,
+						copiedItems: richClipboardItems,
+						copyOperation: 'copy',
+						lastUpdated: new Date()
+					};
+				}
+
+				// Otherwise, fall back to basic conversion (backward compatibility)
 				const clipboardItems: ClipboardItem[] = state.documents.map(doc => ({
 					id: doc.id,
 					type: 'document' as const, // Default to document for now
 					name: doc.name,
-					data: null as any, // Temporary - will be populated when we integrate with services
+					data: null as any, // Will be populated by appState
 					originalParentId: undefined
 				}));
 
@@ -165,9 +174,8 @@ function createSelectedDocumentsStore() {
 
 		// Paste items from clipboard
 		pasteItems: (targetParentId?: string) => {
-			// This will be implemented later when we add the actual paste functionality
-			// For now, just return the current clipboard state
-			let clipboardItems: SelectableItem[] = [];
+			// Return the current clipboard state with rich ClipboardItem data
+			let clipboardItems: ClipboardItem[] = [];
 			let operation: 'copy' | 'cut' | null = null;
 			
 			subscribe((state) => {

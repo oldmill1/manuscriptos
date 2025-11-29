@@ -373,9 +373,8 @@ function createAppState() {
 					}
 				}
 				
-				// For now, just trigger the existing copySelected method
-				// We'll enhance the selectedDocuments store later to support rich clipboard data
-				selectedDocuments.copySelected();
+				// Update the selectedDocuments store with rich clipboard data
+				selectedDocuments.copySelected(clipboardItems);
 				
 			} catch (error) {
 				console.error('Failed to copy selected items:', error);
@@ -401,23 +400,26 @@ function createAppState() {
 
 				// Perform paste operations based on operation type
 				if (clipboardState.operation === 'copy') {
-					// Duplicate items using the IDs from clipboard
+					// Duplicate items using the rich ClipboardItem data
 					for (const item of clipboardState.items) {
-						// Try to duplicate as document first
-						try {
+						if (item.type === 'document') {
 							await state.documentService.duplicate(item.id, targetParentId);
-						} catch (docError) {
-							// If document duplication fails, try as list
-							try {
-								await state.listService.duplicate(item.id, targetParentId);
-							} catch (listError) {
-								console.error(`Failed to duplicate item ${item.id} as document or list:`, listError);
-							}
+						} else if (item.type === 'list') {
+							await state.listService.duplicate(item.id, targetParentId);
 						}
 					}
 				} else if (clipboardState.operation === 'cut') {
-					// Move items (would need move functionality in services)
-					console.log('Cut/paste not implemented yet - would move items to', targetParentId);
+					// Move items using the new move functionality
+					for (const item of clipboardState.items) {
+						if (item.type === 'document') {
+							await state.documentService.move(item.id, targetParentId);
+						} else if (item.type === 'list') {
+							await state.listService.move(item.id, targetParentId);
+						}
+					}
+					
+					// Clear clipboard after successful cut/paste
+					selectedDocuments.clearSelection();
 				}
 
 				// Refresh the current view

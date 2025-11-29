@@ -218,6 +218,32 @@ export class DocumentService {
 		}
 	}
 
+	// Move a document to a new parent (for cut/paste functionality)
+	async move(documentId: string, newParentId?: string): Promise<Document> {
+		try {
+			if (!documentId?.trim()) {
+				throw new DocumentValidationError('documentId', documentId);
+			}
+
+			// Get the original document
+			const originalDocument = await this.read(documentId);
+			if (!originalDocument) {
+				throw new DocumentNotFoundError(documentId, new Error('Document not found for moving'));
+			}
+
+			// Update only the parent ID (level and path are read-only, will be recalculated by the class)
+			originalDocument.parentId = newParentId;
+
+			// Save the updated document
+			return await this.update(originalDocument);
+		} catch (error) {
+			if (error instanceof DatabaseError) {
+				throw error; // Re-throw our custom errors
+			}
+			throw new DocumentUpdateError(documentId, error as Error);
+		}
+	}
+
 	// List all documents
 	async list(): Promise<Document[]> {
 		try {
