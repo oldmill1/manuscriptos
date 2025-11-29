@@ -69,7 +69,15 @@
 				{:else}
 					<span 
 						class={styles.traitValue}
+						role="button"
+						tabindex="0"
 						onclick={() => handleTraitClick(index)}
+						onkeydown={(e) => {
+							if (e.key === 'Enter' || e.key === ' ') {
+								e.preventDefault();
+								handleTraitClick(index);
+							}
+						}}
 					>
 						{trait.value || 'Click to edit'}
 					</span>
