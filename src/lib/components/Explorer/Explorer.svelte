@@ -26,6 +26,9 @@
 		onDocumentCreate?: (documentName: string, tempId: string) => void;
 		onDocumentRename?: (documentId: string, newName: string) => void;
 		onCharacterCreate?: (characterName: string, tempId: string) => void;
+		onCopySelected?: () => void;
+		onCutSelected?: () => void;
+		onPasteSelected?: () => void;
 		editingTempFolderId?: string | null;
 		editingTempDocumentId?: string | null;
 		folderIds?: string[]; // For breadcrumb trail
@@ -49,6 +52,9 @@
 		onDocumentCreate,
 		onDocumentRename,
 		onCharacterCreate,
+		onCopySelected,
+		onCutSelected,
+		onPasteSelected,
 		editingTempFolderId,
 		editingTempDocumentId,
 		folderIds = [],
@@ -60,11 +66,15 @@
 	let selectedDocs = $state<any[]>([]);
 	let isDeleteModalOpen = $state(false);
 	let isDeleting = $state(false);
+	let hasClipboardItems = $state(false);
 
 	// Subscribe to selected documents store
 	$effect(() => {
 		const unsubscribe = selectedDocuments.subscribe((state) => {
+			console.log('🔥 Explorer store subscription update:', state);
 			selectedDocs = state.documents;
+			hasClipboardItems = state.copiedItems.length > 0;
+			console.log('🔥 hasClipboardItems updated to:', hasClipboardItems);
 		});
 
 		return unsubscribe;
@@ -152,6 +162,12 @@
 		onNewCharacter?.();
 	}
 
+	async function handlePaste() {
+		console.log('🔥 Explorer handlePaste called - PASTE BUTTON CLICKED!');
+		// Call the parent's paste handler
+		onPasteSelected?.();
+	}
+
 	</script>
 
 <div class={styles.container}>
@@ -180,8 +196,19 @@
 						icon: '👤',
 						onClick: handleNewCharacter
 					},
-									]}
+					...(hasClipboardItems ? [{
+						id: 'paste',
+						label: 'Paste',
+						icon: '📋',
+						onClick: handlePaste
+					}] : [])
+				]}
 			/>
+			{#if hasClipboardItems}
+				<div style="background: red; color: white; padding: 5px; position: fixed; top: 10px; right: 10px; z-index: 9999;">
+					PASTE BUTTON SHOULD BE VISIBLE!
+				</div>
+			{/if}
 			<BreadcrumbTrail {folderIds} />
 			<div class={styles.desktop}>
 			{#if data.hasLoaded}
@@ -218,7 +245,7 @@
 								whileTap={{ scale: 0.9 }}
 								transition={{ duration: 0.1, ease: [0.4, 0, 0.2, 1] }}
 							>
-								<div class={`${styles.actionButton} ${styles.disabled}`} use:motion role="button" tabindex="-1" onclick={(e) => e.preventDefault()} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); } }}>
+								<div class={styles.actionButton} use:motion role="button" tabindex="0" onclick={onCutSelected} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { onCutSelected?.(); } }}>
 									<span>✂️</span>
 								</div>
 							</Motion>
@@ -228,7 +255,7 @@
 								whileTap={{ scale: 0.9 }}
 								transition={{ duration: 0.1, ease: [0.4, 0, 0.2, 1] }}
 							>
-								<div class={`${styles.actionButton} ${styles.disabled}`} use:motion role="button" tabindex="-1" onclick={(e) => e.preventDefault()} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); } }}>
+								<div class={styles.actionButton} use:motion role="button" tabindex="0" onclick={onCopySelected} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { onCopySelected?.(); } }}>
 									<span>📋</span>
 								</div>
 							</Motion>
@@ -238,7 +265,7 @@
 								whileTap={{ scale: 0.9 }}
 								transition={{ duration: 0.1, ease: [0.4, 0, 0.2, 1] }}
 							>
-								<div class={`${styles.actionButton} ${styles.disabled}`} use:motion role="button" tabindex="-1" onclick={(e) => e.preventDefault()} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); } }}>
+								<div class={styles.actionButton} use:motion role="button" tabindex="0" onclick={onPasteSelected} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { onPasteSelected?.(); } }}>
 									<span>📄</span>
 								</div>
 							</Motion>

@@ -10,6 +10,7 @@
 	import { onMount } from 'svelte';
 	import type { PageProps } from './$types';
 	import { useAppState } from '$lib/stores/appState.svelte';
+	import { selectedDocuments } from '$lib/stores/selectedDocuments';
 	import styles from './+page.module.scss';
 
 	let { data }: PageProps = $props();
@@ -287,6 +288,22 @@
 	function handleItemSelect(item: ExplorerItem) {
 		// Selection logic will be handled by selectedDocuments store
 	}
+
+	// Copy/Paste handlers
+	async function handleCopySelected() {
+		console.log('🔥 handleCopySelected called');
+		await app.copySelected();
+	}
+
+	async function handleCutSelected() {
+		console.log('🔥 handleCutSelected called');
+		app.cutSelected();
+	}
+
+	async function handlePasteSelected() {
+		console.log('🔥 handlePasteSelected called - PASTE BUTTON WORKS!');
+		await app.pasteClipboard();
+	}
 </script>
 
 <div class={styles['explorer-container']}>
@@ -309,6 +326,9 @@
 		onDocumentCreate={handleDocumentCreate}
 		onDocumentRename={handleDocumentRename}
 		onCharacterCreate={handleCharacterCreate}
+		onCopySelected={handleCopySelected}
+		onCutSelected={handleCutSelected}
+		onPasteSelected={handlePasteSelected}
 		editingTempFolderId={app.editingTempFolderId}
 		editingTempDocumentId={app.editingTempDocumentId}
 		folderIds={[]}

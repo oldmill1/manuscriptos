@@ -7,6 +7,7 @@ import { PouchDatabase } from '$lib/implementations/PouchDatabase';
 import type { ExplorerItem } from '$lib/components/Explorer/types';
 import type { ClipboardItem } from '$lib/interfaces/ClipboardItem';
 import { selectedDocuments } from '$lib/stores/selectedDocuments';
+import { toastService } from '$lib/components/Toast';
 
 // Global app state interface
 export interface AppState {
@@ -338,19 +339,28 @@ function createAppState() {
 
 		// Clipboard methods
 		async copySelected(): Promise<void> {
+			console.log('🔥 copySelected called');
 			if (!browser || !state.documentService || !state.listService) return;
 			
 			try {
 				// Get current selected items
 				const selectedItems = selectedDocuments.getDocuments();
+				console.log('🔥 selectedItems:', selectedItems);
+				
+				if (selectedItems.length === 0) {
+					console.log('🔥 No items selected, returning');
+					return; // Nothing to copy
+				}
 				
 				// Convert to ClipboardItem format with full data
 				const clipboardItems: ClipboardItem[] = [];
 				
 				for (const item of selectedItems) {
+					console.log('🔥 Processing item for copy:', item);
 					// Try to get document data first
 					const document = await state.documentService.read(item.id);
 					if (document) {
+						console.log('🔥 Found document:', document);
 						clipboardItems.push({
 							id: document.id,
 							type: 'document',
@@ -362,6 +372,7 @@ function createAppState() {
 						// Try to get list data if document not found
 						const list = await state.listService.read(item.id);
 						if (list) {
+							console.log('🔥 Found list:', list);
 							clipboardItems.push({
 								id: list.id,
 								type: 'list',
@@ -373,11 +384,23 @@ function createAppState() {
 					}
 				}
 				
+				console.log('🔥 Final clipboardItems:', clipboardItems);
+				
 				// Update the selectedDocuments store with rich clipboard data
 				selectedDocuments.copySelected(clipboardItems);
 				
+				// Show toast notification
+				const itemCount = clipboardItems.length;
+				const message = itemCount === 1 ? "1 item copied" : `${itemCount} items copied`;
+				toastService.show(message);
+				
+				// Exit selection mode and clear selection
+				this.setSelectionMode(false);
+				selectedDocuments.clearSelection();
+				
 			} catch (error) {
-				console.error('Failed to copy selected items:', error);
+				console.error('🔥 Failed to copy selected items:', error);
+				toastService.show('Failed to copy items');
 			}
 		},
 
@@ -387,46 +410,74 @@ function createAppState() {
 		},
 
 		async pasteClipboard(targetParentId?: string): Promise<void> {
-			if (!browser || !state.documentService || !state.listService) return;
+			console.log('🔥 pasteClipboard called with targetParentId:', targetParentId);
+			if (!browser || !state.documentService || !state.listService) {
+				console.log('🔥 Early return - browser or services not available');
+				return;
+			}
 			
 			try {
 				// Get clipboard state from selectedDocuments store
 				const clipboardState = selectedDocuments.pasteItems(targetParentId);
+				console.log('🔥 clipboardState:', clipboardState);
 				
 				if (!clipboardState.items.length) {
-					console.log('No items to paste');
+					console.log('🔥 No items in clipboard');
+					toastService.show('No items to paste');
 					return;
 				}
 
+				const itemCount = clipboardState.items.length;
+				console.log('🔥 Processing', itemCount, 'items for paste');
+
 				// Perform paste operations based on operation type
 				if (clipboardState.operation === 'copy') {
+					console.log('🔥 Performing copy operation');
 					// Duplicate items using the rich ClipboardItem data
 					for (const item of clipboardState.items) {
+						console.log('🔥 Copying item:', item);
 						if (item.type === 'document') {
+							console.log('🔥 Calling documentService.duplicate for:', item.id);
 							await state.documentService.duplicate(item.id, targetParentId);
 						} else if (item.type === 'list') {
+							console.log('🔥 Calling listService.duplicate for:', item.id);
 							await state.listService.duplicate(item.id, targetParentId);
 						}
 					}
+					
+					// Show success message
+					const message = itemCount === 1 ? "1 item pasted" : `${itemCount} items pasted`;
+					toastService.show(message);
+					
 				} else if (clipboardState.operation === 'cut') {
+					console.log('🔥 Performing cut operation');
 					// Move items using the new move functionality
 					for (const item of clipboardState.items) {
+						console.log('🔥 Moving item:', item);
 						if (item.type === 'document') {
+							console.log('🔥 Calling documentService.move for:', item.id);
 							await state.documentService.move(item.id, targetParentId);
 						} else if (item.type === 'list') {
+							console.log('🔥 Calling listService.move for:', item.id);
 							await state.listService.move(item.id, targetParentId);
 						}
 					}
 					
 					// Clear clipboard after successful cut/paste
 					selectedDocuments.clearSelection();
+					
+					// Show success message
+					const message = itemCount === 1 ? "1 item moved" : `${itemCount} items moved`;
+					toastService.show(message);
 				}
 
+				console.log('🔥 Refreshing view after paste');
 				// Refresh the current view
 				await this.loadRootLevel();
 				
 			} catch (error) {
-				console.error('Failed to paste clipboard items:', error);
+				console.error('🔥 Failed to paste clipboard items:', error);
+				toastService.show('Failed to paste items');
 			}
 		}
 	};
