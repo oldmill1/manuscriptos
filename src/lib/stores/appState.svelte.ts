@@ -194,7 +194,7 @@ function createAppState() {
 				throw new Error('Database not available on server');
 			}
 			try {
-				const list = new List('custom', name, parentId);
+				const list = new List(null, name, parentId);
 				const savedList = await state.listService.create(list);
 				
 				// Add to state if it's at the current level

@@ -1,4 +1,4 @@
-export type ListType = 'favorites' | 'custom';
+export type ListType = null | undefined | 'character';
 
 export interface ListContent {
 	id: string;
@@ -28,7 +28,7 @@ export class List {
 	constructor(type: ListType, customName?: string, parentId?: string, path?: string, level?: number, documentIds?: string[]) {
 		this._id = crypto.randomUUID();
 		this._type = type;
-		this._name = type === 'favorites' ? 'favorites' : customName || '';
+		this._name = customName || '';
 		this._itemIds = [];
 		this._parentId = parentId;
 		this._path = path || this.generatePath(parentId); // Generate path if not provided
@@ -92,10 +92,8 @@ export class List {
 
 	// Setters with automatic timestamp update
 	set name(value: string) {
-		if (this._type === 'custom') {
-			this._name = value;
-			this._updatedAt = new Date();
-		}
+		this._name = value;
+		this._updatedAt = new Date();
 	}
 
 	set parentId(value: string | undefined) {
