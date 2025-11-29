@@ -276,7 +276,7 @@
 										} 
 									}}
 								>
-									<span>📋</span>
+									<span>📄</span>
 								</div>
 							</Motion>
 							<Motion 
@@ -297,7 +297,7 @@
 										} 
 									}}
 								>
-									<span>📄</span>
+									<span>📋</span>
 								</div>
 							</Motion>
 							
