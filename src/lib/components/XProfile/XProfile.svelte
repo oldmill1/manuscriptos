@@ -1,17 +1,26 @@
 <script lang="ts">
 	import styles from './XProfile.module.scss';
+	import { XHeader } from './XHeader';
 
 	interface Props {
 		characterId: string;
+		name?: string;
 	}
 
-	let { characterId }: Props = $props();
+	let { characterId, name = 'Character Name' }: Props = $props();
+
+	function handleNameChange(newName: string) {
+		name = newName;
+		// TODO: Save to database
+		console.log('Name changed to:', newName);
+	}
 </script>
 
 <div class={styles.container}>
 	<div class={styles.profileCard}>
-		<h1 class={styles.title}>Character View</h1>
-		<p class={styles.characterId}>Character ID: {characterId}</p>
-		<p class={styles.message}>Hello World</p>
+		<XHeader 
+			name={name}
+			onNameChange={handleNameChange}
+		/>
 	</div>
 </div>
