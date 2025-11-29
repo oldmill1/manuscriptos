@@ -341,7 +341,7 @@
 										whileHover={!isDeleteButtonDisabled ? { y: -2 } : {}}
 										transition={{ duration: 0.1, ease: [0.4, 0, 0.2, 1] }}
 									>
-										<span use:applyMotion={motion}>🗑️</span>
+										<span use:applyMotion={motion} style="font-size: 1.2em;">🗑️</span>
 									</Motion>
 								</div>
 							</Motion>
