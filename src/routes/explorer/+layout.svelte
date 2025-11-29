@@ -24,7 +24,7 @@
 </svelte:head>
 
 <div class="page-container">
-	<MenuBar title={title} />
+	<MenuBar title={title} hideLeftButton={true} />
 	<div class="explorer-content">
 		{@render children()}
 	</div>
