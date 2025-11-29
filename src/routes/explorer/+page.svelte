@@ -312,6 +312,8 @@
 		editingTempFolderId={app.editingTempFolderId}
 		editingTempDocumentId={app.editingTempDocumentId}
 		folderIds={[]}
+		currentListType={null}
+		currentListName={''}
 	/>
 </div>
 

@@ -428,6 +428,8 @@
 			editingTempFolderId={editingTempFolderId}
 			editingTempDocumentId={editingTempDocumentId}
 			folderIds={pathArray}
+			currentListType={list?.type}
+			currentListName={list?.name}
 		/>
 	{/if}
 </div>

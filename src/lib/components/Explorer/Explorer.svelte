@@ -29,6 +29,8 @@
 		editingTempFolderId?: string | null;
 		editingTempDocumentId?: string | null;
 		folderIds?: string[]; // For breadcrumb trail
+		currentListType?: string | null; // For custom empty messages
+		currentListName?: string; // For custom empty messages
 	}
 
 	let {
@@ -49,7 +51,9 @@
 		onCharacterCreate,
 		editingTempFolderId,
 		editingTempDocumentId,
-				folderIds = []
+		folderIds = [],
+		currentListType = null,
+		currentListName = ''
 	}: Props = $props();
 
 	// Track selected documents from the store
@@ -275,7 +279,13 @@
 
 			{#if data.hasLoaded && data.items.length === 0}
 				<div class={styles.centerMessage}>
-					<p>Empty</p>
+					<p>
+						{#if currentListType === 'character' && currentListName}
+							{currentListName}
+						{:else}
+							Empty
+						{/if}
+					</p>
 				</div>
 			{/if}
 		</div>
