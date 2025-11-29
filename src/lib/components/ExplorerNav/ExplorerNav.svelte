@@ -79,7 +79,11 @@
 												ease: [0.4, 0, 0.2, 1] 
 											}}
 										>
-											<span class={styles.icon} use:motion>{item.icon}</span>
+											{#if item.icon.startsWith('/')}
+												<img src={item.icon} alt="" class={styles.icon} use:motion />
+											{:else}
+												<span class={styles.icon} use:motion>{item.icon}</span>
+											{/if}
 										</Motion>
 									{/if}
 									{item.label}
@@ -148,7 +152,11 @@
 												ease: [0.4, 0, 0.2, 1] 
 											}}
 										>
-											<span class={styles.icon} use:motion>{item.icon}</span>
+											{#if item.icon.startsWith('/')}
+												<img src={item.icon} alt="" class={styles.icon} use:motion />
+											{:else}
+												<span class={styles.icon} use:motion>{item.icon}</span>
+											{/if}
 										</Motion>
 									{/if}
 									{item.label}
@@ -214,7 +222,11 @@
 												ease: [0.4, 0, 0.2, 1] 
 											}}
 										>
-											<span class={styles.icon} use:motion>{item.icon}</span>
+											{#if item.icon.startsWith('/')}
+												<img src={item.icon} alt="" class={styles.icon} use:motion />
+											{:else}
+												<span class={styles.icon} use:motion>{item.icon}</span>
+											{/if}
 										</Motion>
 									{/if}
 									{item.label}

@@ -184,19 +184,19 @@
 					{
 						id: 'folder',
 						label: 'New Folder',
-						icon: '📁',
+						icon: '/icons/folder.png',
 						onClick: handleNewFolder
 					},
 					{
 						id: 'document',
 						label: 'New Document',
-						icon: '📄',
+						icon: '/icons/new.png',
 						onClick: handleNewDocument
 					},
 					{
 						id: 'character',
 						label: 'New Character',
-						icon: '👤',
+						icon: '/icons/fantasy.png',
 						onClick: handleNewCharacter
 					},
 					...(hasClipboardItems ? [{
