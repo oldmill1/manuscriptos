@@ -1,11 +1,10 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
+	import { XProfile } from '$lib/components/XProfile';
 
 	let { data }: PageProps = $props();
 </script>
 
 <main>
-	<h1>Character View</h1>
-	<p>Character ID: {data.id}</p>
-	<p>Hello World</p>
+	<XProfile characterId={data.id} />
 </main>
