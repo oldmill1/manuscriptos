@@ -11,7 +11,7 @@ function createSavedNotificationStore() {
 		timestamp: 0
 	});
 
-	let timeoutId: number | null = null;
+	let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
 	return {
 		subscribe,
