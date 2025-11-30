@@ -137,6 +137,9 @@
 			const newFolder = new List('custom', folderName, currentFolderId);
 			const savedFolder = await listService.create(newFolder);
 			
+			// Add the new folder to centralized state
+			await app.updateList(savedFolder);
+			
 			// Remove the temporary folder
 			app.removeTemporaryFolder(tempId);
 			
