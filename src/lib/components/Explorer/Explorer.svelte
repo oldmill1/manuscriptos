@@ -226,8 +226,7 @@
 						<AquaButton 
 							text="Create New Manuscript"
 							onClick={handleNewManuscript}
-							primary={true}
-							dark={false}
+							slate={true}
 							disabled={false}
 							type="button"
 						/>

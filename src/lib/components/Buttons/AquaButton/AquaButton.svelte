@@ -5,10 +5,15 @@
 	interface Props {
 		text: string;
 		onClick: () => void;
-		primary: boolean;
-		dark: boolean;
-		disabled: boolean;
-		type: 'button' | 'submit' | 'reset';
+		primary?: boolean;
+		dark?: boolean;
+		slate?: boolean;
+		disabled?: boolean;
+		type?: 'button' | 'submit' | 'reset';
+		size?: 'small' | 'medium' | 'large';
+		variant?: 'solid' | 'outline' | 'ghost';
+		customClass?: string;
+		fullWidth?: boolean;
 	}
 
 	let {
@@ -16,8 +21,13 @@
 		onClick = () => {},
 		primary = false,
 		dark = false,
+		slate = false,
 		disabled = false,
-		type = 'button'
+		type = 'button',
+		size = 'medium',
+		variant = 'solid',
+		customClass = '',
+		fullWidth = false
 	}: Props = $props();
 
 	function handleClick() {
@@ -43,7 +53,17 @@
 	}}
 >
 	<button 
-		class={`${styles['aqua-button']} ${primary ? styles['primary'] : ''} ${dark ? styles['dark'] : ''} ${disabled ? styles['disabled'] : ''}`}
+		class={`
+			${styles['aqua-button']} 
+			${primary ? styles['primary'] : ''} 
+			${dark ? styles['dark'] : ''} 
+			${slate ? styles['slate'] : ''} 
+			${variant ? styles[variant] : ''} 
+			${size ? styles[size] : ''} 
+			${fullWidth ? styles['full-width'] : ''} 
+			${customClass}
+			${disabled ? styles['disabled'] : ''}
+		`.trim()}
 		use:motion
 		{type}
 		{disabled}
