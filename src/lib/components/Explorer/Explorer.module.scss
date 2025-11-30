@@ -62,7 +62,6 @@
 	padding: min(10px, 4vh);
 	overflow: hidden;
 	position: relative;
-	border: 1px solid rgba(255, 255, 255, 0.08);
 	margin-bottom: 20px;
 
 	// Responsive adjustments
@@ -138,6 +137,39 @@
 		grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
 		gap: 8px;
 		padding: 6px;
+	}
+}
+
+.actionRow {
+	width: 100%;
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+	padding: 8px 0;
+	margin-bottom: 8px;
+}
+
+.addSceneButton {
+	background: linear-gradient(135deg, #00CED1, #20B2AA);
+	color: white;
+	border: none;
+	padding: 10px 20px;
+	border-radius: 8px;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	box-shadow: 0 2px 8px rgba(0, 206, 209, 0.3);
+
+	&:hover {
+		background: linear-gradient(135deg, #20B2AA, #008B8B);
+		transform: translateY(-1px);
+		box-shadow: 0 4px 12px rgba(0, 206, 209, 0.4);
+	}
+
+	&:active {
+		transform: translateY(0);
+		box-shadow: 0 2px 6px rgba(0, 206, 209, 0.3);
 	}
 }
 

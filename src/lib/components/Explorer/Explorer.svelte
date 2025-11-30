@@ -3,6 +3,7 @@
 	import type { Snippet } from 'svelte';
 	import { Motion } from 'svelte-motion';
 	import Switch from '../Buttons/Switch/Switch.svelte';
+	import AquaButton from '../Buttons/AquaButton/AquaButton.svelte';
 	import { ExplorerNav } from '../ExplorerNav';
 	import Modal from '../Modal/Modal.svelte';
 	import styles from './Explorer.module.scss';
@@ -210,6 +211,20 @@
 			<BreadcrumbTrail {folderIds} />
 			<div class={styles.desktop}>
 			{#if data.hasLoaded}
+				<!-- Action row for character lists -->
+				{#if currentListType === 'character'}
+					<div class={styles.actionRow}>
+						<AquaButton 
+							text="Add Scene"
+							onClick={() => {}}
+							primary={true}
+							dark={false}
+							disabled={false}
+							type="button"
+						/>
+					</div>
+				{/if}
+				
 				{#each data.items as item (item.id)}
 					<ExplorerItem
 						item={item}
