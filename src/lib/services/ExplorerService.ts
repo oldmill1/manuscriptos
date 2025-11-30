@@ -83,45 +83,54 @@ export class ExplorerService {
 	async rename(type: 'document' | 'list', id: string, newName: string): Promise<void> {
 		switch (type) {
 			case 'document':
-				try {
-					// Check if documentService is available (SSR compatibility)
-					if (!this.app.documentService) {
-						console.error('Document service not available');
-						return;
-					}
-					
-					// Get the latest version of the document from the database
-					const currentDocument = await this.app.documentService.read(id);
-					if (!currentDocument) {
-						console.error('Document not found for renaming:', id);
-						return;
-					}
-					
-					// Update the document title on the fresh object
-					currentDocument.title = newName;
-					
-					try {
-						await this.app.updateDocument(currentDocument);
-					} catch (updateError: any) {
-						// If there's a conflict but the rename worked, just log it and continue
-						if (updateError.message?.includes('conflict')) {
-							console.log('Document rename completed despite conflict');
-							return; // Exit early since the rename worked
-						} else {
-							throw updateError;
-						}
-					}
-					
-				} catch (error) {
-					console.error('Failed to rename document:', error);
-				}
+				await this.renameDocument(id, newName);
 				break;
-				
 			case 'list':
-				// Use listService for ALL list types (folder, character, scene, manuscript)
-				// TODO: Implement list renaming logic
-				console.log('List renaming not yet implemented');
+				await this.renameList(id, newName);
 				break;
 		}
+	}
+
+	// Rename document (private method)
+	private async renameDocument(id: string, newName: string): Promise<void> {
+		try {
+			// Check if documentService is available (SSR compatibility)
+			if (!this.app.documentService) {
+				console.error('Document service not available');
+				return;
+			}
+			
+			// Get the latest version of the document from the database
+			const currentDocument = await this.app.documentService.read(id);
+			if (!currentDocument) {
+				console.error('Document not found for renaming:', id);
+				return;
+			}
+			
+			// Update the document title on the fresh object
+			currentDocument.title = newName;
+			
+			try {
+				await this.app.updateDocument(currentDocument);
+			} catch (updateError: any) {
+				// If there's a conflict but the rename worked, just log it and continue
+				if (updateError.message?.includes('conflict')) {
+					console.log('Document rename completed despite conflict');
+					return; // Exit early since the rename worked
+				} else {
+					throw updateError;
+				}
+			}
+			
+		} catch (error) {
+			console.error('Failed to rename document:', error);
+		}
+	}
+
+	// Rename list (private method)
+	private async renameList(id: string, newName: string): Promise<void> {
+		// Use listService for ALL list types (folder, character, scene, manuscript)
+		// TODO: Implement list renaming logic
+		console.log('List renaming not yet implemented');
 	}
 }
