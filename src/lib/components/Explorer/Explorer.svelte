@@ -22,11 +22,13 @@
 		onNewFolder?: () => void;
 		onNewDocument?: () => void;
 		onNewCharacter?: () => void;
+		onNewManuscript?: () => void;
 		onFolderCreate?: (folderName: string, tempId: string) => void;
 		onFolderRename?: (folderId: string, newName: string) => void;
 		onDocumentCreate?: (documentName: string, tempId: string) => void;
 		onDocumentRename?: (documentId: string, newName: string) => void;
 		onCharacterCreate?: (characterName: string, tempId: string) => void;
+		onManuscriptCreate?: (manuscriptName: string, tempId: string) => void;
 		onCopySelected?: () => void;
 		onCutSelected?: () => void;
 		onPasteSelected?: () => void;
@@ -48,11 +50,13 @@
 		onNewFolder,
 		onNewDocument,
 		onNewCharacter,
+		onNewManuscript,
 		onFolderCreate,
 		onFolderRename,
 		onDocumentCreate,
 		onDocumentRename,
 		onCharacterCreate,
+		onManuscriptCreate,
 		onCopySelected,
 		onCutSelected,
 		onPasteSelected,
@@ -165,6 +169,11 @@
 		onNewCharacter?.();
 	}
 
+	async function handleNewManuscript() {
+		// Call the parent's new manuscript handler
+		onNewManuscript?.();
+	}
+
 	async function handlePaste() {
 		console.log('🔥 NORMAL MODE PASTE BUTTON CLICKED!');
 		console.log('🔥 Explorer handlePaste called - PASTE BUTTON CLICKED!');
@@ -211,6 +220,20 @@
 			<BreadcrumbTrail {folderIds} />
 			<div class={styles.desktop}>
 			{#if data.hasLoaded}
+				<!-- Action row for home route only -->
+				{#if !currentListType}
+					<div class={styles.actionRow}>
+						<AquaButton 
+							text="Create New Manuscript"
+							onClick={handleNewManuscript}
+							primary={true}
+							dark={false}
+							disabled={false}
+							type="button"
+						/>
+					</div>
+				{/if}
+				
 				<!-- Action row for character lists -->
 				{#if currentListType === 'character'}
 					<div class={styles.actionRow}>
@@ -235,6 +258,7 @@
 						onDocumentCreate={onDocumentCreate}
 						onDocumentRename={onDocumentRename}
 						onCharacterCreate={onCharacterCreate}
+						onManuscriptCreate={onManuscriptCreate}
 						forceEditing={editingTempFolderId === item.id || editingTempDocumentId === item.id}
 					/>
 				{/each}

@@ -16,6 +16,7 @@
 		onDocumentCreate?: (documentName: string, tempId: string) => void;
 		onDocumentRename?: (documentId: string, newName: string) => void;
 		onCharacterCreate?: (characterName: string, tempId: string) => void;
+		onManuscriptCreate?: (manuscriptName: string, tempId: string) => void;
 		forceEditing?: boolean;
 	}
 
@@ -28,6 +29,7 @@
 		onDocumentCreate,
 		onDocumentRename,
 		onCharacterCreate,
+		onManuscriptCreate,
 		forceEditing = false
 	}: Props = $props();
 
@@ -35,6 +37,9 @@
 	const displayIcon = $derived.by(() => {
 		if (item.listType === 'character') {
 			return '/icons/fantasy.png';
+		}
+		if (item.listType === 'manuscript') {
+			return '/icons/manuscript.png';
 		}
 		return item.icon;
 	});
@@ -160,12 +165,14 @@
 		if (event.key === 'Enter') {
 			event.preventDefault();
 			event.stopPropagation();
-			// Check if this is a temporary folder (starts with 'temp-' but NOT 'temp-doc-' or 'temp-char-')
-			const isTempFolder = item.id.startsWith('temp-') && !item.id.startsWith('temp-doc-') && !item.id.startsWith('temp-char-');
+			// Check if this is a temporary folder (starts with 'temp-' but NOT 'temp-doc-', 'temp-char-', or 'temp-manuscript-')
+			const isTempFolder = item.id.startsWith('temp-') && !item.id.startsWith('temp-doc-') && !item.id.startsWith('temp-char-') && !item.id.startsWith('temp-manuscript-');
 			// Check if this is a temporary document (starts with 'temp-doc-')
 			const isTempDocument = item.id.startsWith('temp-doc-');
 			// Check if this is a temporary character (starts with 'temp-char-')
 			const isTempCharacter = item.id.startsWith('temp-char-');
+			// Check if this is a temporary manuscript (starts with 'temp-manuscript-')
+			const isTempManuscript = item.id.startsWith('temp-manuscript-');
 			
 			// Set flag to prevent blur from running
 			isExitingByEnter = true;
@@ -180,7 +187,10 @@
 				} else if (isTempCharacter && onCharacterCreate) {
 					// Create new character
 					onCharacterCreate(editingValue, item.id);
-				} else if (!isTempFolder && !isTempDocument && !isTempCharacter) {
+				} else if (isTempManuscript && onManuscriptCreate) {
+					// Create new manuscript
+					onManuscriptCreate(editingValue, item.id);
+				} else if (!isTempFolder && !isTempDocument && !isTempCharacter && !isTempManuscript) {
 					// Rename existing item
 					if (item.isFolder && onFolderRename) {
 						// Rename existing folder

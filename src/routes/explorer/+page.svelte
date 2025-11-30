@@ -134,6 +134,23 @@
 		app.setEditingTempFolderId(tempId);
 	}
 
+	function handleNewManuscript() {
+		// Create a temporary manuscript list with a unique ID and "New Manuscript" name
+		const tempId = `temp-manuscript-${crypto.randomUUID()}`;
+		const tempManuscript: ExplorerItem = {
+			id: tempId,
+			name: 'New Manuscript',
+			type: 'list',
+			icon: '/icons/folder.png',
+			isTemp: true,
+			isEditing: true,
+			listType: 'manuscript'
+		};
+		
+		app.addTemporaryFolder(tempManuscript);
+		app.setEditingTempFolderId(tempId);
+	}
+
 	async function handleFolderRename(folderId: string, newName: string) {
 		try {
 			const folder = app.lists.find((f: List) => f.id === folderId);
@@ -285,6 +302,22 @@
 		}
 	}
 
+	async function handleManuscriptCreate(manuscriptName: string, tempId: string) {
+		try {
+			// Create the actual manuscript list
+			const savedManuscript = await app.createManuscriptList(manuscriptName, undefined);
+			
+			// Remove the temporary manuscript
+			app.removeTemporaryFolder(tempId);
+			if (app.editingTempFolderId === tempId) {
+				app.setEditingTempFolderId(null);
+			}
+			
+		} catch (error) {
+			console.error('Failed to create manuscript:', error);
+		}
+	}
+
 	function handleItemSelect(item: ExplorerItem) {
 		// Selection logic will be handled by selectedDocuments store
 	}
@@ -323,11 +356,13 @@
 		onNewFolder={handleNewFolder}
 		onNewDocument={handleNewDocument}
 		onNewCharacter={handleNewCharacter}
+		onNewManuscript={handleNewManuscript}
 		onFolderCreate={handleFolderCreate}
 		onFolderRename={handleFolderRename}
 		onDocumentCreate={handleDocumentCreate}
 		onDocumentRename={handleDocumentRename}
 		onCharacterCreate={handleCharacterCreate}
+		onManuscriptCreate={handleManuscriptCreate}
 		onCopySelected={handleCopySelected}
 		onCutSelected={handleCutSelected}
 		onPasteSelected={handlePasteSelected}
