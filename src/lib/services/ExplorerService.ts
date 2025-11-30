@@ -96,14 +96,12 @@ export class ExplorerService {
 		try {
 			// Check if documentService is available (SSR compatibility)
 			if (!this.app.documentService) {
-				console.error('Document service not available');
 				return;
 			}
 			
 			// Get the latest version of the document from the database
 			const currentDocument = await this.app.documentService.read(id);
 			if (!currentDocument) {
-				console.error('Document not found for renaming:', id);
 				return;
 			}
 			
@@ -113,9 +111,8 @@ export class ExplorerService {
 			try {
 				await this.app.updateDocument(currentDocument);
 			} catch (updateError: any) {
-				// If there's a conflict but the rename worked, just log it and continue
+				// If there's a conflict but the rename worked, just continue
 				if (updateError.message?.includes('conflict')) {
-					console.log('Document rename completed despite conflict');
 					return; // Exit early since the rename worked
 				} else {
 					throw updateError;
@@ -123,7 +120,7 @@ export class ExplorerService {
 			}
 			
 		} catch (error) {
-			console.error('Failed to rename document:', error);
+			// Silent fail for rename errors
 		}
 	}
 
@@ -131,6 +128,5 @@ export class ExplorerService {
 	private async renameList(id: string, newName: string): Promise<void> {
 		// Use listService for ALL list types (folder, character, scene, manuscript)
 		// TODO: Implement list renaming logic
-		console.log('List renaming not yet implemented');
 	}
 }
