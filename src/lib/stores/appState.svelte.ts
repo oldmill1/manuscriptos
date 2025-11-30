@@ -523,8 +523,14 @@ function createAppState() {
 				}
 
 				console.log('🔥 Refreshing view after paste');
-				// Refresh the current view
-				await this.loadRootLevel();
+				// Refresh the appropriate view based on context
+				if (targetParentId === undefined || targetParentId === null) {
+					// Root level context - refresh root data
+					await this.loadRootLevel();
+				} else {
+					// Nested context - don't refresh here, let the page handle it
+					console.log('🔥 Nested context - page will handle refresh');
+				}
 				
 			} catch (error) {
 				console.error('🔥 Failed to paste clipboard items:', error);

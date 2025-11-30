@@ -1,4 +1,5 @@
 import { writable } from 'svelte/store';
+import { browser } from '$app/environment';
 import type { Document } from '$lib/models/Document';
 import type { ClipboardItem } from '$lib/interfaces/ClipboardItem';
 
@@ -16,13 +17,84 @@ export interface SelectedDocumentsState {
 	copyOperation: 'copy' | 'cut' | null;
 }
 
+// Global store instance - truly singleton
+let globalStore: ReturnType<typeof createSelectedDocumentsStore> | null = null;
+
 function createSelectedDocumentsStore() {
-	const { subscribe, set, update } = writable<SelectedDocumentsState>({
-		documents: [],
-		lastUpdated: null,
-		copiedItems: [],
-		copyOperation: null
-	});
+	// Try to load from localStorage first
+	const getInitialState = (): SelectedDocumentsState => {
+		if (!browser) {
+			return {
+				documents: [],
+				lastUpdated: null,
+				copiedItems: [],
+				copyOperation: null
+			};
+		}
+
+		try {
+			const stored = localStorage.getItem('manuscriptOS_selectedDocuments');
+			if (stored) {
+				const parsed = JSON.parse(stored);
+				console.log('🔥 Loaded selectedDocuments from localStorage:', parsed);
+				return {
+					...parsed,
+					lastUpdated: parsed.lastUpdated ? new Date(parsed.lastUpdated) : null
+				};
+			}
+		} catch (error) {
+			console.warn('🔥 Failed to load selectedDocuments from localStorage:', error);
+		}
+
+		return {
+			documents: [],
+			lastUpdated: null,
+			copiedItems: [],
+			copyOperation: null
+		};
+	};
+
+	const { subscribe, set, update } = writable<SelectedDocumentsState>(getInitialState());
+
+	// Save to localStorage whenever state changes
+	const persistStore = (state: SelectedDocumentsState) => {
+		if (browser) {
+			try {
+				localStorage.setItem('manuscriptOS_selectedDocuments', JSON.stringify(state));
+				console.log('🔥 Saved selectedDocuments to localStorage:', state);
+			} catch (error) {
+				console.warn('🔥 Failed to save selectedDocuments to localStorage:', error);
+			}
+		}
+	};
+
+	// Add debug wrapper to track all store changes
+	const debugSet = (newState: SelectedDocumentsState) => {
+		console.log('🔥 selectedDocuments.set called with:', newState);
+		console.log('🔥 Clipboard state after set:', {
+			copiedItemsCount: newState.copiedItems.length,
+			copyOperation: newState.copyOperation
+		});
+		persistStore(newState);
+		set(newState);
+	};
+
+	const debugUpdate = (updater: (state: SelectedDocumentsState) => SelectedDocumentsState) => {
+		update((currentState) => {
+			const newState = updater(currentState);
+			console.log('🔥 selectedDocuments.update called');
+			console.log('🔥 Before:', {
+				copiedItemsCount: currentState.copiedItems.length,
+				copyOperation: currentState.copyOperation
+			});
+			console.log('🔥 After:', {
+				copiedItemsCount: newState.copiedItems.length,
+				copyOperation: newState.copyOperation
+			});
+			persistStore(newState);
+			return newState;
+		});
+	};
 
 	return {
 		subscribe,
@@ -75,11 +147,22 @@ function createSelectedDocumentsStore() {
 
 		// Clear all selected documents
 		clearSelection: () => {
-			update((state) => ({
+			debugUpdate((state) => ({
 				...state,
 				documents: [],
 				lastUpdated: new Date()
+				// ✅ Preserve clipboard state - don't clear copiedItems or copyOperation
 			}));
+		},
+
+		// Clear selection AND clipboard (for when we actually want to reset everything)
+		clearAll: () => {
+			debugSet({
+				documents: [],
+				lastUpdated: new Date(),
+				copiedItems: [],
+				copyOperation: null
+			});
 		},
 
 		// Check if a document is selected
@@ -111,12 +194,12 @@ function createSelectedDocumentsStore() {
 
 		// Set the entire selection
 		setSelection: (documents: SelectableItem[]) => {
-			set({
+			debugUpdate((state) => ({
 				documents,
 				lastUpdated: new Date(),
-				copiedItems: [],
-				copyOperation: null
-			});
+				copiedItems: state.copiedItems,        // ✅ Preserve clipboard
+				copyOperation: state.copyOperation    // ✅ Preserve operation
+			}));
 		},
 
 		// Copy selected items to clipboard
@@ -188,4 +271,5 @@ function createSelectedDocumentsStore() {
 	};
 }
 
-export const selectedDocuments = createSelectedDocumentsStore();
+// Singleton export - ensures the same instance across the entire app
+export const selectedDocuments = globalStore || (globalStore = createSelectedDocumentsStore());

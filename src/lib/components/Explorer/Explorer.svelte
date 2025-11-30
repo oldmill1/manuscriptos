@@ -90,7 +90,18 @@
 	let selectedCount = $derived(selectedDocs.length);
 	let isDeleteButtonDisabled = $derived(!isSelectionMode || selectedCount === 0);
 	let isCutCopyButtonDisabled = $derived(!isSelectionMode || selectedCount === 0);
-	let isPasteButtonDisabled = $derived(!hasClipboardItems);
+	let isPasteButtonDisabled = $derived(!hasClipboardItems); // Only depends on clipboard
+
+	// Debug logging to understand paste button state
+	$effect(() => {
+		console.log('🔥 Paste Button Debug:', {
+			hasClipboardItems,
+			isSelectionMode,
+			selectedCount,
+			isPasteButtonDisabled,
+			copiedItemsLength: selectedDocs.length
+		});
+	});
 
 	// Determine navigation buttons based on current route
 	let navButtons = $derived.by(() => {
@@ -127,13 +138,7 @@
 				label: 'New Character',
 				icon: '/icons/fantasy.png',
 				onClick: handleNewCharacter
-			},
-			...(hasClipboardItems ? [{
-				id: 'paste',
-				label: 'Paste',
-				icon: '📋',
-				onClick: handlePaste
-			}] : [])
+			}
 		];
 	});
 
