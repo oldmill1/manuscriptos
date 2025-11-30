@@ -32,10 +32,6 @@
 	// Computed documents from app state, filtered by current folder
 	const documents = $derived(() => {
 		const filtered = app.documents.filter(doc => doc.parentId === currentFolderId);
-		console.log('Documents computed - total app docs:', app.documents.length);
-		console.log('Documents computed - current folder ID:', currentFolderId);
-		console.log('Documents computed - filtered docs:', filtered);
-		console.log('Documents computed - all doc parentIds:', app.documents.map(d => ({id: d.id, parentId: d.parentId})));
 		return filtered;
 	});
 

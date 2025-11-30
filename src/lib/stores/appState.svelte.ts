@@ -259,42 +259,28 @@ function createAppState() {
 		},
 
 		async updateList(list: List): Promise<List> {
-			console.log('🔥 updateList called with:', list.name, list.id);
 			if (!browser || !state.listService) {
-				console.log('🔥 updateList: No browser or listService');
 				throw new Error('Database not available on server');
 			}
 			try {
-				console.log('🔥 updateList: Calling listService.update');
 				const updatedList = await state.listService.update(list);
-				console.log('🔥 updateList: listService.update returned:', updatedList.name);
 				
 				// Update in state if it exists
-				console.log('🔥 updateList: Current state.lists length:', state.lists.length);
-				console.log('🔥 updateList: Looking for list index with id:', updatedList.id);
 				const index = state.lists.findIndex(l => l.id === updatedList.id);
-				console.log('🔥 updateList: Found list at index:', index);
 				
 				if (index !== -1) {
-					console.log('🔥 updateList: Before update - list name:', state.lists[index].name);
 					const newLists = [...state.lists];
 					newLists[index] = updatedList;
-					console.log('🔥 updateList: After update - list name:', newLists[index].name);
 					state.lists = newLists.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-					console.log('🔥 updateList: state.lists updated, new length:', state.lists.length);
-					console.log('🔥 updateList: Updated list name in state:', state.lists.find(l => l.id === updatedList.id)?.name);
 				} else {
-					console.log('🔥 updateList: List not found in state.lists - ADDING IT');
-					console.log('🔥 updateList: All list IDs in state:', state.lists.map(l => l.id));
+					// Add to state if not found
 					const newLists = [...state.lists, updatedList];
 					state.lists = newLists.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-					console.log('🔥 updateList: Added list to state, new length:', state.lists.length);
-					console.log('🔥 updateList: Updated list name in state:', state.lists.find(l => l.id === updatedList.id)?.name);
 				}
 				
 				return updatedList;
 			} catch (error) {
-				console.error('🔥 updateList: Error:', error);
+				console.error('Failed to update list:', error);
 				throw error;
 			}
 		},
@@ -304,30 +290,15 @@ function createAppState() {
 				throw new Error('Database not available on server');
 			}
 			try {
-				console.log('🗑️ appState.deleteList called with:', listId);
-				console.log('🗑️ Before deletion - state.lists length:', state.lists.length);
-				console.log('🗑️ Before deletion - state.list IDs:', state.lists.map(l => l.id));
-				
-				// Check if list exists in database first
 				const listExists = await state.listService.read(listId);
-				console.log('🗑️ List exists in database:', !!listExists);
 				
 				let success = true;
 				if (listExists) {
-					// Try to delete from database
 					success = await state.listService.delete(listId);
-					console.log('🗑️ Database deletion success:', success);
-				} else {
-					console.log('🗑️ List not in database - skipping database deletion');
 				}
 				
-				// Always remove from state (even if not in database)
 				if (success) {
-					const beforeLength = state.lists.length;
 					state.lists = state.lists.filter(list => list.id !== listId);
-					const afterLength = state.lists.length;
-					console.log('🗑️ After filter - before length:', beforeLength, 'after length:', afterLength);
-					console.log('🗑️ After deletion - state.list IDs:', state.lists.map(l => l.id));
 				}
 				
 				return success;
@@ -339,7 +310,6 @@ function createAppState() {
 
 		// Temporary item management
 		addTemporaryFolder(item: ExplorerItem, parentId?: string): void {
-			// Use provided parentId or fall back to current context
 			const finalParentId = parentId ?? state.currentParentId;
 			
 			// Add parentId to the item if it's not already set

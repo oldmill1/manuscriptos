@@ -107,24 +107,17 @@ export class ExplorerService {
 					throw new Error('ListService not available');
 				}
 
-				console.log('🗑️ ExplorerService.list.delete called with:', listId);
-				console.log('🗑️ Current app.lists length:', this.app.lists.length);
-				console.log('🗑️ Current app.list IDs:', this.app.lists.map(l => l.id));
-
 				// Get all child lists recursively
 				const allListsToDelete = await this.getAllDescendantLists(listId);
-				console.log('🗑️ Lists to delete:', allListsToDelete.map(l => l.id));
 				
 				// Delete all documents in all these lists
 				await this.deleteAllDocumentsInLists(allListsToDelete);
 				
 				// Delete all lists (bottom-up to avoid foreign key issues)
 				for (const list of allListsToDelete.reverse()) {
-					console.log('🗑️ Deleting list:', list.id);
 					await this.app.listService.delete(list.id);
 					// Remove from centralized state
 					await this.app.deleteList(list.id);
-					console.log('🗑️ After deletion, app.lists length:', this.app.lists.length);
 				}
 				
 			} catch (error) {

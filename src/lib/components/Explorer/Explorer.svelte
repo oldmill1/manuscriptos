@@ -165,8 +165,6 @@
 			
 			// Clear selection after successful deletion
 			selectedDocuments.clearSelection();
-			
-			console.log('All selected documents deleted successfully');
 		} catch (error) {
 			console.error('Error deleting documents:', error);
 		} finally {
