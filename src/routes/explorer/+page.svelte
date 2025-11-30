@@ -4,12 +4,11 @@
 	import Explorer from '$lib/components/Explorer/Explorer.svelte';
 	import type { ExplorerItem } from '$lib/components/Explorer/types';
 	import { convertDocumentsToExplorerItems, convertListsToExplorerItems } from '$lib/components/Explorer/utils';
-	import { List } from '$lib/models/List';
+	import { ExplorerService } from '$lib/services/ExplorerService';
 	import { useAppState } from '$lib/stores/appState.svelte';
 	import { onMount } from 'svelte';
 	import type { PageProps } from './$types';
 	import styles from './+page.module.scss';
-	import { ExplorerService } from '$lib/services/ExplorerService';
 
 	let { data }: PageProps = $props();
 

@@ -1,14 +1,6 @@
 // ExplorerService - Centralized explorer operations
-import type { ListType } from '$lib/models/List';
 import type { ExplorerItem } from '$lib/components/Explorer/types';
 import { useAppState } from '$lib/stores/appState.svelte';
-
-// Supported temporary item types
-interface TempItemType {
-	type: 'document' | 'folder' | 'manuscript' | 'character' | 'scene';
-}
-
-// TODO: Implement unified folder/document creation and management
 
 export class ExplorerService {
 	private app: ReturnType<typeof useAppState>;
@@ -48,18 +40,6 @@ export class ExplorerService {
 	// Get available folder types
 	getAvailableTypes(): string[] {
 		return ['character', 'manuscript', 'scene', 'folder', 'custom', 'collection'];
-	}
-
-	// Rename item
-	async rename(type: 'document' | 'list' | 'collection', id: string, newName: string): Promise<void> {
-		switch (type) {
-			case 'document':
-				await this.renameDocument(id, newName);
-				break;
-			case 'list':
-				await this.renameList(id, newName);
-				break;
-		}
 	}
 
 	// Create temporary document (private method)
