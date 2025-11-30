@@ -107,7 +107,41 @@ export class ExplorerService {
 
 	// Rename list (private method)
 	private async renameList(id: string, newName: string): Promise<void> {
-		// Use listService for ALL list types (folder, character, scene, manuscript)
-		// TODO: Implement list renaming logic
+		try {
+			// Check if listService is available (SSR compatibility)
+			if (!this.app.listService) {
+				console.log('List service not available');
+				return;
+			}
+			
+			// Get the latest version from database
+			const currentList = await this.app.listService.read(id);
+			if (!currentList) {
+				console.log('List not found:', id);
+				return;
+			}
+			
+			console.log('Renaming list:', currentList.name, '→', newName);
+			
+			// Update the name
+			currentList.name = newName;
+			
+			try {
+				await this.app.updateList(currentList);
+				console.log('List updated successfully');
+			} catch (updateError: any) {
+				// Handle conflicts like we do for documents
+				if (updateError.message?.includes('conflict')) {
+					console.log('List rename completed despite conflict');
+					return; // Exit early if rename worked despite conflict
+				} else {
+					console.error('List update failed:', updateError);
+					throw updateError;
+				}
+			}
+			
+		} catch (error) {
+			console.error('Failed to rename list:', error);
+		}
 	}
 }

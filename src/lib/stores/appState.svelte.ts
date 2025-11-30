@@ -80,8 +80,8 @@ function createAppState() {
 			
 			state.loading = true;
 			try {
-				// Load lists - only root level (parentId: undefined)
-				const allLists = await state.listService.getByParentId(undefined);
+				// Load ALL lists for nested explorer support
+				const allLists = await state.listService.list();
 				state.lists = allLists.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
 				// Load documents - ALL documents for nested explorer support
@@ -259,23 +259,42 @@ function createAppState() {
 		},
 
 		async updateList(list: List): Promise<List> {
+			console.log('🔥 updateList called with:', list.name, list.id);
 			if (!browser || !state.listService) {
+				console.log('🔥 updateList: No browser or listService');
 				throw new Error('Database not available on server');
 			}
 			try {
+				console.log('🔥 updateList: Calling listService.update');
 				const updatedList = await state.listService.update(list);
+				console.log('🔥 updateList: listService.update returned:', updatedList.name);
 				
 				// Update in state if it exists
+				console.log('🔥 updateList: Current state.lists length:', state.lists.length);
+				console.log('🔥 updateList: Looking for list index with id:', updatedList.id);
 				const index = state.lists.findIndex(l => l.id === updatedList.id);
+				console.log('🔥 updateList: Found list at index:', index);
+				
 				if (index !== -1) {
+					console.log('🔥 updateList: Before update - list name:', state.lists[index].name);
 					const newLists = [...state.lists];
 					newLists[index] = updatedList;
+					console.log('🔥 updateList: After update - list name:', newLists[index].name);
 					state.lists = newLists.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+					console.log('🔥 updateList: state.lists updated, new length:', state.lists.length);
+					console.log('🔥 updateList: Updated list name in state:', state.lists.find(l => l.id === updatedList.id)?.name);
+				} else {
+					console.log('🔥 updateList: List not found in state.lists - ADDING IT');
+					console.log('🔥 updateList: All list IDs in state:', state.lists.map(l => l.id));
+					const newLists = [...state.lists, updatedList];
+					state.lists = newLists.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+					console.log('🔥 updateList: Added list to state, new length:', state.lists.length);
+					console.log('🔥 updateList: Updated list name in state:', state.lists.find(l => l.id === updatedList.id)?.name);
 				}
 				
 				return updatedList;
 			} catch (error) {
-				console.error('Failed to update list:', error);
+				console.error('🔥 updateList: Error:', error);
 				throw error;
 			}
 		},

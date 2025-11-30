@@ -31,7 +31,7 @@
 	// Create a reactive effect to update explorer data when app state changes
 	$effect(() => {
 		const allItems = [
-			...convertListsToExplorerItems(app.lists),
+			...convertListsToExplorerItems(app.lists.filter(list => list.parentId === undefined)),
 			...convertDocumentsToExplorerItems(app.documents.filter(doc => doc.parentId === undefined)),
 			...app.temporaryFolders,
 			...app.temporaryDocuments
