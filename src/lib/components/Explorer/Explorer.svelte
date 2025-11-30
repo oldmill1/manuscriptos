@@ -102,7 +102,7 @@
 				{
 					id: 'manuscript',
 					label: 'New Manuscript',
-					icon: '/icons/folder.png',
+					icon: '/icons/manuscript.png',
 					onClick: handleNewManuscript
 				}
 			];

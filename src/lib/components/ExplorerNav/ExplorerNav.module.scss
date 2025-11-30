@@ -9,6 +9,26 @@
 	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 	min-height: 44px;
 	margin: 0 -1rem;
+	overflow-x: auto;
+	scrollbar-width: thin;
+	scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+
+	&::-webkit-scrollbar {
+		height: 6px;
+	}
+
+	&::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	&::-webkit-scrollbar-thumb {
+		background-color: rgba(255, 255, 255, 0.3);
+		border-radius: 3px;
+
+		&:hover {
+			background-color: rgba(255, 255, 255, 0.5);
+		}
+	}
 }
 
 .leftGroup {
