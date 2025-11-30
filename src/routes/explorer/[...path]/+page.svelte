@@ -33,19 +33,19 @@
 
 	// Copy/Paste handlers
 	async function handleCopySelected() {
-		console.log('🔥 handleCopySelected called (subfolder)');
+		// handleCopySelected called (subfolder)
 		await app.copySelected();
 	}
 
 	async function handleCutSelected() {
-		console.log('🔥 handleCutSelected called (subfolder)');
+		// handleCutSelected called (subfolder)
 		app.cutSelected();
 	}
 
 	async function handlePasteSelected() {
-		console.log('🔥 handlePasteSelected called (subfolder)');
+		// handlePasteSelected called (subfolder)
 		const currentParentId = currentFolderId;
-		console.log('🔥 Current parent ID for paste (subfolder):', currentParentId);
+		// Current parent ID for paste (subfolder)
 		await app.pasteClipboard(currentParentId);
 		
 		// Refresh the local data to show the pasted item
@@ -86,7 +86,7 @@
 			
 			// Set context in appState for consistent temporary item handling
 			app.setCurrentParentId(listId);
-			console.log('🔥 Step 2 Test: Set appState.currentParentId to:', listId);
+			// Step 2 Test: Set appState.currentParentId
 			if (!listId) {
 				error = 'No list specified';
 				hasLoaded = true;

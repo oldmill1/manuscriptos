@@ -36,7 +36,7 @@ function createSelectedDocumentsStore() {
 			const stored = localStorage.getItem('manuscriptOS_selectedDocuments');
 			if (stored) {
 				const parsed = JSON.parse(stored);
-				console.log('🔥 Loaded selectedDocuments from localStorage:', parsed);
+				// Loaded selectedDocuments from localStorage
 				return {
 					...parsed,
 					lastUpdated: parsed.lastUpdated ? new Date(parsed.lastUpdated) : null
@@ -61,7 +61,7 @@ function createSelectedDocumentsStore() {
 		if (browser) {
 			try {
 				localStorage.setItem('manuscriptOS_selectedDocuments', JSON.stringify(state));
-				console.log('🔥 Saved selectedDocuments to localStorage:', state);
+				// Saved selectedDocuments to localStorage
 			} catch (error) {
 				console.warn('🔥 Failed to save selectedDocuments to localStorage:', error);
 			}
@@ -70,11 +70,8 @@ function createSelectedDocumentsStore() {
 
 	// Add debug wrapper to track all store changes
 	const debugSet = (newState: SelectedDocumentsState) => {
-		console.log('🔥 selectedDocuments.set called with:', newState);
-		console.log('🔥 Clipboard state after set:', {
-			copiedItemsCount: newState.copiedItems.length,
-			copyOperation: newState.copyOperation
-		});
+		// selectedDocuments.set called
+		// Clipboard state after set
 		persistStore(newState);
 		set(newState);
 	};
@@ -82,15 +79,9 @@ function createSelectedDocumentsStore() {
 	const debugUpdate = (updater: (state: SelectedDocumentsState) => SelectedDocumentsState) => {
 		update((currentState) => {
 			const newState = updater(currentState);
-			console.log('🔥 selectedDocuments.update called');
-			console.log('🔥 Before:', {
-				copiedItemsCount: currentState.copiedItems.length,
-				copyOperation: currentState.copyOperation
-			});
-			console.log('🔥 After:', {
-				copiedItemsCount: newState.copiedItems.length,
-				copyOperation: newState.copyOperation
-			});
+			// selectedDocuments.update called
+			// Before update
+			// After update
 			persistStore(newState);
 			return newState;
 		});

@@ -81,10 +81,10 @@
 	// Subscribe to selected documents store
 	$effect(() => {
 		const unsubscribe = selectedDocuments.subscribe((state) => {
-			console.log('🔥 Explorer store subscription update:', state);
+			// Explorer store subscription update
 			selectedDocs = state.documents;
 			hasClipboardItems = state.copiedItems.length > 0;
-			console.log('🔥 hasClipboardItems updated to:', hasClipboardItems);
+			// hasClipboardItems updated
 		});
 
 		return unsubscribe;
@@ -98,13 +98,7 @@
 
 	// Debug logging to understand paste button state
 	$effect(() => {
-		console.log('🔥 Paste Button Debug:', {
-			hasClipboardItems,
-			isSelectionMode,
-			selectedCount,
-			isPasteButtonDisabled,
-			copiedItemsLength: selectedDocs.length
-		});
+		// Paste Button Debug state
 	});
 
 	// Determine navigation buttons based on current route
@@ -241,8 +235,8 @@
 	}
 
 	async function handlePaste() {
-		console.log('🔥 NORMAL MODE PASTE BUTTON CLICKED!');
-		console.log('🔥 Explorer handlePaste called - PASTE BUTTON CLICKED!');
+		// NORMAL MODE PASTE BUTTON CLICKED
+		// Explorer handlePaste called - PASTE BUTTON CLICKED!
 		// Call the parent's paste handler
 		onPasteSelected?.();
 	}

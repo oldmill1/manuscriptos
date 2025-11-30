@@ -77,12 +77,8 @@
 	}
 
 	function handleSwitchChange(enabled: boolean) {
-		console.log('=== VLIST SELECTION DEBUG ===');
-		console.log('VList handleSwitchChange called with:', enabled);
-		console.log('Current isSelectionMode before:', isSelectionMode);
+		// VList selection toggle
 		onToggleSelectionMode(enabled);
-		console.log('Called onToggleSelectionMode with:', enabled);
-		console.log('=== END VLIST SELECTION DEBUG ===');
 	}
 
 	function handleDeleteClick() {
@@ -108,13 +104,13 @@
 			}
 
 			const selectedDocs = $selectedDocuments.documents;
-			console.log('Deleting documents:', selectedDocs.map(doc => doc.id));
+			// Deleting documents
 
 			// Delete each selected document
 			const deletePromises = selectedDocs.map(async (doc) => {
 				try {
 					await documentService.delete(doc.id);
-					console.log('Successfully deleted document:', doc.id);
+					// Successfully deleted document
 				} catch (error) {
 					console.error('Failed to delete document:', doc.id, error);
 					throw error;
@@ -129,7 +125,7 @@
 			// Call the original onDeleteClick for any additional cleanup
 			onDeleteClick();
 
-			console.log('All selected documents deleted successfully');
+			// All selected documents deleted successfully
 		} catch (error) {
 			console.error('Error deleting documents:', error);
 			// You could show an error notification here

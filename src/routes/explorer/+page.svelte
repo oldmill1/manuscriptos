@@ -21,7 +21,7 @@
 			await app.loadRootLevel();
 			// Set context for root level (no parent folder)
 			app.setCurrentParentId(undefined);
-			console.log('🔥 Step 2 Test: Set appState.currentParentId to undefined (root level)');
+			// Step 2 Test: Set appState.currentParentId to undefined (root level)
 		} catch (error) {
 			console.error('Failed to load lists or documents:', error);
 		}
@@ -324,19 +324,19 @@
 
 	// Copy/Paste handlers
 	async function handleCopySelected() {
-		console.log('🔥 handleCopySelected called');
+		// handleCopySelected called
 		await app.copySelected();
 	}
 
 	async function handleCutSelected() {
-		console.log('🔥 handleCutSelected called');
+		// handleCutSelected called
 		app.cutSelected();
 	}
 
 	async function handlePasteSelected() {
-		console.log('🔥 handlePasteSelected called - PASTE BUTTON WORKS!');
+		// handlePasteSelected called - PASTE BUTTON WORKS!
 		const currentParentId = getCurrentParentId();
-		console.log('🔥 Current parent ID for paste:', currentParentId);
+		// Current parent ID for paste
 		await app.pasteClipboard(currentParentId);
 	}
 </script>

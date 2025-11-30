@@ -313,7 +313,7 @@ function createAppState() {
 			};
 			
 			state.temporaryFolders = [...state.temporaryFolders, itemWithContext];
-			console.log('🔥 Step 3 Test: Added temporary folder with parentId:', finalParentId);
+			// Step 3 Test: Added temporary folder with parentId
 		},
 
 		removeTemporaryFolder(itemId: string): void {
@@ -331,7 +331,7 @@ function createAppState() {
 			};
 			
 			state.temporaryDocuments = [...state.temporaryDocuments, itemWithContext];
-			console.log('🔥 Step 3 Test: Added temporary document with parentId:', finalParentId);
+			// Step 3 Test: Added temporary document with parentId
 		},
 
 		removeTemporaryDocument(itemId: string): void {
@@ -390,16 +390,16 @@ function createAppState() {
 
 		// Clipboard methods
 		async copySelected(): Promise<void> {
-			console.log('🔥 copySelected called');
+			// copySelected called
 			if (!browser || !state.documentService || !state.listService) return;
 			
 			try {
 				// Get current selected items
 				const selectedItems = selectedDocuments.getDocuments();
-				console.log('🔥 selectedItems:', selectedItems);
+				// selectedItems:
 				
 				if (selectedItems.length === 0) {
-					console.log('🔥 No items selected, returning');
+					// No items selected, returning
 					return; // Nothing to copy
 				}
 				
@@ -407,11 +407,9 @@ function createAppState() {
 				const clipboardItems: ClipboardItem[] = [];
 				
 				for (const item of selectedItems) {
-					console.log('🔥 Processing item for copy:', item);
 					// Try to get document data first
 					const document = await state.documentService.read(item.id);
 					if (document) {
-						console.log('🔥 Found document:', document);
 						clipboardItems.push({
 							id: document.id,
 							type: 'document',
@@ -423,7 +421,7 @@ function createAppState() {
 						// Try to get list data if document not found
 						const list = await state.listService.read(item.id);
 						if (list) {
-							console.log('🔥 Found list:', list);
+							// Found list:
 							clipboardItems.push({
 								id: list.id,
 								type: 'list',
@@ -435,7 +433,7 @@ function createAppState() {
 					}
 				}
 				
-				console.log('🔥 Final clipboardItems:', clipboardItems);
+				// Final clipboardItems:
 				
 				// Update the selectedDocuments store with rich clipboard data
 				selectedDocuments.copySelected(clipboardItems);
@@ -450,7 +448,7 @@ function createAppState() {
 				selectedDocuments.clearSelection();
 				
 			} catch (error) {
-				console.error('🔥 Failed to copy selected items:', error);
+				console.error('Failed to copy selected items:', error);
 				toastService.show('Failed to copy items');
 			}
 		},
@@ -461,37 +459,37 @@ function createAppState() {
 		},
 
 		async pasteClipboard(targetParentId?: string): Promise<void> {
-			console.log('🔥 pasteClipboard called with targetParentId:', targetParentId);
+			// pasteClipboard called with targetParentId
 			if (!browser || !state.documentService || !state.listService) {
-				console.log('🔥 Early return - browser or services not available');
+				// Early return - browser or services not available
 				return;
 			}
 			
 			try {
 				// Get clipboard state from selectedDocuments store
 				const clipboardState = selectedDocuments.pasteItems(targetParentId);
-				console.log('🔥 clipboardState:', clipboardState);
+				// clipboardState:
 				
 				if (!clipboardState.items.length) {
-					console.log('🔥 No items in clipboard');
+					// No items in clipboard
 					toastService.show('No items to paste');
 					return;
 				}
 
 				const itemCount = clipboardState.items.length;
-				console.log('🔥 Processing', itemCount, 'items for paste');
+				// Processing items for paste
 
 				// Perform paste operations based on operation type
 				if (clipboardState.operation === 'copy') {
-					console.log('🔥 Performing copy operation');
+					// Performing copy operation
 					// Duplicate items using the rich ClipboardItem data
 					for (const item of clipboardState.items) {
-						console.log('🔥 Copying item:', item);
+						// Copying item:
 						if (item.type === 'document') {
-							console.log('🔥 Calling documentService.duplicate for:', item.id);
+							// Calling documentService.duplicate for:
 							await state.documentService.duplicate(item.id, targetParentId);
 						} else if (item.type === 'list') {
-							console.log('🔥 Calling listService.duplicate for:', item.id);
+							// Calling listService.duplicate for:
 							await state.listService.duplicate(item.id, targetParentId);
 						}
 					}
@@ -501,15 +499,15 @@ function createAppState() {
 					toastService.show(message);
 					
 				} else if (clipboardState.operation === 'cut') {
-					console.log('🔥 Performing cut operation');
+					// Performing cut operation
 					// Move items using the new move functionality
 					for (const item of clipboardState.items) {
-						console.log('🔥 Moving item:', item);
+						// Moving item:
 						if (item.type === 'document') {
-							console.log('🔥 Calling documentService.move for:', item.id);
+							// Calling documentService.move for:
 							await state.documentService.move(item.id, targetParentId);
 						} else if (item.type === 'list') {
-							console.log('🔥 Calling listService.move for:', item.id);
+							// Calling listService.move for:
 							await state.listService.move(item.id, targetParentId);
 						}
 					}
@@ -522,18 +520,18 @@ function createAppState() {
 					toastService.show(message);
 				}
 
-				console.log('🔥 Refreshing view after paste');
+				// Refreshing view after paste
 				// Refresh the appropriate view based on context
 				if (targetParentId === undefined || targetParentId === null) {
 					// Root level context - refresh root data
 					await this.loadRootLevel();
 				} else {
 					// Nested context - don't refresh here, let the page handle it
-					console.log('🔥 Nested context - page will handle refresh');
+					// Nested context - page will handle refresh
 				}
 				
 			} catch (error) {
-				console.error('🔥 Failed to paste clipboard items:', error);
+				console.error('Failed to paste clipboard items:', error);
 				toastService.show('Failed to paste items');
 			}
 		}
