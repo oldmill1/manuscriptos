@@ -304,11 +304,30 @@ function createAppState() {
 				throw new Error('Database not available on server');
 			}
 			try {
-				const success = await state.listService.delete(listId);
+				console.log('🗑️ appState.deleteList called with:', listId);
+				console.log('🗑️ Before deletion - state.lists length:', state.lists.length);
+				console.log('🗑️ Before deletion - state.list IDs:', state.lists.map(l => l.id));
 				
+				// Check if list exists in database first
+				const listExists = await state.listService.read(listId);
+				console.log('🗑️ List exists in database:', !!listExists);
+				
+				let success = true;
+				if (listExists) {
+					// Try to delete from database
+					success = await state.listService.delete(listId);
+					console.log('🗑️ Database deletion success:', success);
+				} else {
+					console.log('🗑️ List not in database - skipping database deletion');
+				}
+				
+				// Always remove from state (even if not in database)
 				if (success) {
-					// Remove from state
+					const beforeLength = state.lists.length;
 					state.lists = state.lists.filter(list => list.id !== listId);
+					const afterLength = state.lists.length;
+					console.log('🗑️ After filter - before length:', beforeLength, 'after length:', afterLength);
+					console.log('🗑️ After deletion - state.list IDs:', state.lists.map(l => l.id));
 				}
 				
 				return success;

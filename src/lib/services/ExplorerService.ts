@@ -3,15 +3,19 @@
  * API for centralized explorer operations
  * 
  * Document Operations:
+ * - document.new(): void
  * - document.new(title?: string, tempId?: string, parentId?: string): Promise<void>
+ * - document.delete(documentId: string): Promise<void>
  * - document.update(field: string, id: string, value: any): Promise<void>
  * 
  * List Operations:
  * - list.new(): void
  * - list.save(listName: string, tempId: string, parentId?: string): Promise<void>
+ * - list.delete(listId: string): Promise<void>
  * - list.update(field: string, id: string, value: any): Promise<void>
  * 
- * TODO: Add delete operations for both documents and lists
+ * Bulk Operations:
+ * - deleteSelected(items: ExplorerItem[]): Promise<void>
  */
 import type { ExplorerItem } from '$lib/components/Explorer/types';
 import { useAppState } from '$lib/stores/appState.svelte';
@@ -35,6 +39,11 @@ export class ExplorerService {
 				this.createTempDocument();
 				return Promise.resolve();
 			}
+		},
+
+		// Delete document
+		delete: async (documentId: string): Promise<void> => {
+			await this.app.deleteDocument(documentId);
 		},
 
 		// Update document property
@@ -87,6 +96,39 @@ export class ExplorerService {
 				
 			} catch (error) {
 				console.error('Failed to create list:', error);
+				throw error;
+			}
+		},
+
+		// Delete list (recursive)
+		delete: async (listId: string): Promise<void> => {
+			try {
+				if (!this.app.listService) {
+					throw new Error('ListService not available');
+				}
+
+				console.log('🗑️ ExplorerService.list.delete called with:', listId);
+				console.log('🗑️ Current app.lists length:', this.app.lists.length);
+				console.log('🗑️ Current app.list IDs:', this.app.lists.map(l => l.id));
+
+				// Get all child lists recursively
+				const allListsToDelete = await this.getAllDescendantLists(listId);
+				console.log('🗑️ Lists to delete:', allListsToDelete.map(l => l.id));
+				
+				// Delete all documents in all these lists
+				await this.deleteAllDocumentsInLists(allListsToDelete);
+				
+				// Delete all lists (bottom-up to avoid foreign key issues)
+				for (const list of allListsToDelete.reverse()) {
+					console.log('🗑️ Deleting list:', list.id);
+					await this.app.listService.delete(list.id);
+					// Remove from centralized state
+					await this.app.deleteList(list.id);
+					console.log('🗑️ After deletion, app.lists length:', this.app.lists.length);
+				}
+				
+			} catch (error) {
+				console.error('Failed to delete list:', error);
 				throw error;
 			}
 		},
@@ -202,6 +244,65 @@ export class ExplorerService {
 			
 		} catch (error) {
 			console.error('Failed to rename list:', error);
+		}
+	}
+
+	// Delete selected items (documents and lists)
+	async deleteSelected(items: ExplorerItem[]): Promise<void> {
+		try {
+			// Separate documents and lists
+			const documentsToDelete = items.filter(item => !item.isFolder);
+			const listsToDelete = items.filter(item => item.isFolder);
+			
+			// Delete documents
+			for (const doc of documentsToDelete) {
+				await this.app.deleteDocument(doc.id);
+			}
+			
+			// Delete lists (recursively)
+			for (const list of listsToDelete) {
+				await this.list.delete(list.id);
+			}
+			
+		} catch (error) {
+			console.error('Failed to delete selected items:', error);
+			throw error;
+		}
+	}
+
+	// Helper: Get all descendant lists recursively
+	private async getAllDescendantLists(listId: string): Promise<any[]> {
+		if (!this.app.listService) return [];
+		
+		const allLists: any[] = [];
+		const toProcess = [listId];
+		
+		while (toProcess.length > 0) {
+			const currentId = toProcess.pop()!;
+			const currentList = await this.app.listService.read(currentId);
+			
+			if (currentList) {
+				allLists.push(currentList);
+				
+				// Find child lists
+				const children = await this.app.listService.getByParentId(currentId);
+				children.forEach(child => toProcess.push(child.id));
+			}
+		}
+		
+		return allLists;
+	}
+
+	// Helper: Delete all documents in the specified lists
+	private async deleteAllDocumentsInLists(lists: any[]): Promise<void> {
+		for (const list of lists) {
+			// Get documents in this list
+			const documents = this.app.documents.filter(doc => doc.parentId === list.id);
+			
+			// Delete each document
+			for (const doc of documents) {
+				await this.app.deleteDocument(doc.id);
+			}
 		}
 	}
 }

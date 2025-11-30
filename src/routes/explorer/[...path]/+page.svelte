@@ -263,38 +263,11 @@
 	}
 
 	async function handleDeleteSelected(selectedDocs: any[]) {
-		if (!documentService || !listService) {
-			return;
-		}
-
 		try {
-			// Separate folders and documents
-			const foldersToDelete = selectedDocs.filter(doc => doc.isFolder);
-			const documentsToDelete = selectedDocs.filter(doc => !doc.isFolder);
-			
-			// 1. Get ALL descendant folders recursively
-			const allFoldersToDelete = await getAllDescendantFolders(foldersToDelete);
-			
-			// 2. Delete all documents in all those folders
-			await deleteAllDocumentsInFolders(allFoldersToDelete);
-			
-			// 3. Delete all folders (bottom-up)
-			await deleteFoldersBottomUp(allFoldersToDelete);
-			
-			// 4. Delete the originally selected documents
-			if (documentsToDelete.length > 0) {
-				const documentDeletePromises = documentsToDelete.map(async (doc) => {
-					await documentService.delete(doc.id);
-				});
-				await Promise.all(documentDeletePromises);
-			}
-			
-			// 5. Update local state
-			childFolders = childFolders.filter(folder => !allFoldersToDelete.some(deleted => deleted.id === folder.id));
-			// Documents are now computed from app state, will update automatically when deleted
-			
+			// Use ExplorerService for all deletion logic
+			await explorerService.deleteSelected(selectedDocs);
 		} catch (error) {
-			console.error('Failed to delete items:', error);
+			console.error('Failed to delete selected items:', error);
 		}
 	}
 

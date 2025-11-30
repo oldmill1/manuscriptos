@@ -138,20 +138,8 @@
 
 	async function handleDeleteSelected(selectedDocs: any[]) {
 		try {
-			// Separate documents and folders
-			const documentsToDelete = selectedDocs.filter(item => !item.isFolder);
-			const foldersToDelete = selectedDocs.filter(item => item.isFolder);
-
-			// Delete documents
-			for (const doc of documentsToDelete) {
-				await app.deleteDocument(doc.id);
-			}
-
-			// Delete folders (recursively)
-			for (const folder of foldersToDelete) {
-				await handleFolderDelete(folder.id);
-			}
-
+			// Use ExplorerService for all deletion logic
+			await explorerService.deleteSelected(selectedDocs);
 		} catch (error) {
 			console.error('Failed to delete selected items:', error);
 		}
