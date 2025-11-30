@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/stores';
 	import { selectedDocuments } from '$lib/stores/selectedDocuments';
 	import type { Snippet } from 'svelte';
 	import { Motion } from 'svelte-motion';
@@ -90,6 +91,51 @@
 	let isDeleteButtonDisabled = $derived(!isSelectionMode || selectedCount === 0);
 	let isCutCopyButtonDisabled = $derived(!isSelectionMode || selectedCount === 0);
 	let isPasteButtonDisabled = $derived(!hasClipboardItems);
+
+	// Determine navigation buttons based on current route
+	let navButtons = $derived.by(() => {
+		const currentPath = $page.url.pathname;
+		
+		// Route #1: /explorer - Show only "New Manuscript" button
+		if (currentPath === '/explorer') {
+			return [
+				{
+					id: 'manuscript',
+					label: 'New Manuscript',
+					icon: '/icons/folder.png',
+					onClick: handleNewManuscript
+				}
+			];
+		}
+		
+		// Default: Show all buttons for other routes
+		return [
+			{
+				id: 'folder',
+				label: 'New Folder',
+				icon: '/icons/folder.png',
+				onClick: handleNewFolder
+			},
+			{
+				id: 'document',
+				label: 'New Document',
+				icon: '/icons/new.png',
+				onClick: handleNewDocument
+			},
+			{
+				id: 'character',
+				label: 'New Character',
+				icon: '/icons/fantasy.png',
+				onClick: handleNewCharacter
+			},
+			...(hasClipboardItems ? [{
+				id: 'paste',
+				label: 'Paste',
+				icon: '📋',
+				onClick: handlePaste
+			}] : [])
+		];
+	});
 
 	function handleDeleteClick() {
 		if (!isDeleteButtonDisabled) {
@@ -190,32 +236,7 @@
 		<div class={styles.explorerBg}>
 			<ExplorerNav 
 				leftContent={[]}
-				rightContent={[
-					{
-						id: 'folder',
-						label: 'New Folder',
-						icon: '/icons/folder.png',
-						onClick: handleNewFolder
-					},
-					{
-						id: 'document',
-						label: 'New Document',
-						icon: '/icons/new.png',
-						onClick: handleNewDocument
-					},
-					{
-						id: 'character',
-						label: 'New Character',
-						icon: '/icons/fantasy.png',
-						onClick: handleNewCharacter
-					},
-					...(hasClipboardItems ? [{
-						id: 'paste',
-						label: 'Paste',
-						icon: '📋',
-						onClick: handlePaste
-					}] : [])
-				]}
+				rightContent={navButtons}
 			/>
 			<BreadcrumbTrail {folderIds} />
 			<div class={styles.desktop}>
