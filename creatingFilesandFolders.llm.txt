@@ -902,20 +902,83 @@ export type ListType = null | undefined | 'character' | 'manuscript' | 'whatever
 
 **Action**: Add your button icon file to the icons directory
 
+### File 12: Update ExplorerItem Editing Logic (CRITICAL!)
+**Location**: `/src/lib/components/Explorer/ExplorerItem/ExplorerItem.svelte`
+
+**Why This Is Critical**: Without this step, your temporary items will appear but won't be editable!
+
+**Step 12.1: Add Create Handler to Props Interface**
+```typescript
+// Add to Props interface around line 18
+onWhateverCreate?: (whateverName: string, tempId: string) => void;
+```
+
+**Step 12.2: Add to Destructured Props**
+```typescript
+// Add to destructured props around line 32
+onWhateverCreate,
+```
+
+**Step 12.3: Add Temporary Item Detection**
+```typescript
+// Add to handleInputKeydown around line 180
+const isTempWhatever = item.id.startsWith('temp-whatever-');
+```
+
+**Step 12.4: Add Creation Logic**
+```typescript
+// Add to Enter key handler around line 190
+} else if (isTempWhatever && onWhateverCreate) {
+    // Create new whatever
+    onWhateverCreate(editingValue, item.id);
+```
+
+**Step 12.5: Update Temp Folder Detection**
+```typescript
+// Update isTempFolder detection to exclude your type
+const isTempFolder = item.id.startsWith('temp-') && 
+    !item.id.startsWith('temp-doc-') && 
+    !item.id.startsWith('temp-char-') && 
+    !item.id.startsWith('temp-whatever-') && 
+    !item.id.startsWith('temp-manuscript-');
+```
+
+**IMPORTANT**: Use `item.isTemp` checks instead of hardcoded icons! The editing logic now uses:
+```typescript
+// Force editing: ANY temporary item should be editable
+if (forceEditing && item.isTemp && !isEditing)
+
+// Input display: Show input for temporary items OR documents
+{#if isEditing && (item.isTemp || !item.isFolder)}
+```
+
 ## Summary of All Files to Modify
 
 ### For Nested Explorer (`/explorer/[...path]`):
 1. `/src/lib/components/Explorer/Explorer.svelte` - Add button UI, delegate function, and prop interface
 2. `/src/routes/explorer/[...path]/+page.svelte` - Add handler function, create handler, and pass props
+3. `/src/lib/components/Explorer/ExplorerItem/ExplorerItem.svelte` - **CRITICAL**: Add creation logic and editing support
 
 ### For Root Explorer (`/explorer`):
-3. `/src/routes/explorer/+page.svelte` - Add handler function, create handler, and pass props
+4. `/src/routes/explorer/+page.svelte` - Add handler function, create handler, and pass props
 
 ### Optional (if new List type):
-4. `/src/lib/models/List.ts` - Add new type to enum
-5. `/static/icons/whatever.png` - Add button icon
+5. `/src/lib/models/List.ts` - Add new type to enum
+6. `/static/icons/whatever.png` - Add button icon
 
 ## Testing Your New Button
+
+### ⚠️ CRITICAL WARNING: ExplorerItem Editing Logic
+**The #1 reason new buttons don't work**: Missing ExplorerItem.svelte updates!
+
+**Symptoms if you miss this step:**
+- Button appears and creates temporary item ✅
+- Item shows correct icon ✅  
+- But NO input field appears (shows label instead) ❌
+- Can't edit name or press Enter ❌
+- Item disappears on refresh ❌
+
+**Solution**: Follow **File 12** steps above EXACTLY - this is the most critical part!
 
 ### Step 1: Verify Button Appears
 ```bash

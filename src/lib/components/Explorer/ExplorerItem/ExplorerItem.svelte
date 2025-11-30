@@ -72,9 +72,9 @@
 		// Editing should be a separate action from selection
 	});
 	
-	// Handle force editing for new folders and documents
+	// Handle force editing for new items (any temporary item should be editable)
 	$effect(() => {
-		if (forceEditing && (item.icon === '/icons/folder.png' || item.icon === '/icons/new.png' || item.icon === '/icons/scene.png') && !isEditing) {
+		if (forceEditing && item.isTemp && !isEditing) {
 			isEditing = true;
 			editingValue = item.name;
 			// Focus the input after it's rendered
@@ -270,7 +270,7 @@
 			</div>
 		{/if}
 		<img src={displayIcon} alt={item.name} class={styles.icon} />
-		{#if isEditing && (item.icon === '/icons/folder.png' || item.icon === '/icons/new.png' || item.icon === '/icons/scene.png' || !item.isFolder)}
+		{#if isEditing && (item.isTemp || !item.isFolder)}
 			<input 
 				type="text" 
 				bind:this={inputElement}
