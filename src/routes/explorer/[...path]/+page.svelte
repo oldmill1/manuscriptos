@@ -9,6 +9,7 @@
 	import { useAppState } from '$lib/stores/appState.svelte';
 	import { onMount } from 'svelte';
 	import type { PageProps } from './$types';
+	import { ExplorerService } from '$lib/services/ExplorerService';
 
 	let { data }: PageProps = $props();
 
@@ -18,7 +19,6 @@
 	let listService: ListService;
 	let documentService: DocumentService;
 	let list = $state<List | null>(null);
-	let documents = $state<Document[]>([]);
 	let childFolders = $state<List[]>([]);
 	let hasLoaded = $state(false);
 	let error = $state<string | null>(null);
@@ -27,6 +27,17 @@
 
 	// Use centralized app state
 	const app = useAppState();
+	const explorerService = new ExplorerService(app);
+
+	// Computed documents from app state, filtered by current folder
+	const documents = $derived(() => {
+		const filtered = app.documents.filter(doc => doc.parentId === currentFolderId);
+		console.log('Documents computed - total app docs:', app.documents.length);
+		console.log('Documents computed - current folder ID:', currentFolderId);
+		console.log('Documents computed - filtered docs:', filtered);
+		console.log('Documents computed - all doc parentIds:', app.documents.map(d => ({id: d.id, parentId: d.parentId})));
+		return filtered;
+	});
 
 	// Copy/Paste handlers
 	async function handleCopySelected() {
@@ -46,7 +57,7 @@
 		await app.pasteClipboard(currentParentId);
 		
 		// Refresh the local data to show the pasted item
-		await loadFolderContents();
+		await refreshFolderContents();
 	}
 
 	async function loadFolderContents() {
@@ -56,10 +67,20 @@
 			// Sort by creation date, newest first
 			childFolders.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
-			// Load documents in this folder using parentId
-			documents = await documentService.getByParentId(currentFolderId);
+			// Documents are now computed from app state, no manual loading needed
+		} catch (err) {
+			console.error('Failed to refresh folder contents:', err);
+		}
+	}
+
+	async function refreshFolderContents() {
+		try {
+			// Load child folders
+			childFolders = await listService.getByParentId(currentFolderId);
 			// Sort by creation date, newest first
-			documents.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+			childFolders.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+			
+			// Documents are now computed from app state, no manual loading needed
 		} catch (err) {
 			console.error('Failed to refresh folder contents:', err);
 		}
@@ -84,6 +105,10 @@
 			// Set context in appState for consistent temporary item handling
 			app.setCurrentParentId(listId);
 			// Step 2 Test: Set appState.currentParentId
+			
+			// Load all documents from database for nested explorer support
+			await app.loadRootLevel();
+			
 			if (!listId) {
 				error = 'No list specified';
 				hasLoaded = true;
@@ -102,11 +127,7 @@
 			// Sort by creation date, newest first
 			childFolders.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
-			// Load documents in this folder using parentId
-			documents = await documentService.getByParentId(currentFolderId);
-			// Sort by creation date, newest first
-			documents.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-
+			// Documents are now computed from app state, no manual loading needed
 			
 		} catch (err) {
 			console.error('Failed to load list documents:', err);
@@ -192,28 +213,8 @@
 	}
 
 	async function handleDocumentCreate(documentName: string, tempId: string) {
-		try {
-			// Create the real document using DocumentService with parentId
-			const newDocument = new Document(documentName, '', currentFolderId);
-			const savedDocument = await documentService.create(newDocument);
-			
-			// Remove the temporary document
-			app.removeTemporaryDocument(tempId);
-			
-			// Clear editing state
-			if (app.editingTempDocumentId === tempId) {
-				app.setEditingTempDocumentId(null);
-			}
-			
-			// Add the new document to documents to show it immediately
-			const updatedDocuments = [...documents, savedDocument];
-			// Sort by creation date, newest first
-			updatedDocuments.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-			documents = updatedDocuments;
-			
-		} catch (error) {
-			console.error('Failed to create document:', error);
-		}
+		// Use ExplorerService for document creation
+		await explorerService.save('document', documentName, tempId, currentFolderId);
 	}
 
 	function handleDocumentClick(doc: Document, event: MouseEvent) {
@@ -233,19 +234,8 @@
 	}
 
 	function handleNewDocument() {
-		// Create a temporary document using appState (consistent with root explorer)
-		const tempId = `temp-doc-${crypto.randomUUID()}`;
-		const tempDocument: ExplorerItem = {
-			id: tempId,
-			name: 'Untitled Document',
-			type: 'document',
-			icon: '/icons/new.png',
-			isTemp: true,
-			isEditing: true
-		};
-		
-		app.addTemporaryDocument(tempDocument);
-		app.setEditingTempDocumentId(tempId);
+		// Use ExplorerService for document creation
+		explorerService.createTemp('document');
 	}
 
 	function handleNewCharacter() {
@@ -336,7 +326,7 @@
 			
 			// 5. Update local state
 			childFolders = childFolders.filter(folder => !allFoldersToDelete.some(deleted => deleted.id === folder.id));
-			documents = documents.filter(doc => !documentsToDelete.some(deleted => deleted.id === doc.id));
+			// Documents are now computed from app state, will update automatically when deleted
 			
 		} catch (error) {
 			console.error('Failed to delete items:', error);
@@ -439,15 +429,7 @@
 			currentDocument.title = newName;
 			await documentService.update(currentDocument);
 			
-			// Update just the renamed document in the local array
-			const updatedDocuments = documents.map(document => {
-				if (document.id === documentId) {
-					document.title = newName;
-					return document;
-				}
-				return document;
-			});
-			documents = updatedDocuments;
+			// Documents are now computed from app state, will update automatically when renamed
 			
 		} catch (error) {
 			console.error('Failed to rename document:', error);
@@ -467,7 +449,7 @@
 		const temporaryFolderItems = contextTempFolders.map(f => ({ ...f, isFolder: true }));
 		const temporaryDocumentItems = contextTempDocuments.map(d => ({ ...d, isFolder: false }));
 		const childFolderItems = convertListsToExplorerItems(childFolders, handleFolderClick);
-		const documentItems = convertDocumentsToExplorerItems(documents, handleDocumentClick);
+		const documentItems = convertDocumentsToExplorerItems(documents(), handleDocumentClick);
 		
 		// Show temporary items FIRST, then child folders, then documents
 		return createExplorerData(

@@ -84,9 +84,9 @@ function createAppState() {
 				const allLists = await state.listService.getByParentId(undefined);
 				state.lists = allLists.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
-				// Load documents - only root level (parentId: undefined)
-				const rootDocuments = await state.documentService.getByParentId(undefined);
-				state.documents = rootDocuments.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+				// Load documents - ALL documents for nested explorer support
+				const allDocuments = await state.documentService.list();
+				state.documents = allDocuments.sort((a: Document, b: Document) => b.createdAt.getTime() - a.createdAt.getTime());
 				
 				
 				state.hasLoaded = true;
@@ -141,11 +141,9 @@ function createAppState() {
 				const document = new Document(title, content, parentId);
 				const savedDocument = await state.documentService.create(document);
 				
-				// Add to state if it's at the current level
-				if (savedDocument.parentId === undefined) {
-					const updatedDocuments = [...state.documents, savedDocument];
-					state.documents = updatedDocuments.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-				}
+				// Add to state regardless of parent level
+				const updatedDocuments = [...state.documents, savedDocument];
+				state.documents = updatedDocuments.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 				
 				return savedDocument;
 			} catch (error) {

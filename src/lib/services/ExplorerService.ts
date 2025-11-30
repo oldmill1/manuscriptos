@@ -1,74 +1,95 @@
-import { List } from '$lib/models/List';
-import { ListService } from './ListService';
+// ExplorerService - Centralized explorer operations
+import type { ListType } from '$lib/models/List';
+import type { ExplorerItem } from '$lib/components/Explorer/types';
+import { useAppState } from '$lib/stores/appState.svelte';
+
+// Supported temporary item types
+interface TempItemType {
+	type: 'document' | 'folder' | 'manuscript' | 'character' | 'scene';
+}
+
+// TODO: Implement unified folder/document creation and management
 
 export class ExplorerService {
-	private listService: ListService;
+	private app: ReturnType<typeof useAppState>;
 
-	constructor() {
-		this.listService = new ListService();
+	constructor(app: ReturnType<typeof useAppState>) {
+		this.app = app;
+		console.log('ExplorerService initialized');
 	}
 
-	// Create a new folder (which is a List in the backend)
-	async createNewFolder(name?: string): Promise<List> {
-		try {
-			// Create a new custom list with the provided name or a default
-			const folderName = name || 'New Folder';
-			const newFolder = new List('custom', folderName);
-			
-			// Save the folder to the database
-			const savedFolder = await this.listService.create(newFolder);
-			
-			console.log('✅ Folder created successfully:', savedFolder.name);
-			return savedFolder;
-		} catch (error) {
-			console.error('❌ Failed to create folder:', error);
-			throw new Error(`Failed to create folder: ${error}`);
+	// Placeholder for future unified operations
+	helloWorld(): string {
+		return 'ExplorerService is ready';
+	}
+
+	// Unified temporary item creation
+	createTemp(type: TempItemType['type']): void {
+		switch (type) {
+			case 'document':
+				const tempId = `temp-doc-${crypto.randomUUID()}`;
+				const tempDocument: ExplorerItem = {
+					id: tempId,
+					name: 'Untitled Document',
+					type: 'document',
+					icon: '/icons/new.png',
+					isTemp: true,
+					isEditing: true
+				};
+				this.app.addTemporaryDocument(tempDocument);
+				this.app.setEditingTempDocumentId(tempId);
+				break;
+			case 'folder':
+				// TODO: Implement folder creation
+				break;
+			case 'character':
+				// TODO: Implement character creation
+				break;
+			case 'scene':
+				// TODO: Implement scene creation
+				break;
+			case 'manuscript':
+				// TODO: Implement manuscript creation
+				break;
 		}
 	}
 
-	// Get all folders (lists)
-	async getAllFolders(): Promise<List[]> {
-		try {
-			const lists = await this.listService.list();
-			return lists.filter(list => list.type === 'custom');
-		} catch (error) {
-			console.error('Failed to get folders:', error);
-			throw new Error(`Failed to get folders: ${error}`);
-		}
+	// Get available folder types
+	getAvailableTypes(): string[] {
+		return ['character', 'manuscript', 'scene', 'custom'];
 	}
 
-	// Delete a folder
-	async deleteFolder(folderId: string): Promise<boolean> {
-		try {
-			console.log('Deleting folder:', folderId);
-			const result = await this.listService.delete(folderId);
-			console.log('Folder deleted successfully');
-			return result;
-		} catch (error) {
-			console.error('Failed to delete folder:', error);
-			throw new Error(`Failed to delete folder: ${error}`);
-		}
-	}
-
-	// Rename a folder
-	async renameFolder(folderId: string, newName: string): Promise<List> {
-		try {
-			const folder = await this.listService.read(folderId);
-			if (!folder) {
-				throw new Error('Folder not found');
-			}
-			
-			folder.name = newName;
-			const updatedFolder = await this.listService.update(folder);
-			
-			console.log('Folder renamed successfully:', newName);
-			return updatedFolder;
-		} catch (error) {
-			console.error('Failed to rename folder:', error);
-			throw new Error(`Failed to rename folder: ${error}`);
+	// Save permanent item
+	async save(type: TempItemType['type'], name: string, tempId: string, parentId?: string): Promise<void> {
+		switch (type) {
+			case 'document':
+				// Debug: Log what we're trying to save
+				console.log('ExplorerService.save() called with:', { type, name, tempId, parentId });
+				
+				// Create actual document using app state with parentId context
+				console.log('Before app.createDocument() - app.documents count:', this.app.documents.length);
+				const savedDocument = await this.app.createDocument(name, '', parentId);
+				console.log('After app.createDocument() - saved document:', savedDocument);
+				console.log('After app.createDocument() - app.documents count:', this.app.documents.length);
+				
+				// Don't call loadRootLevel() - it replaces the documents array and loses the new document
+				
+				// Remove temporary document and clear editing state
+				this.app.removeTemporaryDocument(tempId);
+				this.app.setEditingTempDocumentId(null);
+				break;
+			case 'folder':
+				// TODO: Implement folder creation
+				break;
+			case 'character':
+				// TODO: Implement character creation
+				break;
+			case 'scene':
+				// TODO: Implement scene creation
+				break;
+			case 'manuscript':
+				// TODO: Implement manuscript creation
+				break;
 		}
 	}
 }
-
-// Note: ExplorerService should be instantiated only in the browser
-// Use: const explorerService = new ExplorerService();

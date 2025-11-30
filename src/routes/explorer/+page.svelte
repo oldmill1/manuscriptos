@@ -9,11 +9,13 @@
 	import { onMount } from 'svelte';
 	import type { PageProps } from './$types';
 	import styles from './+page.module.scss';
+	import { ExplorerService } from '$lib/services/ExplorerService';
 
 	let { data }: PageProps = $props();
 
 	// Use centralized app state
 	const app = useAppState();
+	const explorerService = new ExplorerService(app);
 	let explorerData = $state<ExplorerItem[]>([]);
 
 	onMount(async () => {
@@ -31,7 +33,7 @@
 	$effect(() => {
 		const allItems = [
 			...convertListsToExplorerItems(app.lists),
-			...convertDocumentsToExplorerItems(app.documents),
+			...convertDocumentsToExplorerItems(app.documents.filter(doc => doc.parentId === undefined)),
 			...app.temporaryFolders,
 			...app.temporaryDocuments
 		];
@@ -59,35 +61,13 @@
 	});
 
 	function handleNewDocument() {
-		// Create a temporary document with a unique ID and "Untitled Document" name
-		const tempId = `temp-doc-${crypto.randomUUID()}`;
-		const tempDocument: ExplorerItem = {
-			id: tempId,
-			name: 'Untitled Document',
-			type: 'document',
-			icon: '/icons/new.png',
-			isTemp: true,
-			isEditing: true
-		};
-		
-		app.addTemporaryDocument(tempDocument);
-		app.setEditingTempDocumentId(tempId);
+		// Use ExplorerService for document creation
+		explorerService.createTemp('document');
 	}
 
 	async function handleDocumentCreate(documentName: string, tempId: string) {
-		try {
-			// Create the actual document
-			const savedDocument = await app.createDocument(documentName, '', undefined);
-			
-			// Remove the temporary document
-			app.removeTemporaryDocument(tempId);
-			if (app.editingTempDocumentId === tempId) {
-				app.setEditingTempDocumentId(null);
-			}
-			
-		} catch (error) {
-			console.error('Failed to create document:', error);
-		}
+		// Use ExplorerService for document creation
+		await explorerService.save('document', documentName, tempId, undefined);
 	}
 
 	
