@@ -27,10 +27,6 @@
 	let error = $state<string | null>(null);
 	let currentFolderId = $state<string | undefined>(undefined);
 	let isSelectionMode = $state(false);
-	let editingTempFolderId = $state<string | null>(null);
-	let editingTempDocumentId = $state<string | null>(null);
-	let temporaryFolders = $state<any[]>([]);
-	let temporaryDocuments = $state<ExplorerItem[]>([]);
 
 	// Use centralized app state
 	const app = useAppState();
@@ -87,6 +83,10 @@
 			
 			// Set current folder ID for nested folder creation
 			currentFolderId = listId;
+			
+			// Set context in appState for consistent temporary item handling
+			app.setCurrentParentId(listId);
+			console.log('🔥 Step 2 Test: Set appState.currentParentId to:', listId);
 			if (!listId) {
 				error = 'No list specified';
 				hasLoaded = true;
@@ -126,11 +126,11 @@
 			const savedFolder = await listService.create(newFolder);
 			
 			// Remove the temporary folder
-			temporaryFolders = temporaryFolders.filter(f => f.id !== tempId);
+			app.removeTemporaryFolder(tempId);
 			
 			// Clear editing state
-			if (editingTempFolderId === tempId) {
-				editingTempFolderId = null;
+			if (app.editingTempFolderId === tempId) {
+				app.setEditingTempFolderId(null);
 			}
 			
 			// Add the new folder to childFolders to show it immediately
@@ -151,11 +151,11 @@
 			const savedCharacter = await listService.create(newCharacter);
 			
 			// Remove the temporary character
-			temporaryFolders = temporaryFolders.filter(f => f.id !== tempId);
+			app.removeTemporaryFolder(tempId);
 			
 			// Clear editing state
-			if (editingTempFolderId === tempId) {
-				editingTempFolderId = null;
+			if (app.editingTempFolderId === tempId) {
+				app.setEditingTempFolderId(null);
 			}
 			
 			// Add the new character to childFolders to show it immediately
@@ -176,11 +176,11 @@
 			const savedDocument = await documentService.create(newDocument);
 			
 			// Remove the temporary document
-			temporaryDocuments = temporaryDocuments.filter(d => d.id !== tempId);
+			app.removeTemporaryDocument(tempId);
 			
 			// Clear editing state
-			if (editingTempDocumentId === tempId) {
-				editingTempDocumentId = null;
+			if (app.editingTempDocumentId === tempId) {
+				app.setEditingTempDocumentId(null);
 			}
 			
 			// Add the new document to documents to show it immediately
@@ -211,43 +211,36 @@
 	}
 
 	function handleNewDocument() {
-		// Create a temporary document with a unique ID and "Untitled Document" name
-		const tempDocument = {
-			id: `temp-doc-${Date.now()}`, // Unique ID using timestamp
+		// Create a temporary document using appState (consistent with root explorer)
+		const tempId = `temp-doc-${crypto.randomUUID()}`;
+		const tempDocument: ExplorerItem = {
+			id: tempId,
 			name: 'Untitled Document',
+			type: 'document',
 			icon: '/icons/new.png',
-			onClick: (item: any, event: MouseEvent) => {
-				// Handle click on temporary document (optional - could open rename dialog)
-			}
+			isTemp: true,
+			isEditing: true
 		};
 		
-		// Add to temporary documents array
-		temporaryDocuments = [...temporaryDocuments, tempDocument];
-		
-		// Set this document as the one being edited
-		editingTempDocumentId = tempDocument.id;
+		app.addTemporaryDocument(tempDocument);
+		app.setEditingTempDocumentId(tempId);
 	}
 
 	function handleNewCharacter() {
-		// Create a temporary character list with a unique ID and "New Character" name
-		const tempId = `temp-char-${Date.now()}`;
-		const tempCharacter = {
+		// Create a temporary character list using appState (consistent with root explorer)
+		const tempId = `temp-char-${crypto.randomUUID()}`;
+		const tempCharacter: ExplorerItem = {
 			id: tempId,
 			name: 'New Character',
-			icon: '/icons/folder.png',
-			onClick: (item: any, event: MouseEvent) => {
-				// Handle click on temporary character (optional - could open rename dialog)
-			},
-			isFolder: true,
 			type: 'list',
+			icon: '/icons/folder.png',
+			isTemp: true,
+			isEditing: true,
 			listType: 'character'
 		};
 		
-		// Add to temporary folders array
-		temporaryFolders = [...temporaryFolders, tempCharacter];
-		
-		// Set this character as the one being edited
-		editingTempFolderId = tempId;
+		app.addTemporaryFolder(tempCharacter);
+		app.setEditingTempFolderId(tempId);
 	}
 
 	
@@ -256,21 +249,19 @@
 	}
 
 	function handleNewFolder() {
-		// Create a temporary folder with a unique ID and "New List" name
-		const tempFolder = {
-			id: `temp-${Date.now()}`, // Unique ID using timestamp
+		// Create a temporary folder using appState (consistent with root explorer)
+		const tempId = `temp-${crypto.randomUUID()}`;
+		const tempFolder: ExplorerItem = {
+			id: tempId,
 			name: 'New List',
+			type: 'list',
 			icon: '/icons/folder.png',
-			onClick: (item: any, event: MouseEvent) => {
-				// Handle click on temporary folder (optional - could open rename dialog)
-			}
+			isTemp: true,
+			isEditing: true
 		};
 		
-		// Add to temporary folders array
-		temporaryFolders = [...temporaryFolders, tempFolder];
-		
-		// Set this folder as the one being edited
-		editingTempFolderId = tempFolder.id;
+		app.addTemporaryFolder(tempFolder);
+		app.setEditingTempFolderId(tempId);
 	}
 
 	function handleSelectionToggle(enabled: boolean) {
@@ -429,9 +420,13 @@
 	const explorerData = $derived.by(() => {
 		if (!hasLoaded) return createExplorerData([], 'document', false);
 		
+		// Filter appState temporary items to only show ones for current context
+		const contextTempFolders = app.temporaryFolders.filter((f: ExplorerItem) => f.parentId === currentFolderId);
+		const contextTempDocuments = app.temporaryDocuments.filter((d: ExplorerItem) => d.parentId === currentFolderId);
+		
 		// Combine temporary folders, temporary documents, child folders, and documents
-		const temporaryFolderItems = temporaryFolders.map(f => ({ ...f, isFolder: true }));
-		const temporaryDocumentItems = temporaryDocuments.map(d => ({ ...d, isFolder: false }));
+		const temporaryFolderItems = contextTempFolders.map(f => ({ ...f, isFolder: true }));
+		const temporaryDocumentItems = contextTempDocuments.map(d => ({ ...d, isFolder: false }));
 		const childFolderItems = convertListsToExplorerItems(childFolders, handleFolderClick);
 		const documentItems = convertDocumentsToExplorerItems(documents, handleDocumentClick);
 		
@@ -467,8 +462,8 @@
 			onCopySelected={handleCopySelected}
 			onCutSelected={handleCutSelected}
 			onPasteSelected={handlePasteSelected}
-			editingTempFolderId={editingTempFolderId}
-			editingTempDocumentId={editingTempDocumentId}
+			editingTempFolderId={app.editingTempFolderId}
+			editingTempDocumentId={app.editingTempDocumentId}
 			folderIds={pathArray}
 			currentListType={list?.type}
 			currentListName={list?.name}

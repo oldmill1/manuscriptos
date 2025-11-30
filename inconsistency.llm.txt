@@ -1,0 +1,73 @@
+# Explorer State Management Inconsistency
+
+## Problem Identified
+The explorer system has inconsistent state management between root and nested pages:
+
+### Root Explorer (`/explorer/+page.svelte`)
+- Uses centralized `appState` for temporary items
+- Calls `app.addTemporaryFolder(tempFolder)` 
+- Calls `app.setEditingTempFolderId(tempId)`
+- Temporary items persist across navigation
+- Uses `crypto.randomUUID()` for IDs
+- Full `ExplorerItem` structure with proper properties
+
+### Nested Explorer (`/explorer/[...path]/+page.svelte`)
+- Uses local state variables for temporary items
+- Updates `temporaryFolders = [...temporaryFolders, tempFolder]`
+- Updates `editingTempFolderId = tempFolder.id` (local)
+- Temporary items lost when navigating away
+- Uses `Date.now()` for IDs (less unique)
+- Simple object structure, missing some properties
+
+## Issues Caused
+1. **User Confusion**: Temp items behave differently in root vs nested views
+2. **Code Duplication**: Same functionality implemented twice
+3. **Maintenance Burden**: Changes need to be made in two places
+4. **State Synchronization**: Clipboard/copy-paste may not work correctly
+5. **Inconsistent UX**: Different behavior in different contexts
+
+## Fix Plan
+### Step 1: ✅ Verify Current Behavior
+- Confirmed inconsistency exists
+- Documented differences in implementation
+
+### Step 2: Extend AppState for Context
+- Add `currentParentId` property to AppState interface
+- Add `setCurrentParentId(parentId: string | undefined)` method
+- Update nested explorer page to set this context
+
+### Step 3: Update AppState Creation Methods
+- Modify `app.addTemporaryFolder()` to accept optional `parentId`
+- Modify `app.addTemporaryDocument()` to accept optional `parentId`
+- Update root explorer page to pass `undefined` for parentId
+
+### Step 4: Migrate Nested Page to AppState
+- Remove local `temporaryFolders` and `temporaryDocuments` arrays
+- Remove local `editingTempFolderId` and `editingTempDocumentId`
+- Change nested page handlers to use appState methods
+
+### Step 5: Clean Up and Verify
+- Delete unused local state variables from nested page
+- Test temporary items persist across navigation
+- Test copy/paste works between root and nested views
+- Verify both pages behave identically
+
+### Step 6: Update Data Loading (Optional)
+- Evaluate if nested page should also use appState for data
+- Consider adding `loadFolderContents(parentId)` to appState
+
+## Testing Strategy
+After each step:
+1. Root level: Create temp folder → navigate away → return → should persist
+2. Nested level: Create temp folder → navigate away → return → should persist  
+3. Cross-context: Copy from root → paste in nested → should work
+4. UI: All buttons should work, no TypeScript errors
+
+## Key Files Involved
+- `/src/routes/explorer/+page.svelte` (root explorer)
+- `/src/routes/explorer/[...path]/+page.svelte` (nested explorer)
+- `/src/lib/stores/appState.svelte.ts` (centralized state)
+- `/src/lib/components/Explorer/Explorer.svelte` (shared component)
+
+## Goal
+Achieve consistent state management where both root and nested explorer pages use the same centralized appState pattern, resulting in identical user behavior and maintainable code.

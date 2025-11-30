@@ -3,14 +3,11 @@
 	import Dock from '$lib/components/Dock/Dock.svelte';
 	import Explorer from '$lib/components/Explorer/Explorer.svelte';
 	import type { ExplorerItem } from '$lib/components/Explorer/types';
-	import { convertDocumentsToExplorerItems, convertListsToExplorerItems, createExplorerData } from '$lib/components/Explorer/utils';
-	import MenuBar from '$lib/components/MenuBar/MenuBar.svelte';
-	import { Document } from '$lib/models/Document';
+	import { convertDocumentsToExplorerItems, convertListsToExplorerItems } from '$lib/components/Explorer/utils';
 	import { List } from '$lib/models/List';
+	import { useAppState } from '$lib/stores/appState.svelte';
 	import { onMount } from 'svelte';
 	import type { PageProps } from './$types';
-	import { useAppState } from '$lib/stores/appState.svelte';
-	import { selectedDocuments } from '$lib/stores/selectedDocuments';
 	import styles from './+page.module.scss';
 
 	let { data }: PageProps = $props();
@@ -22,6 +19,9 @@
 	onMount(async () => {
 		try {
 			await app.loadRootLevel();
+			// Set context for root level (no parent folder)
+			app.setCurrentParentId(undefined);
+			console.log('🔥 Step 2 Test: Set appState.currentParentId to undefined (root level)');
 		} catch (error) {
 			console.error('Failed to load lists or documents:', error);
 		}

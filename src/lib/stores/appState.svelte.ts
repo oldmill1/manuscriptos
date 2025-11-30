@@ -26,6 +26,9 @@ export interface AppState {
 	editingTempFolderId: string | null;
 	editingTempDocumentId: string | null;
 	
+	// Context state
+	currentParentId: string | undefined;
+	
 	// Services (singleton instances, nullable for SSR)
 	documentService: DocumentService | null;
 	listService: ListService | null;
@@ -60,6 +63,9 @@ function createAppState() {
 		// Editing state
 		editingTempFolderId: null,
 		editingTempDocumentId: null,
+		
+		// Context state
+		currentParentId: undefined,
 		
 		// Services
 		documentService,
@@ -296,16 +302,36 @@ function createAppState() {
 		},
 
 		// Temporary item management
-		addTemporaryFolder(item: ExplorerItem): void {
-			state.temporaryFolders = [...state.temporaryFolders, item];
+		addTemporaryFolder(item: ExplorerItem, parentId?: string): void {
+			// Use provided parentId or fall back to current context
+			const finalParentId = parentId ?? state.currentParentId;
+			
+			// Add parentId to the item if it's not already set
+			const itemWithContext = {
+				...item,
+				parentId: finalParentId
+			};
+			
+			state.temporaryFolders = [...state.temporaryFolders, itemWithContext];
+			console.log('🔥 Step 3 Test: Added temporary folder with parentId:', finalParentId);
 		},
 
 		removeTemporaryFolder(itemId: string): void {
 			state.temporaryFolders = state.temporaryFolders.filter(item => item.id !== itemId);
 		},
 
-		addTemporaryDocument(item: ExplorerItem): void {
-			state.temporaryDocuments = [...state.temporaryDocuments, item];
+		addTemporaryDocument(item: ExplorerItem, parentId?: string): void {
+			// Use provided parentId or fall back to current context
+			const finalParentId = parentId ?? state.currentParentId;
+			
+			// Add parentId to the item if it's not already set
+			const itemWithContext = {
+				...item,
+				parentId: finalParentId
+			};
+			
+			state.temporaryDocuments = [...state.temporaryDocuments, itemWithContext];
+			console.log('🔥 Step 3 Test: Added temporary document with parentId:', finalParentId);
 		},
 
 		removeTemporaryDocument(itemId: string): void {
@@ -324,6 +350,10 @@ function createAppState() {
 
 		setEditingTempDocumentId(documentId: string | null): void {
 			state.editingTempDocumentId = documentId;
+		},
+
+		setCurrentParentId(parentId: string | undefined): void {
+			state.currentParentId = parentId;
 		},
 
 
