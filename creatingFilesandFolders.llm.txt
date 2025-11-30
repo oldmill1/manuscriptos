@@ -25,11 +25,11 @@ export class Document implements FileSystemItem {
 ### List (Folders)
 ```typescript
 // Location: /src/lib/models/List.ts
-export type ListType = null | undefined | 'character' | 'manuscript';
+export type ListType = null | undefined | 'character' | 'manuscript' | 'scene';
 
 export interface ListContent {
     id: string;
-    type: ListType;      // 'character' | 'manuscript' | undefined (regular folder)
+    type: ListType;      // 'character' | 'manuscript' | 'scene' | undefined (regular folder)
     name: string;
     itemIds: string[];   // IDs of items in this folder
     parentId?: string;   // Parent folder ID for nesting
@@ -68,7 +68,7 @@ interface AppState {
 
 ## Creation Flow - Step by Step
 
-### 1. User Clicks "New Folder/Document/Character"
+### 1. User Clicks "New Folder/Document/Character/Scene"
 **Location**: Explorer component navbar buttons
 ```typescript
 // /src/lib/components/Explorer/Explorer.svelte
@@ -76,7 +76,7 @@ interface AppState {
 if (currentPath === '/explorer') {
     show: ["New Manuscript"]
 } else {
-    show: ["New Folder", "New Document", "New Character"]
+    show: ["New Folder", "New Document", "New Character", "New Scene"]
 }
 ```
 
@@ -90,6 +90,10 @@ async function handleNewFolder() {
 
 async function handleNewCharacter() {
     onNewCharacter?.();   // Call route's handler
+}
+
+async function handleNewScene() {
+    onNewScene?.();       // Call route's handler
 }
 ```
 
@@ -664,6 +668,23 @@ function handleNewCharacter() {
     app.setEditingTempFolderId(tempId);
 }
 
+function handleNewScene() {
+    // Create a temporary scene using appState
+    const tempId = `temp-scene-${crypto.randomUUID()}`;
+    const tempScene: ExplorerItem = {
+        id: tempId,
+        name: 'New Scene',
+        type: 'list',
+        icon: '/icons/scene.png',
+        isTemp: true,
+        isEditing: true,
+        listType: 'scene'
+    };
+    
+    app.addTemporaryFolder(tempScene);
+    app.setEditingTempFolderId(tempId);
+}
+
 // 👇 ADD YOUR HANDLER FUNCTION HERE
 function handleNewWhatever() {
     // DECIDE: Create List OR Document?
@@ -709,7 +730,7 @@ async function handleFolderCreate(folderName: string, tempId: string) {
     try {
         const savedList = await app.createList({
             name: folderName,
-            type: 'custom',  // OR 'character' OR 'manuscript'
+            type: 'custom',  // OR 'character' OR 'manuscript' OR 'scene'
             parentId: currentFolderId
         });
         
@@ -718,6 +739,23 @@ async function handleFolderCreate(folderName: string, tempId: string) {
         await loadFolderContents();
     } catch (error) {
         console.error('Failed to create folder:', error);
+    }
+}
+
+async function handleSceneCreate(sceneName: string, tempId: string) {
+    try {
+        const newScene = new List('scene', sceneName, currentFolderId);
+        const savedScene = await listService.create(newScene);
+        
+        app.removeTemporaryFolder(tempId);
+        app.setEditingTempFolderId(null);
+        
+        // Add the new scene to childFolders to show it immediately
+        const updatedChildFolders = [...childFolders, savedScene];
+        updatedChildFolders.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+        childFolders = updatedChildFolders;
+    } catch (error) {
+        console.error('Failed to create scene:', error);
     }
 }
 
@@ -1028,6 +1066,80 @@ http://localhost:5173/explorer
 ### Issue: Item saves in wrong location
 **Cause**: parentId not set correctly
 **Solution**: Check appState context and parentId handling
+
+### ⚠️ CRITICAL: ExplorerItem Editing Logic
+**The #1 reason new buttons don't work**: Missing ExplorerItem.svelte updates!
+
+**Symptoms if you miss this step:**
+- Button appears and creates temporary item ✅
+- Item shows correct icon ✅  
+- But NO input field appears (shows label instead) ❌
+- Can't edit name or press Enter ❌
+- Item disappears on refresh ❌
+
+**Solution**: Update ExplorerItem.svelte with your new type:
+
+#### Required ExplorerItem Updates
+```typescript
+// 1. Props interface (around line 18)
+onWhateverCreate?: (whateverName: string, tempId: string) => void;
+
+// 2. Props destructuring (around line 32)
+onWhateverCreate,
+
+// 3. Temporary detection (around line 180)
+const isTempWhatever = item.id.startsWith('temp-whatever-');
+
+// 4. Creation logic (around line 190)
+} else if (isTempWhatever && onWhateverCreate) {
+    onWhateverCreate(editingValue, item.id);
+
+// 5. Icon display (around line 40)
+if (item.listType === 'whatever') {
+    return '/icons/whatever.png';
+}
+
+// 6. Temp folder detection (exclude your type)
+const isTempFolder = item.id.startsWith('temp-') && 
+    !item.id.startsWith('temp-doc-') && 
+    !item.id.startsWith('temp-char-') && 
+    !item.id.startsWith('temp-whatever-') && 
+    !item.id.startsWith('temp-manuscript-');
+```
+
+## 🚀 Future-Proof Pattern: Use isTemp Instead of Icons
+
+### OLD PROBLEM: Hardcoded Icon Hell
+```typescript
+// MAINTENANCE NIGHTMARE - Don't do this!
+if (forceEditing && (item.icon === '/icons/folder.png' || item.icon === '/icons/new.png' || item.icon === '/icons/scene.png' || item.icon === '/icons/whatever.png') && !isEditing) {
+    isEditing = true;
+}
+
+{#if isEditing && (item.icon === '/icons/folder.png' || item.icon === '/icons/new.png' || item.icon === '/icons/scene.png' || item.icon === '/icons/whatever.png')}
+    <input />
+{/if}
+```
+
+### NEW SOLUTION: Semantic isTemp Pattern
+```typescript
+// FUTURE-PROOF - Works for ALL temporary items automatically!
+if (forceEditing && item.isTemp && !isEditing) {
+    isEditing = true;
+}
+
+{#if isEditing && (item.isTemp || !item.isFolder)}
+    <input />
+{/if}
+```
+
+**Benefits:**
+- ✅ **Zero maintenance** for future ListTypes
+- ✅ **Works automatically** for any new type you add
+- ✅ **Clearer intent** - temporary items should be editable
+- ✅ **Single source of truth** - uses the `isTemp` flag
+
+**The Scene implementation established this pattern - use it for all future ListTypes!**
 
 ### Issue: Different behavior in root vs nested
 **Cause**: Handler functions differ between routes
