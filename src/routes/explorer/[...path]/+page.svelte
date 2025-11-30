@@ -169,6 +169,31 @@
 		}
 	}
 
+	async function handleSceneCreate(sceneName: string, tempId: string) {
+		try {
+			// Create the real scene list using ListService with parentId
+			const newScene = new List('scene', sceneName, currentFolderId);
+			const savedScene = await listService.create(newScene);
+			
+			// Remove the temporary scene
+			app.removeTemporaryFolder(tempId);
+			
+			// Clear editing state
+			if (app.editingTempFolderId === tempId) {
+				app.setEditingTempFolderId(null);
+			}
+			
+			// Add the new scene to childFolders to show it immediately
+			const updatedChildFolders = [...childFolders, savedScene];
+			// Sort by creation date, newest first
+			updatedChildFolders.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+			childFolders = updatedChildFolders;
+			
+		} catch (error) {
+			console.error('Failed to create scene:', error);
+		}
+	}
+
 	async function handleDocumentCreate(documentName: string, tempId: string) {
 		try {
 			// Create the real document using DocumentService with parentId
@@ -240,6 +265,23 @@
 		};
 		
 		app.addTemporaryFolder(tempCharacter);
+		app.setEditingTempFolderId(tempId);
+	}
+
+	function handleNewScene() {
+		// Create a temporary scene list using appState (consistent with other handlers)
+		const tempId = `temp-scene-${crypto.randomUUID()}`;
+		const tempScene: ExplorerItem = {
+			id: tempId,
+			name: 'New Scene',
+			type: 'list',
+			icon: '/icons/scene.png',
+			isTemp: true,
+			isEditing: true,
+			listType: 'scene'
+		};
+		
+		app.addTemporaryFolder(tempScene);
 		app.setEditingTempFolderId(tempId);
 	}
 
@@ -454,11 +496,13 @@
 			onNewFolder={handleNewFolder}
 			onNewDocument={handleNewDocument}
 			onNewCharacter={handleNewCharacter}
+			onNewScene={handleNewScene}
 			onFolderCreate={handleFolderCreate}
 			onFolderRename={handleFolderRename}
 			onDocumentCreate={handleDocumentCreate}
 			onDocumentRename={handleDocumentRename}
 			onCharacterCreate={handleCharacterCreate}
+			onSceneCreate={handleSceneCreate}
 			onCopySelected={handleCopySelected}
 			onCutSelected={handleCutSelected}
 			onPasteSelected={handlePasteSelected}

@@ -1,0 +1,476 @@
+# Lists vs Documents - Complete Architecture Guide
+
+## Overview
+This document explains the fundamental differences between Lists and Documents in ManuscriptOS, what ListType is, and how to add and customize new List types with proper icons and behavior.
+
+## Core Concepts
+
+### What is a "List" Resource?
+A **List** represents a **folder/container** in the file system. It's used to organize and group other items.
+
+#### Key Characteristics:
+- **Container**: Holds other Lists and Documents
+- **Hierarchical**: Can be nested inside other Lists
+- **Typed**: Has a `ListType` that determines its purpose/behavior
+- **Organizational**: Used for structuring content
+
+#### Examples:
+- **Regular Folder**: Contains documents and other folders
+- **Character List**: Contains character-related documents
+- **Manuscript List**: Contains manuscript chapters/scenes
+- **Scene List**: Contains scenes for a story
+
+#### Data Structure:
+```typescript
+// Location: /src/lib/models/List.ts
+export interface ListContent {
+    id: string;
+    type: ListType;          // 👈 The typed nature of Lists
+    name: string;            // "Chapter 1", "Characters", "Scenes"
+    itemIds: string[];       // IDs of items inside this folder
+    parentId?: string;       // Parent folder for nesting
+    path: string;            // Full path: "/root/manuscript/chapter1"
+    level: number;           // Hierarchy depth
+    documentIds: string[];   // Direct document references
+    createdAt: Date;
+    updatedAt: Date;
+}
+```
+
+### What is a "Document" Resource?
+A **Document** represents a **file/content** in the file system. It's the actual content users work with.
+
+#### Key Characteristics:
+- **Content**: Contains text/content users edit
+- **Generic**: All documents have the same structure
+- **Leaf Node**: Cannot contain other items
+- **Content-based**: Different types = different content, not different structure
+
+#### Examples:
+- **Chapter Document**: Contains chapter text
+- **Note Document**: Contains meeting notes
+- **Scene Document**: Contains scene description
+- **Character Bio**: Contains character details
+
+#### Data Structure:
+```typescript
+// Location: /src/lib/models/Document.ts
+export interface DocumentContent {
+    id: string;
+    title: string;           // "Chapter 1", "Meeting Notes"
+    content: string;         // The actual text content
+    parentId?: string;       // Which folder contains this document
+    createdAt: Date;
+    updatedAt: Date;
+    // 👈 NO "type" field - Documents are generic!
+}
+```
+
+## Fundamental Differences
+
+### Lists vs Documents Comparison
+
+| Aspect | Lists (Folders) | Documents (Files) |
+|--------|----------------|------------------|
+| **Purpose** | Organization | Content |
+| **Structure** | Container | Leaf node |
+| **Type System** | Typed (`ListType`) | Generic |
+| **Nesting** | Can contain items | Cannot contain items |
+| **Hierarchy** | Hierarchical | Flat content |
+| **Icon System** | Type-specific icons | Generic document icon |
+| **Creation Logic** | Type determines behavior | Content determines purpose |
+| **Database Storage** | `type` field stored | No type field |
+
+### Visual Hierarchy Example:
+```
+📁 Manuscript (List - type: 'manuscript')
+├── 📁 Chapter 1 (List - type: 'custom')
+│   ├── 📄 Scene 1 (Document - generic)
+│   └── 📄 Scene 2 (Document - generic)
+├── 📁 Characters (List - type: 'character')
+│   ├── 📄 John Doe (Document - generic)
+│   └── 📄 Jane Smith (Document - generic)
+└── 📄 Cover Letter (Document - generic)
+```
+
+## What is ListType?
+
+### Definition
+`ListType` is a TypeScript enum that defines the **semantic purpose** of a List folder.
+
+### Current ListType Definition:
+```typescript
+// Location: /src/lib/models/List.ts (Line ~3)
+export type ListType = null | undefined | 'character' | 'manuscript';
+```
+
+### What Each Type Means:
+- **`null | `undefined`**: Regular folder (no special purpose)
+- **`'character'`**: Character organization folder
+- **`'manuscript'`**: Manuscript/chapter organization folder
+- **`'scene'`**: Scene organization folder (example of new type)
+
+### Why ListType Exists:
+1. **Semantic Meaning**: Different folders have different purposes
+2. **UI Differentiation**: Different icons per type
+3. **Behavior Logic**: Different types can have different creation rules
+4. **Organization**: Helps users understand folder purposes
+5. **Future Features**: Can enable type-specific features
+
+## Adding a New List Type - Complete Guide
+
+### Scenario: Adding "Scene" Type
+You want to add a new ListType called `'scene'` for organizing story scenes.
+
+### Step 1: Add Type to Enum
+**Location**: `/src/lib/models/List.ts`
+```typescript
+// BEFORE (Line ~3)
+export type ListType = null | undefined | 'character' | 'manuscript';
+
+// AFTER
+export type ListType = null | undefined | 'character' | 'manuscript' | 'scene';
+```
+
+### Step 2: Use the Type in Creation Logic
+**Location**: Route handlers where you create Lists
+```typescript
+// Example: In /src/routes/explorer/[...path]/+page.svelte
+async function handleSceneCreate(sceneName: string, tempId: string) {
+    try {
+        const savedList = await app.createList({
+            name: sceneName,
+            type: 'scene',        // 👈 Your new type
+            parentId: currentFolderId
+        });
+        
+        app.removeTemporaryFolder(tempId);
+        app.setEditingTempFolderId(null);
+        await loadFolderContents();
+    } catch (error) {
+        console.error('Failed to create scene:', error);
+    }
+}
+```
+
+### Step 3: Add Button to Navigation (Optional)
+**Location**: `/src/lib/components/Explorer/Explorer.svelte`
+```typescript
+// Add to navButtons array
+{
+    id: 'scene',
+    label: 'New Scene',
+    icon: '/icons/scene.png',  // 👈 Custom icon
+    onClick: handleNewScene
+}
+```
+
+## Customizing List Type Icons
+
+### Icon System Overview
+Icons are stored in `/static/icons/` and served from the root URL.
+
+### Step 1: Add Icon File
+**Location**: `/static/icons/scene.png`
+```bash
+# Add your icon file
+# Recommended size: 24x24 or 32x32 pixels
+# Format: PNG with transparency
+```
+
+### Step 2: Reference Icon in Code
+**Location**: Route handlers
+```typescript
+// In your route handler function
+function handleNewScene() {
+    const tempId = `temp-${crypto.randomUUID()}`;
+    const tempScene: ExplorerItem = {
+        id: tempId,
+        name: 'New Scene',
+        type: 'list',
+        icon: '/icons/scene.png',  // 👈 Your custom icon
+        isTemp: true,
+        isEditing: true
+    };
+    
+    app.addTemporaryFolder(tempScene);
+    app.setEditingTempFolderId(tempId);
+}
+```
+
+### Step 3: Icon URL Resolution
+```typescript
+// Static files in /static/ are served from root
+// So /static/icons/scene.png becomes /icons/scene.png
+
+// ✅ Correct paths
+icon: '/icons/scene.png'
+icon: '/icons/character.png'
+icon: '/icons/manuscript.png'
+
+// ❌ Wrong paths
+icon: 'scene.png'           // Looks in root, not /icons/
+icon: '/static/icons/scene.png'  // Double /static/
+icon: './icons/scene.png'   // Relative path doesn't work
+```
+
+## Complete Implementation Example
+
+### Adding "Scene" List Type - All Files Modified
+
+### File 1: List Model
+**Location**: `/src/lib/models/List.ts`
+```typescript
+export type ListType = null | undefined | 'character' | 'manuscript' | 'scene';
+```
+
+### File 2: Explorer Component - Add Button
+**Location**: `/src/lib/components/Explorer/Explorer.svelte`
+```typescript
+// Add to Props interface
+interface Props {
+    onNewFolder?: () => void;
+    onNewDocument?: () => void;
+    onNewCharacter?: () => void;
+    onNewScene?: () => void;  // 👈 New prop
+    // ... other props
+}
+
+// Add delegate function
+async function handleNewScene() {
+    onNewScene?.();
+}
+
+// Add to navButtons
+{
+    id: 'scene',
+    label: 'New Scene',
+    icon: '/icons/scene.png',
+    onClick: handleNewScene
+}
+```
+
+### File 3: Nested Explorer Page - Handler Logic
+**Location**: `/src/routes/explorer/[...path]/+page.svelte`
+```typescript
+// Add handler function
+function handleNewScene() {
+    const tempId = `temp-${crypto.randomUUID()}`;
+    const tempScene: ExplorerItem = {
+        id: tempId,
+        name: 'New Scene',
+        type: 'list',
+        icon: '/icons/scene.png',  // 👈 Custom icon
+        isTemp: true,
+        isEditing: true
+    };
+    
+    app.addTemporaryFolder(tempScene);
+    app.setEditingTempFolderId(tempId);
+}
+
+// Add create handler
+async function handleSceneCreate(sceneName: string, tempId: string) {
+    try {
+        const savedList = await app.createList({
+            name: sceneName,
+            type: 'scene',        // 👈 New type
+            parentId: currentFolderId
+        });
+        
+        app.removeTemporaryFolder(tempId);
+        app.setEditingTempFolderId(null);
+        await loadFolderContents();
+    } catch (error) {
+        console.error('Failed to create scene:', error);
+    }
+}
+
+// Pass props to Explorer
+<Explorer 
+    onNewScene={handleNewScene}
+    onSceneCreate={handleSceneCreate}
+    // ... other props
+/>
+```
+
+### File 4: Icon Asset
+**Location**: `/static/icons/scene.png`
+```bash
+# Add your 24x24 PNG icon file here
+```
+
+## Advanced Customization
+
+### Custom Default Names per Type
+```typescript
+// Different default names based on type
+const getDefaultName = (type: ListType): string => {
+    switch (type) {
+        case 'character': return 'New Character';
+        case 'manuscript': return 'New Manuscript';
+        case 'scene': return 'New Scene';
+        default: return 'New List';
+    }
+};
+```
+
+### Custom Behavior per Type
+```typescript
+// Different creation logic per type
+const createListByType = async (type: ListType, name: string, parentId?: string) => {
+    switch (type) {
+        case 'scene':
+            // Scenes get special template content
+            return await app.createList({
+                name,
+                type: 'scene',
+                parentId,
+                template: 'scene-template'  // Custom property
+            });
+        case 'character':
+            // Characters get character template
+            return await app.createList({
+                name,
+                type: 'character',
+                parentId,
+                template: 'character-template'
+            });
+        default:
+            return await app.createList({ name, type, parentId });
+    }
+};
+```
+
+### Type-Specific Icons Logic
+```typescript
+// Dynamic icon selection based on type
+const getIconForType = (type: ListType): string => {
+    switch (type) {
+        case 'character': return '/icons/fantasy.png';
+        case 'manuscript': return '/icons/manuscript.png';
+        case 'scene': return '/icons/scene.png';
+        default: return '/icons/folder.png';
+    }
+};
+```
+
+## Testing Your New List Type
+
+### Step 1: Verify Type Recognition
+```typescript
+// Test that TypeScript recognizes your new type
+const testType: ListType = 'scene';  // Should compile without error
+```
+
+### Step 2: Test Creation
+```typescript
+// Create a scene list and verify it's saved correctly
+const scene = await app.createList({
+    name: 'Test Scene',
+    type: 'scene',
+    parentId: 'some-folder-id'
+});
+
+console.log(scene.type);  // Should output: 'scene'
+```
+
+### Step 3: Test Icon Display
+```typescript
+// Navigate to nested explorer
+// Click "New Scene" button
+// Verify scene.png icon appears
+```
+
+### Step 4: Test Persistence
+```typescript
+// Create scene, refresh page
+// Verify scene still exists with correct type
+// Check database: type field should be 'scene'
+```
+
+## Common Issues and Solutions
+
+### Issue: TypeScript doesn't recognize new type
+**Cause**: Type not added to enum correctly
+**Solution**: Check `/src/lib/models/List.ts` for syntax errors
+
+### Issue: Icon not displaying
+**Cause**: Wrong icon path or missing file
+**Solution**: Verify icon exists at `/static/icons/scene.png` and path is `/icons/scene.png`
+
+### Issue: Button not appearing
+**Cause**: Props not passed correctly to Explorer component
+**Solution**: Check all 3 places: Props interface, delegate function, navButtons array
+
+### Issue: Type not saving to database
+**Cause**: Not passing type in createList call
+**Solution**: Ensure `type: 'scene'` is included in createList parameters
+
+### Issue: Different behavior per type not working
+**Cause**: Not checking type in your logic
+**Solution**: Add type-specific logic in your handlers
+
+## Best Practices
+
+### 1. Type Naming
+```typescript
+// ✅ Good: Descriptive, lowercase
+'scene' | 'location' | 'chapter' | 'act'
+
+// ❌ Bad: Vague or inconsistent
+'s' | 'Scene' | 'SCENE' | 'scene_type'
+```
+
+### 2. Icon Consistency
+```typescript
+// ✅ Good: Consistent naming convention
+/icons/scene.png
+/icons/character.png
+/icons/location.png
+
+// ❌ Bad: Inconsistent naming
+/icons/scene-icon.png
+/icons/Character.png
+/icons/locations.png
+```
+
+### 3. Default Names
+```typescript
+// ✅ Good: Clear, descriptive defaults
+'New Scene' | 'New Character' | 'New Location'
+
+// ❌ Bad: Generic or unclear names
+'New Item' | 'Thing' | 'Object'
+```
+
+### 4. Error Handling
+```typescript
+// ✅ Good: Type-safe error handling
+if (!isValidListType(type)) {
+    throw new Error(`Invalid ListType: ${type}`);
+}
+
+// ✅ Good: Graceful fallbacks
+const icon = getIconForType(type) || '/icons/folder.png';
+```
+
+## Summary
+
+### Lists are typed containers for organization
+- Have `ListType` enum for semantic meaning
+- Can be nested and contain other items
+- Different types get different icons and behavior
+
+### Documents are generic content files
+- All documents have the same structure
+- Different purposes come from content, not type
+- Cannot contain other items
+
+### Adding new List types requires:
+1. **Add to enum** in `/src/lib/models/List.ts`
+2. **Use in creation logic** with `type: 'your-type'`
+3. **Add icon** to `/static/icons/your-type.png`
+4. **Optional: Add button** to navigation if needed
+
+This system provides flexible, typed organization while keeping documents simple and generic.

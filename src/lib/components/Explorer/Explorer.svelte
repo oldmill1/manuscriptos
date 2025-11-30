@@ -23,12 +23,14 @@
 		onNewFolder?: () => void;
 		onNewDocument?: () => void;
 		onNewCharacter?: () => void;
+		onNewScene?: () => void;
 		onNewManuscript?: () => void;
 		onFolderCreate?: (folderName: string, tempId: string) => void;
 		onFolderRename?: (folderId: string, newName: string) => void;
 		onDocumentCreate?: (documentName: string, tempId: string) => void;
 		onDocumentRename?: (documentId: string, newName: string) => void;
 		onCharacterCreate?: (characterName: string, tempId: string) => void;
+		onSceneCreate?: (sceneName: string, tempId: string) => void;
 		onManuscriptCreate?: (manuscriptName: string, tempId: string) => void;
 		onCopySelected?: () => void;
 		onCutSelected?: () => void;
@@ -51,12 +53,14 @@
 		onNewFolder,
 		onNewDocument,
 		onNewCharacter,
+		onNewScene,
 		onNewManuscript,
 		onFolderCreate,
 		onFolderRename,
 		onDocumentCreate,
 		onDocumentRename,
 		onCharacterCreate,
+		onSceneCreate,
 		onManuscriptCreate,
 		onCopySelected,
 		onCutSelected,
@@ -138,6 +142,12 @@
 				label: 'New Character',
 				icon: '/icons/fantasy.png',
 				onClick: handleNewCharacter
+			},
+			{
+				id: 'scene',
+				label: 'New Scene',
+				icon: '/icons/scene.png',
+				onClick: handleNewScene
 			}
 		];
 	});
@@ -220,6 +230,11 @@
 		onNewCharacter?.();
 	}
 
+	async function handleNewScene() {
+		// Call the parent's new scene handler
+		onNewScene?.();
+	}
+
 	async function handleNewManuscript() {
 		// Call the parent's new manuscript handler
 		onNewManuscript?.();
@@ -270,6 +285,7 @@
 						onDocumentCreate={onDocumentCreate}
 						onDocumentRename={onDocumentRename}
 						onCharacterCreate={onCharacterCreate}
+						onSceneCreate={onSceneCreate}
 						onManuscriptCreate={onManuscriptCreate}
 						forceEditing={editingTempFolderId === item.id || editingTempDocumentId === item.id}
 					/>

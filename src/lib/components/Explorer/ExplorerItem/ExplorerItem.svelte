@@ -16,6 +16,7 @@
 		onDocumentCreate?: (documentName: string, tempId: string) => void;
 		onDocumentRename?: (documentId: string, newName: string) => void;
 		onCharacterCreate?: (characterName: string, tempId: string) => void;
+		onSceneCreate?: (sceneName: string, tempId: string) => void;
 		onManuscriptCreate?: (manuscriptName: string, tempId: string) => void;
 		forceEditing?: boolean;
 	}
@@ -29,6 +30,7 @@
 		onDocumentCreate,
 		onDocumentRename,
 		onCharacterCreate,
+		onSceneCreate,
 		onManuscriptCreate,
 		forceEditing = false
 	}: Props = $props();
@@ -40,6 +42,9 @@
 		}
 		if (item.listType === 'manuscript') {
 			return '/icons/manuscript.png';
+		}
+		if (item.listType === 'scene') {
+			return '/icons/scene.png';
 		}
 		return item.icon;
 	});
@@ -69,7 +74,7 @@
 	
 	// Handle force editing for new folders and documents
 	$effect(() => {
-		if (forceEditing && (item.icon === '/icons/folder.png' || item.icon === '/icons/new.png') && !isEditing) {
+		if (forceEditing && (item.icon === '/icons/folder.png' || item.icon === '/icons/new.png' || item.icon === '/icons/scene.png') && !isEditing) {
 			isEditing = true;
 			editingValue = item.name;
 			// Focus the input after it's rendered
@@ -165,14 +170,16 @@
 		if (event.key === 'Enter') {
 			event.preventDefault();
 			event.stopPropagation();
-			// Check if this is a temporary folder (starts with 'temp-' but NOT 'temp-doc-', 'temp-char-', or 'temp-manuscript-')
-			const isTempFolder = item.id.startsWith('temp-') && !item.id.startsWith('temp-doc-') && !item.id.startsWith('temp-char-') && !item.id.startsWith('temp-manuscript-');
+			// Check if this is a temporary folder (starts with 'temp-' but NOT 'temp-doc-', 'temp-char-', 'temp-scene-', or 'temp-manuscript-')
+			const isTempFolder = item.id.startsWith('temp-') && !item.id.startsWith('temp-doc-') && !item.id.startsWith('temp-char-') && !item.id.startsWith('temp-scene-') && !item.id.startsWith('temp-manuscript-');
 			// Check if this is a temporary document (starts with 'temp-doc-')
 			const isTempDocument = item.id.startsWith('temp-doc-');
 			// Check if this is a temporary character (starts with 'temp-char-')
 			const isTempCharacter = item.id.startsWith('temp-char-');
 			// Check if this is a temporary manuscript (starts with 'temp-manuscript-')
 			const isTempManuscript = item.id.startsWith('temp-manuscript-');
+			// Check if this is a temporary scene (starts with 'temp-scene-')
+			const isTempScene = item.id.startsWith('temp-scene-');
 			
 			// Set flag to prevent blur from running
 			isExitingByEnter = true;
@@ -187,10 +194,13 @@
 				} else if (isTempCharacter && onCharacterCreate) {
 					// Create new character
 					onCharacterCreate(editingValue, item.id);
+				} else if (isTempScene && onSceneCreate) {
+					// Create new scene
+					onSceneCreate(editingValue, item.id);
 				} else if (isTempManuscript && onManuscriptCreate) {
 					// Create new manuscript
 					onManuscriptCreate(editingValue, item.id);
-				} else if (!isTempFolder && !isTempDocument && !isTempCharacter && !isTempManuscript) {
+				} else if (!isTempFolder && !isTempDocument && !isTempCharacter && !isTempScene && !isTempManuscript) {
 					// Rename existing item
 					if (item.isFolder && onFolderRename) {
 						// Rename existing folder
@@ -260,7 +270,7 @@
 			</div>
 		{/if}
 		<img src={displayIcon} alt={item.name} class={styles.icon} />
-		{#if isEditing && (item.icon === '/icons/folder.png' || item.icon === '/icons/new.png' || !item.isFolder)}
+		{#if isEditing && (item.icon === '/icons/folder.png' || item.icon === '/icons/new.png' || item.icon === '/icons/scene.png' || !item.isFolder)}
 			<input 
 				type="text" 
 				bind:this={inputElement}

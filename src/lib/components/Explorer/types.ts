@@ -7,7 +7,7 @@ export interface ExplorerItem {
 	type?: 'list' | 'document';
 	isTemp?: boolean;
 	isEditing?: boolean;
-	listType?: 'character' | 'manuscript' | null; // List type for determining special icons
+	listType?: 'character' | 'manuscript' | 'scene' | null; // List type for determining special icons
 	parentId?: string | undefined; // Parent folder context for temporary items
 }
 

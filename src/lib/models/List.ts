@@ -1,6 +1,6 @@
 import type { FileSystemItem } from '$lib/interfaces/FileSystemItem';
 
-export type ListType = null | undefined | 'character' | 'manuscript';
+export type ListType = null | undefined | 'character' | 'manuscript' | 'scene';
 
 export interface ListContent {
 	id: string;
