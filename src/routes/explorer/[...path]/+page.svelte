@@ -1,17 +1,14 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-	import { onMount } from 'svelte';
-	import { List } from '$lib/models/List';
-	import { Document } from '$lib/models/Document';
-	import { ListService } from '$lib/services/ListService';
-	import { DocumentService } from '$lib/services/DocumentService';
 	import Explorer from '$lib/components/Explorer/Explorer.svelte';
-	import MenuBar from '$lib/components/MenuBar/MenuBar.svelte';
 	import type { ExplorerItem } from '$lib/components/Explorer/types';
 	import { convertDocumentsToExplorerItems, convertListsToExplorerItems, createExplorerData } from '$lib/components/Explorer/utils';
-	import type { PageProps } from './$types';
+	import { Document } from '$lib/models/Document';
+	import { List } from '$lib/models/List';
+	import { DocumentService } from '$lib/services/DocumentService';
+	import { ListService } from '$lib/services/ListService';
 	import { useAppState } from '$lib/stores/appState.svelte';
-	import { selectedDocuments } from '$lib/stores/selectedDocuments';
+	import { onMount } from 'svelte';
+	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 
