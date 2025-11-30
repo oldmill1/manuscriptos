@@ -220,20 +220,6 @@
 			<BreadcrumbTrail {folderIds} />
 			<div class={styles.desktop}>
 			{#if data.hasLoaded}
-				<!-- Action row for home route only -->
-				{#if !currentListType}
-					<div class={styles.actionRow}>
-						<AquaButton 
-							text="Create New Manuscript"
-							onClick={handleNewManuscript}
-							slate={true}
-							disabled={false}
-							type="button"
-							textSize="16px"
-						/>
-					</div>
-				{/if}
-				
 				<!-- Action row for character lists -->
 				{#if currentListType === 'character'}
 					<div class={styles.actionRow}>
