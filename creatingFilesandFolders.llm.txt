@@ -1,0 +1,973 @@
+# Creating Files and Folders - Complete Architecture Guide
+
+## Overview
+This document explains how Documents (files) and Lists (folders) are created, stored, and modified in the ManuscriptOS application. Understanding this flow is crucial for maintaining consistency and debugging issues.
+
+## Data Models
+
+### Document (Files)
+```typescript
+// Location: /src/lib/models/Document.ts
+export interface DocumentContent {
+    id: string;
+    title: string;
+    content: string;
+    parentId?: string;    // Which folder contains this document
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+export class Document implements FileSystemItem {
+    // Properties and methods for document management
+}
+```
+
+### List (Folders)
+```typescript
+// Location: /src/lib/models/List.ts
+export type ListType = null | undefined | 'character' | 'manuscript';
+
+export interface ListContent {
+    id: string;
+    type: ListType;      // 'character' | 'manuscript' | undefined (regular folder)
+    name: string;
+    itemIds: string[];   // IDs of items in this folder
+    parentId?: string;   // Parent folder ID for nesting
+    path: string;        // Full path like "/root/folder/subfolder"
+    level: number;       // Hierarchy depth
+    documentIds: string[]; // Direct document references
+    createdAt: Date;
+    updatedAt: Date;
+}
+```
+
+## Storage Architecture
+
+### Primary Storage: PouchDB
+```typescript
+// Location: /src/lib/stores/appState.svelte.ts
+// All data is stored in PouchDB database
+const database = new PouchDatabase('manuscriptOS_DB');
+
+// Services handle database operations
+const documentService = new DocumentService(database);
+const listService = new ListService();
+```
+
+### Centralized State Management
+```typescript
+// AppState manages reactive state
+interface AppState {
+    documents: Document[];        // All documents in memory
+    lists: List[];               // All lists/folders in memory
+    temporaryFolders: ExplorerItem[];  // Temporary items being created
+    temporaryDocuments: ExplorerItem[]; // Temporary documents being created
+    // ... other state
+}
+```
+
+## Creation Flow - Step by Step
+
+### 1. User Clicks "New Folder/Document/Character"
+**Location**: Explorer component navbar buttons
+```typescript
+// /src/lib/components/Explorer/Explorer.svelte
+// Route determines which buttons are shown:
+if (currentPath === '/explorer') {
+    show: ["New Manuscript"]
+} else {
+    show: ["New Folder", "New Document", "New Character"]
+}
+```
+
+### 2. Explorer Component Delegates to Route
+**Location**: Explorer component event handlers
+```typescript
+// /src/lib/components/Explorer/Explorer.svelte
+async function handleNewFolder() {
+    onNewFolder?.();      // Call route's handler
+}
+
+async function handleNewCharacter() {
+    onNewCharacter?.();   // Call route's handler
+}
+```
+
+### 3. Route Handler Creates Temporary Item
+**Location**: Route-specific page files
+
+#### Root Explorer (/src/routes/explorer/+page.svelte)
+```typescript
+function handleNewManuscript() {
+    const tempId = `temp-${crypto.randomUUID()}`;
+    const tempManuscript: ExplorerItem = {
+        id: tempId,
+        name: 'New Manuscript',
+        type: 'list',
+        icon: '/icons/manuscript.png',
+        isTemp: true,
+        isEditing: true
+    };
+    
+    app.addTemporaryFolder(tempManuscript);  // Add to appState
+    app.setEditingTempFolderId(tempId);
+}
+```
+
+#### Nested Explorer (/src/routes/explorer/[...path]/+page.svelte)
+```typescript
+function handleNewFolder() {
+    const tempId = `temp-${crypto.randomUUID()}`;
+    const tempFolder: ExplorerItem = {
+        id: tempId,
+        name: 'New List',
+        type: 'list',
+        icon: '/icons/folder.png',
+        isTemp: true,
+        isEditing: true
+    };
+    
+    app.addTemporaryFolder(tempFolder);     // Add to appState
+    app.setEditingTempFolderId(tempId);
+}
+
+function handleNewDocument() {
+    const tempId = `temp-doc-${crypto.randomUUID()}`;
+    const tempDocument: ExplorerItem = {
+        id: tempId,
+        name: 'Untitled Document',
+        type: 'document',
+        icon: '/icons/ai.png',
+        isTemp: true,
+        isEditing: true
+    };
+    
+    app.addTemporaryDocument(tempDocument); // Add to appState
+    app.setEditingTempDocumentId(tempId);
+}
+```
+
+### 4. AppState Manages Temporary Items
+**Location**: /src/lib/stores/appState.svelte.ts
+```typescript
+addTemporaryFolder(item: ExplorerItem, parentId?: string): void {
+    const finalParentId = parentId ?? state.currentParentId;
+    const itemWithContext = { ...item, parentId: finalParentId };
+    
+    // Add to reactive state (UI updates automatically)
+    state.temporaryFolders = [...state.temporaryFolders, itemWithContext];
+}
+
+addTemporaryDocument(item: ExplorerItem, parentId?: string): void {
+    const finalParentId = parentId ?? state.currentParentId;
+    const itemWithContext = { ...item, parentId: finalParentId };
+    
+    state.temporaryDocuments = [...state.temporaryDocuments, itemWithContext];
+}
+```
+
+### 5. User Edits Name and Presses Enter
+**Location**: ExplorerItem component handles editing
+```typescript
+// /src/lib/components/Explorer/ExplorerItem/ExplorerItem.svelte
+// When user presses Enter on temporary item:
+if (isTempFolder) {
+    onFolderCreate?.(editingValue, item.id);    // Call route's create handler
+} else if (isTempDocument) {
+    onDocumentCreate?.(editingValue, item.id);  // Call route's create handler
+}
+```
+
+### 6. Route Creates Permanent Item in Database
+**Location**: Route handlers call appState methods
+
+#### Create Folder/List
+```typescript
+// /src/routes/explorer/[...path]/+page.svelte
+async function handleFolderCreate(folderName: string, tempId: string) {
+    try {
+        // Create actual List in database via appState
+        const savedList = await app.createList({
+            name: folderName,
+            type: 'custom',  // OR 'character' OR 'manuscript'
+            parentId: currentFolderId
+        });
+        
+        // Remove temporary item from appState
+        app.removeTemporaryFolder(tempId);
+        app.setEditingTempFolderId(null);
+        
+        // Refresh folder contents
+        await loadFolderContents();
+    } catch (error) {
+        console.error('Failed to create folder:', error);
+    }
+}
+```
+
+#### Create Document
+```typescript
+async function handleDocumentCreate(documentName: string, tempId: string) {
+    try {
+        // Create actual Document in database via appState
+        const savedDocument = await app.createDocument(
+            documentName, 
+            '',           // Empty content initially
+            currentFolderId
+        );
+        
+        // Remove temporary item from appState
+        app.removeTemporaryDocument(tempId);
+        app.setEditingTempDocumentId(null);
+        
+        // Refresh folder contents
+        await loadFolderContents();
+    } catch (error) {
+        console.error('Failed to create document:', error);
+    }
+}
+```
+
+### 7. AppState Persists to Database
+**Location**: /src/lib/stores/appState.svelte.ts
+```typescript
+async createList(listData: Partial<ListContent>): Promise<List> {
+    if (!browser || !state.listService) {
+        throw new Error('Database not available');
+    }
+    
+    try {
+        // Create List object with proper type
+        const newList = new List(
+            listData.type || 'custom',  // ListType enum
+            listData.name || 'New List',
+            listData.parentId
+        );
+        
+        // Save to PouchDB via service
+        const savedList = await state.listService.create(newList);
+        
+        // Update reactive state (UI updates automatically)
+        state.lists = [...state.lists, savedList];
+        
+        return savedList;
+    } catch (error) {
+        console.error('Failed to create list:', error);
+        throw error;
+    }
+}
+
+async createDocument(title: string, content: string = '', parentId?: string): Promise<Document> {
+    if (!browser || !state.documentService) {
+        throw new Error('Database not available');
+    }
+    
+    try {
+        // Create Document object
+        const newDocument = new Document(title, content, parentId);
+        
+        // Save to PouchDB via service
+        const savedDocument = await state.documentService.create(newDocument);
+        
+        // Update reactive state (UI updates automatically)
+        state.documents = [...state.documents, savedDocument];
+        
+        return savedDocument;
+    } catch (error) {
+        console.error('Failed to create document:', error);
+        throw error;
+    }
+}
+```
+
+## Copy/Move Operations
+
+### 1. User Selects Items and Clicks Copy/Cut
+**Location**: Selection system in Explorer component
+```typescript
+// /src/lib/stores/selectedDocuments.ts
+// Selected items are stored in centralized clipboard store
+const selectedDocuments = createSelectedDocumentsStore();
+
+// Copy operation
+copySelected(items: ExplorerItem[]): void {
+    this.set({
+        documents: items,
+        copiedItems: items,
+        copyOperation: 'copy',  // OR 'cut'
+        lastUpdated: new Date()
+    });
+}
+```
+
+### 2. User Navigates to Target Folder
+**Location**: Clipboard persists via localStorage
+```typescript
+// Clipboard survives navigation via localStorage persistence
+const persistStore = (state) => {
+    localStorage.setItem('manuscriptOS_selectedDocuments', JSON.stringify(state));
+};
+```
+
+### 3. User Clicks Paste
+**Location**: Route handlers call appState paste method
+```typescript
+// /src/routes/explorer/[...path]/+page.svelte
+async function handlePasteSelected() {
+    const currentParentId = currentFolderId;
+    
+    // appState handles the actual copy/move logic
+    await app.pasteClipboard(currentParentId);
+    
+    // Refresh local view
+    await loadFolderContents();
+}
+```
+
+### 4. AppState Handles Copy/Move Logic
+**Location**: /src/lib/stores/appState.svelte.ts
+```typescript
+async pasteClipboard(targetParentId?: string): Promise<void> {
+    const clipboard = selectedDocuments;
+    
+    if (!clipboard.hasClipboardItems) return;
+    
+    try {
+        for (const item of clipboard.documents) {
+            if (clipboard.copyOperation === 'copy') {
+                // Copy operation - create new items
+                if (item.type === 'list') {
+                    await this.createList({
+                        name: item.name + ' (copy)',
+                        type: item.listType,
+                        parentId: targetParentId
+                    });
+                } else if (item.type === 'document') {
+                    await this.createDocument(
+                        item.name + ' (copy)',
+                        item.content,
+                        targetParentId
+                    );
+                }
+            } else if (clipboard.copyOperation === 'cut') {
+                // Move operation - update parentId
+                if (item.type === 'list') {
+                    await this.updateList(item.id, { parentId: targetParentId });
+                } else if (item.type === 'document') {
+                    await this.updateDocument(item.id, { parentId: targetParentId });
+                }
+            }
+        }
+        
+        // Clear clipboard after successful paste
+        selectedDocuments.clearAll();
+        
+    } catch (error) {
+        console.error('Failed to paste clipboard:', error);
+        throw error;
+    }
+}
+```
+
+## Delete Operations
+
+### 1. User Selects Items and Clicks Delete
+**Location**: Route handlers
+```typescript
+// /src/routes/explorer/[...path]/+page.svelte
+async function handleDeleteSelected(selectedItems: ExplorerItem[]) {
+    try {
+        for (const item of selectedItems) {
+            if (item.type === 'list') {
+                await app.deleteList(item.id);      // Delete folder
+            } else if (item.type === 'document') {
+                await app.deleteDocument(item.id);  // Delete document
+            }
+        }
+        
+        // Refresh view after deletion
+        await loadFolderContents();
+    } catch (error) {
+        console.error('Failed to delete items:', error);
+    }
+}
+```
+
+### 2. AppState Deletes from Database
+**Location**: /src/lib/stores/appState.svelte.ts
+```typescript
+async deleteList(listId: string): Promise<void> {
+    if (!browser || !state.listService) return;
+    
+    try {
+        // Delete from PouchDB
+        await state.listService.delete(listId);
+        
+        // Remove from reactive state
+        state.lists = state.lists.filter(list => list.id !== listId);
+        
+    } catch (error) {
+        console.error('Failed to delete list:', error);
+        throw error;
+    }
+}
+
+async deleteDocument(documentId: string): Promise<void> {
+    if (!browser || !state.documentService) return;
+    
+    try {
+        // Delete from PouchDB
+        await state.documentService.delete(documentId);
+        
+        // Remove from reactive state
+        state.documents = state.documents.filter(doc => doc.id !== documentId);
+        
+    } catch (error) {
+        console.error('Failed to delete document:', error);
+        throw error;
+    }
+}
+```
+
+## Key Architecture Principles
+
+### 1. Route-Level Source of Truth
+- Routes define WHAT gets created (business logic)
+- Routes provide handler functions to Explorer component
+- Different routes can have different creation rules
+
+### 2. Component Delegation
+- Explorer component handles UI events (WHEN things happen)
+- Explorer delegates to route handlers for business logic
+- Components stay generic and reusable
+
+### 3. Centralized State Management
+- AppState manages all data operations
+- Single source of truth for documents and lists
+- Reactive updates automatically refresh UI
+
+### 4. Temporary Item Pattern
+- Create temporary item first for user editing
+- Convert to permanent item when user confirms
+- Provides better UX for naming items
+
+### 5. Context Awareness
+- All operations are aware of current folder context
+- parentId is tracked and passed through entire flow
+- Items are created in correct location
+
+### 6. Persistent Clipboard
+- Clipboard survives navigation via localStorage
+- Singleton pattern ensures same instance everywhere
+- Enables cross-folder copy/paste operations
+
+## Data Flow Summary
+
+```
+User Action
+    ↓
+Explorer Component (UI Events)
+    ↓
+Route Handler (Business Logic)
+    ↓
+AppState (Data Management)
+    ↓
+Service Layer (Database Operations)
+    ↓
+PouchDB (Persistent Storage)
+    ↓
+Reactive State Update (UI Refresh)
+```
+
+## Files Involved
+
+### Core Data Models
+- `/src/lib/models/Document.ts` - Document entity definition
+- `/src/lib/models/List.ts` - List entity definition
+
+### State Management
+- `/src/lib/stores/appState.svelte.ts` - Centralized state and CRUD operations
+- `/src/lib/stores/selectedDocuments.ts` - Clipboard and selection state
+
+### Services
+- `/src/lib/services/DocumentService.ts` - Document database operations
+- `/src/lib/services/ListService.ts` - List database operations
+
+### UI Components
+- `/src/lib/components/Explorer/Explorer.svelte` - Main explorer UI
+- `/src/lib/components/Explorer/ExplorerItem/ExplorerItem.svelte` - Individual item rendering
+
+### Route Handlers
+- `/src/routes/explorer/+page.svelte` - Root explorer logic
+- `/src/routes/explorer/[...path]/+page.svelte` - Nested explorer logic
+
+## Debugging Tips
+
+### 1. Check Temporary Items
+```typescript
+// Temporary items are in appState
+console.log(app.temporaryFolders);    // Folders being created
+console.log(app.temporaryDocuments); // Documents being created
+```
+
+### 2. Check Reactive State
+```typescript
+// All data is in appState reactive properties
+console.log(app.documents);  // All documents
+console.log(app.lists);      // All lists/folders
+```
+
+### 3. Check Clipboard
+```typescript
+// Clipboard state for copy/paste
+console.log(selectedDocuments.documents);  // Copied items
+console.log(selectedDocuments.copyOperation); // 'copy' or 'cut'
+```
+
+### 4. Check Database Operations
+```typescript
+// Services handle actual database calls
+// Look for console.error messages in appState methods
+// Check network tab for PouchDB operations
+```
+
+## Common Issues and Solutions
+
+### Issue: Temporary items not appearing
+**Cause**: appState temporary arrays not updated
+**Solution**: Check `app.addTemporaryFolder()` is called with correct context
+
+### Issue: Items not persisting after creation
+**Cause**: Database operation failed or reactive state not updated
+**Solution**: Check `app.createList()` or `app.createDocument()` for errors
+
+### Issue: Copy/paste not working across folders
+**Cause**: Clipboard not persisting or context not passed correctly
+**Solution**: Check selectedDocuments localStorage persistence and targetParentId
+
+### Issue: Items created in wrong folder
+**Cause**: parentId not set correctly in context
+**Solution**: Check `app.setCurrentParentId()` is called when navigating
+
+## Adding New Buttons to Explorer Navigation
+
+### Complete Guide for Adding "Add New Whatever" Button
+
+This section provides the exact locations and code changes needed to add a new button called "Add New Whatever" to both nested explorer routes (`/explorer/[...path]`) and the root home explorer (`/explorer`).
+
+### Scenario: Adding "Add New Whatever" Button
+**Decision**: You want to create either a List (folder) or Document (file) when user clicks this button.
+
+## Part 1: Nested Explorer Route (`/explorer/[...path]`)
+
+### File 1: Explorer Component - Add Button UI
+**Location**: `/src/lib/components/Explorer/Explorer.svelte`
+
+**Find**: Lines ~121-145 in the `navButtons` derived state
+```typescript
+let navButtons = $derived.by(() => {
+    const currentPath = $page.url.pathname;
+    
+    if (currentPath === '/explorer') {
+        return [
+            {
+                id: 'manuscript',
+                label: 'New Manuscript',
+                icon: '/icons/manuscript.png',
+                onClick: handleNewManuscript
+            }
+        ];
+    }
+    
+    // Default: Show all buttons for other routes
+    return [
+        {
+            id: 'folder',
+            label: 'New Folder',
+            icon: '/icons/folder.png',
+            onClick: handleNewFolder
+        },
+        {
+            id: 'document',
+            label: 'New Document',
+            icon: '/icons/new.png',
+            onClick: handleNewDocument
+        },
+        {
+            id: 'character',
+            label: 'New Character',
+            icon: '/icons/fantasy.png',
+            onClick: handleNewCharacter
+        },
+        // 👇 ADD YOUR NEW BUTTON HERE
+        {
+            id: 'whatever',
+            label: 'Add New Whatever',
+            icon: '/icons/whatever.png',  // Add your icon to /static/icons/
+            onClick: handleNewWhatever
+        }
+    ];
+});
+```
+
+### File 2: Explorer Component - Add Delegate Function
+**Location**: `/src/lib/components/Explorer/Explorer.svelte`
+
+**Find**: Lines ~218-221 where other handlers are defined
+```typescript
+async function handleNewCharacter() {
+    // Call the parent's new character handler
+    onNewCharacter?.();
+}
+
+// 👇 ADD YOUR DELEGATE FUNCTION HERE
+async function handleNewWhatever() {
+    // Call the parent's new whatever handler
+    onNewWhatever?.();
+}
+```
+
+### File 3: Explorer Component - Add Props Interface
+**Location**: `/src/lib/components/Explorer/Explorer.svelte`
+
+**Find**: Lines ~23-26 in the Props interface
+```typescript
+interface Props {
+    onNewFolder?: () => void;
+    onNewDocument?: () => void;
+    onNewCharacter?: () => void;
+    onNewManuscript?: () => void;
+    // 👇 ADD YOUR PROP HERE
+    onNewWhatever?: () => void;
+    // ... other props
+}
+```
+
+### File 4: Nested Explorer Page - Add Handler Function
+**Location**: `/src/routes/explorer/[...path]/+page.svelte`
+
+**Find**: Where other handlers are defined (around lines ~200-250)
+```typescript
+function handleNewCharacter() {
+    // Create a temporary character using appState
+    const tempId = `temp-${crypto.randomUUID()}`;
+    const tempCharacter: ExplorerItem = {
+        id: tempId,
+        name: 'New Character',
+        type: 'list',
+        icon: '/icons/fantasy.png',
+        isTemp: true,
+        isEditing: true
+    };
+    
+    app.addTemporaryFolder(tempCharacter);
+    app.setEditingTempFolderId(tempId);
+}
+
+// 👇 ADD YOUR HANDLER FUNCTION HERE
+function handleNewWhatever() {
+    // DECIDE: Create List OR Document?
+    
+    // OPTION A: If creating a List (folder)
+    const tempId = `temp-${crypto.randomUUID()}`;
+    const tempWhatever: ExplorerItem = {
+        id: tempId,
+        name: 'New Whatever',
+        type: 'list',                    // 👈 List type
+        icon: '/icons/whatever.png',
+        isTemp: true,
+        isEditing: true
+    };
+    
+    app.addTemporaryFolder(tempWhatever);   // 👈 Use folder method
+    app.setEditingTempFolderId(tempId);
+    
+    // OPTION B: If creating a Document (file)
+    /*
+    const tempId = `temp-doc-${crypto.randomUUID()}`;
+    const tempWhatever: ExplorerItem = {
+        id: tempId,
+        name: 'Untitled Whatever',
+        type: 'document',                // 👈 Document type
+        icon: '/icons/whatever.png',
+        isTemp: true,
+        isEditing: true
+    };
+    
+    app.addTemporaryDocument(tempWhatever); // 👈 Use document method
+    app.setEditingTempDocumentId(tempId);
+    */
+}
+```
+
+### File 5: Nested Explorer Page - Add Create Handler
+**Location**: `/src/routes/explorer/[...path]/+page.svelte`
+
+**Find**: Where `handleFolderCreate` and `handleDocumentCreate` are defined
+```typescript
+async function handleFolderCreate(folderName: string, tempId: string) {
+    try {
+        const savedList = await app.createList({
+            name: folderName,
+            type: 'custom',  // OR 'character' OR 'manuscript'
+            parentId: currentFolderId
+        });
+        
+        app.removeTemporaryFolder(tempId);
+        app.setEditingTempFolderId(null);
+        await loadFolderContents();
+    } catch (error) {
+        console.error('Failed to create folder:', error);
+    }
+}
+
+// 👇 ADD YOUR CREATE HANDLER HERE (if creating List)
+async function handleWhateverCreate(whateverName: string, tempId: string) {
+    try {
+        const savedList = await app.createList({
+            name: whateverName,
+            type: 'whatever',  // 👈 Your custom ListType (add to enum)
+            parentId: currentFolderId
+        });
+        
+        app.removeTemporaryFolder(tempId);
+        app.setEditingTempFolderId(null);
+        await loadFolderContents();
+    } catch (error) {
+        console.error('Failed to create whatever:', error);
+    }
+}
+
+// 👇 OR ADD THIS (if creating Document)
+/*
+async function handleWhateverCreate(whateverName: string, tempId: string) {
+    try {
+        const savedDocument = await app.createDocument(
+            whateverName,
+            '',  // Initial content
+            currentFolderId
+        );
+        
+        app.removeTemporaryDocument(tempId);
+        app.setEditingTempDocumentId(null);
+        await loadFolderContents();
+    } catch (error) {
+        console.error('Failed to create whatever:', error);
+    }
+}
+*/
+```
+
+### File 6: Nested Explorer Page - Pass Props to Explorer
+**Location**: `/src/routes/explorer/[...path]/+page.svelte`
+
+**Find**: The `<Explorer>` component call (around lines ~448-470)
+```typescript
+<Explorer 
+    data={explorerData}
+    isSelectionMode={isSelectionMode}
+    showSelectionSwitch={true}
+    onSelectionToggle={handleSelectionToggle}
+    onDeleteSelected={handleDeleteSelected}
+    onNewFolder={handleNewFolder}
+    onNewDocument={handleNewDocument}
+    onNewCharacter={handleNewCharacter}
+    // 👇 ADD YOUR PROP HERE
+    onNewWhatever={handleNewWhatever}
+    onFolderCreate={handleFolderCreate}
+    onDocumentCreate={handleDocumentCreate}
+    // 👇 ADD YOUR CREATE PROP HERE
+    onWhateverCreate={handleWhateverCreate}
+    // ... other props
+/>
+```
+
+## Part 2: Root Explorer Route (`/explorer`)
+
+### File 7: Root Explorer Page - Add Handler Function
+**Location**: `/src/routes/explorer/+page.svelte`
+
+**Find**: Where `handleNewManuscript` is defined
+```typescript
+function handleNewManuscript() {
+    const tempId = `temp-${crypto.randomUUID()}`;
+    const tempManuscript: ExplorerItem = {
+        id: tempId,
+        name: 'New Manuscript',
+        type: 'list',
+        icon: '/icons/manuscript.png',
+        isTemp: true,
+        isEditing: true
+    };
+    
+    app.addTemporaryFolder(tempManuscript);
+    app.setEditingTempFolderId(tempId);
+}
+
+// 👇 ADD YOUR HANDLER FUNCTION HERE
+function handleNewWhatever() {
+    // Same logic as nested version but for root level
+    const tempId = `temp-${crypto.randomUUID()}`;
+    const tempWhatever: ExplorerItem = {
+        id: tempId,
+        name: 'New Whatever',
+        type: 'list',                    // 👈 OR 'document'
+        icon: '/icons/whatever.png',
+        isTemp: true,
+        isEditing: true
+    };
+    
+    app.addTemporaryFolder(tempWhatever);   // 👈 OR addTemporaryDocument()
+    app.setEditingTempFolderId(tempId);    // 👈 OR setEditingTempDocumentId()
+}
+```
+
+### File 8: Root Explorer Page - Add Create Handler
+**Location**: `/src/routes/explorer/+page.svelte`
+
+**Find**: Where `handleManuscriptCreate` is defined
+```typescript
+async function handleManuscriptCreate(manuscriptName: string, tempId: string) {
+    try {
+        const savedList = await app.createList({
+            name: manuscriptName,
+            type: 'manuscript',
+            parentId: undefined  // Root level
+        });
+        
+        app.removeTemporaryFolder(tempId);
+        app.setEditingTempFolderId(null);
+        await loadRootLevel();  // Root uses different refresh
+    } catch (error) {
+        console.error('Failed to create manuscript:', error);
+    }
+}
+
+// 👇 ADD YOUR CREATE HANDLER HERE
+async function handleWhateverCreate(whateverName: string, tempId: string) {
+    try {
+        const savedList = await app.createList({
+            name: whateverName,
+            type: 'whatever',  // 👈 Your custom type
+            parentId: undefined  // Root level
+        });
+        
+        app.removeTemporaryFolder(tempId);
+        app.setEditingTempFolderId(null);
+        await loadRootLevel();  // Root refresh
+    } catch (error) {
+        console.error('Failed to create whatever:', error);
+    }
+}
+```
+
+### File 9: Root Explorer Page - Pass Props to Explorer
+**Location**: `/src/routes/explorer/+page.svelte`
+
+**Find**: The `<Explorer>` component call
+```typescript
+<Explorer 
+    data={explorerData}
+    isSelectionMode={app.isSelectionMode}
+    onSelectionToggle={handleSelectionToggle}
+    onDeleteSelected={handleDeleteSelected}
+    onNewManuscript={handleNewManuscript}
+    // 👇 ADD YOUR PROP HERE
+    onNewWhatever={handleNewWhatever}
+    onManuscriptCreate={handleManuscriptCreate}
+    // 👇 ADD YOUR CREATE PROP HERE
+    onWhateverCreate={handleWhateverCreate}
+    // ... other props
+/>
+```
+
+## Part 3: Optional - Update Data Models
+
+### File 10: List Type Enum (if creating new List type)
+**Location**: `/src/lib/models/List.ts`
+
+**Find**: Line ~7 where ListType is defined
+```typescript
+// BEFORE
+export type ListType = null | undefined | 'character' | 'manuscript';
+
+// AFTER
+export type ListType = null | undefined | 'character' | 'manuscript' | 'whatever';
+```
+
+## Part 4: Required Assets
+
+### File 11: Add Icon Asset
+**Location**: `/static/icons/whatever.png`
+
+**Action**: Add your button icon file to the icons directory
+
+## Summary of All Files to Modify
+
+### For Nested Explorer (`/explorer/[...path]`):
+1. `/src/lib/components/Explorer/Explorer.svelte` - Add button UI, delegate function, and prop interface
+2. `/src/routes/explorer/[...path]/+page.svelte` - Add handler function, create handler, and pass props
+
+### For Root Explorer (`/explorer`):
+3. `/src/routes/explorer/+page.svelte` - Add handler function, create handler, and pass props
+
+### Optional (if new List type):
+4. `/src/lib/models/List.ts` - Add new type to enum
+5. `/static/icons/whatever.png` - Add button icon
+
+## Testing Your New Button
+
+### Step 1: Verify Button Appears
+```bash
+# Navigate to nested explorer
+http://localhost:5173/explorer/[folder-id]
+
+# You should see "Add New Whatever" button in navbar
+```
+
+### Step 2: Test Button Click
+```bash
+# Click the button
+# Should create temporary item with editing mode
+# Console should show: "🔥 Added temporary folder with parentId: [folder-id]"
+```
+
+### Step 3: Test Item Creation
+```bash
+# Type a name and press Enter
+# Should call your create handler
+# Should save to database and refresh view
+```
+
+### Step 4: Test Root Explorer
+```bash
+# Navigate to root explorer
+http://localhost:5173/explorer
+
+# Button should NOT appear (only in nested routes by default)
+# OR modify Explorer component to show it in root too
+```
+
+## Common Issues and Solutions
+
+### Issue: Button not appearing
+**Cause**: Missing prop in Explorer component interface or not passed in route
+**Solution**: Check all 3 places in Explorer component: interface, delegate function, navButtons array
+
+### Issue: Button appears but doesn't work
+**Cause**: Handler function not defined or not passed as prop
+**Solution**: Check route handler function and props passed to Explorer component
+
+### Issue: Temporary item appears but doesn't save
+**Cause**: Create handler not defined or not passed as prop
+**Solution**: Check create handler function and props passed to Explorer component
+
+### Issue: Item saves in wrong location
+**Cause**: parentId not set correctly
+**Solution**: Check appState context and parentId handling
+
+### Issue: Different behavior in root vs nested
+**Cause**: Handler functions differ between routes
+**Solution**: Ensure both routes have consistent handler logic
+
+This comprehensive guide covers every single location an LLM needs to modify to add a new button to the explorer navigation system.
