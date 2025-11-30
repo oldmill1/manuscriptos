@@ -61,13 +61,12 @@
 	});
 
 	function handleNewDocument() {
-		// Use ExplorerService for document creation
-		explorerService.createTemp('document');
+		// Use ExplorerService function
+		explorerService.document.new();
 	}
 
 	async function handleDocumentCreate(documentName: string, tempId: string) {
-		// Use ExplorerService for document creation
-		await explorerService.save('document', documentName, tempId, undefined);
+		await explorerService.document.new(documentName, tempId, undefined);
 	}
 
 	
@@ -132,11 +131,11 @@
 	}
 
 	async function handleFolderRename(folderId: string, newName: string) {
-		await explorerService.rename('list', folderId, newName);
+		await explorerService.list.update('name', folderId, newName);
 	}
 
 	async function handleDocumentRename(documentId: string, newName: string) {
-		await explorerService.rename('document', documentId, newName);
+		await explorerService.document.update('name', documentId, newName);
 	}
 
 	

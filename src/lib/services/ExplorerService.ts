@@ -17,70 +17,41 @@ export class ExplorerService {
 		this.app = app;
 	}
 
+	// Document operations
+	document = {
+		// Create temporary document (empty new())
+		new: (name?: string, tempId?: string, parentId?: string): Promise<void> => {
+			if (name && tempId && parentId) {
+				// Save temporary document with parameters
+				return this.saveDocument(name, tempId, parentId);
+			} else {
+				// Create temporary document (empty new())
+				this.createTempDocument();
+				return Promise.resolve();
+			}
+		},
+
+		// Update document property
+		update: async (property: 'name', id: string, newName: string): Promise<void> => {
+			await this.renameDocument(id, newName);
+		}
+	};
+
+	// List operations
+	list = {
+		// Update list property
+		update: async (property: 'name', id: string, newName: string): Promise<void> => {
+			await this.renameList(id, newName);
+		}
+	};
+
 	// Get available folder types
 	getAvailableTypes(): string[] {
-		return ['character', 'manuscript', 'scene', 'custom'];
-	}
-
-	// Unified temporary item creation
-	createTemp(type: TempItemType['type']): void {
-		switch (type) {
-			case 'document':
-				const tempId = `temp-doc-${crypto.randomUUID()}`;
-				const tempDocument: ExplorerItem = {
-					id: tempId,
-					name: 'Untitled Document',
-					type: 'document',
-					icon: '/icons/new.png',
-					isTemp: true,
-					isEditing: true
-				};
-				this.app.addTemporaryDocument(tempDocument);
-				this.app.setEditingTempDocumentId(tempId);
-				break;
-			case 'folder':
-				// TODO: Implement folder creation
-				break;
-			case 'character':
-				// TODO: Implement character creation
-				break;
-			case 'scene':
-				// TODO: Implement scene creation
-				break;
-			case 'manuscript':
-				// TODO: Implement manuscript creation
-				break;
-		}
-	}
-
-	// Save permanent item
-	async save(type: TempItemType['type'], name: string, tempId: string, parentId?: string): Promise<void> {
-		switch (type) {
-			case 'document':				
-				// Create actual document using app state with parentId context
-				await this.app.createDocument(name, '', parentId);
-								
-				// Remove temporary document and clear editing state
-				this.app.removeTemporaryDocument(tempId);
-				this.app.setEditingTempDocumentId(null);
-				break;
-			case 'folder':
-				// TODO: Implement folder creation
-				break;
-			case 'character':
-				// TODO: Implement character creation
-				break;
-			case 'scene':
-				// TODO: Implement scene creation
-				break;
-			case 'manuscript':
-				// TODO: Implement manuscript creation
-				break;
-		}
+		return ['character', 'manuscript', 'scene', 'folder', 'custom', 'collection'];
 	}
 
 	// Rename item
-	async rename(type: 'document' | 'list', id: string, newName: string): Promise<void> {
+	async rename(type: 'document' | 'list' | 'collection', id: string, newName: string): Promise<void> {
 		switch (type) {
 			case 'document':
 				await this.renameDocument(id, newName);
@@ -88,6 +59,36 @@ export class ExplorerService {
 			case 'list':
 				await this.renameList(id, newName);
 				break;
+		}
+	}
+
+	// Create temporary document (private method)
+	private createTempDocument(): void {
+		const tempId = `temp-doc-${crypto.randomUUID()}`;
+		const tempDocument: ExplorerItem = {
+			id: tempId,
+			name: 'New Document',
+			icon: '/icons/new.png',
+			type: 'document',
+			isTemp: true,
+			isEditing: true
+		};
+		
+		this.app.addTemporaryDocument(tempDocument);
+		this.app.setEditingTempDocumentId(tempId);
+	}
+
+	// Save document (private method)
+	private async saveDocument(name: string, tempId: string, parentId?: string): Promise<void> {
+		try {
+			// Create actual document using app state with parentId context
+			await this.app.createDocument(name, '', parentId);
+							
+			// Remove temporary document and clear editing state
+			this.app.removeTemporaryDocument(tempId);
+			this.app.setEditingTempDocumentId(null);
+		} catch (error) {
+			console.error('Failed to save document:', error);
 		}
 	}
 

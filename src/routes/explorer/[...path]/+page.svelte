@@ -214,16 +214,15 @@
 
 	async function handleDocumentCreate(documentName: string, tempId: string) {
 		// Use ExplorerService for document creation
-		await explorerService.save('document', documentName, tempId, currentFolderId);
+		await explorerService.document.new(documentName, tempId, currentFolderId);
 	}
 
-	function handleDocumentClick(doc: Document, event: MouseEvent) {
-		// Navigate to the document in the Editor
-		window.location.href = `/docs/${doc.id}`;
-	}
+function handleDocumentClick(doc: Document, event: MouseEvent) {
+	// Navigate to the document in the Editor
+	window.location.href = `/docs/${doc.id}`;
+}
 
-	
-	function handleFolderClick(folder: List, event: MouseEvent) {
+function handleFolderClick(folder: List, event: MouseEvent) {
 		
 		// Build the full path by appending current folder to existing path
 		const fullPath = [...pathArray, folder.id];
@@ -234,8 +233,7 @@
 	}
 
 	function handleNewDocument() {
-		// Use ExplorerService for document creation
-		explorerService.createTemp('document');
+		explorerService.document.new();
 	}
 
 	function handleNewCharacter() {
@@ -393,11 +391,11 @@
 	}
 
 	async function handleFolderRename(folderId: string, newName: string) {
-		await explorerService.rename('list', folderId, newName);
+		await explorerService.list.update('name', folderId, newName);
 	}
 
 	async function handleDocumentRename(documentId: string, newName: string) {
-		await explorerService.rename('document', documentId, newName);
+		await explorerService.document.update('name', documentId, newName);
 	}
 
 	
