@@ -133,30 +133,16 @@
 
 	async function handleFolderCreate(folderName: string, tempId: string) {
 		try {
-			// Create the real folder using ListService with parentId
-			const newFolder = new List('custom', folderName, currentFolderId);
-			const savedFolder = await listService.create(newFolder);
-			
-			// Add the new folder to centralized state
-			await app.updateList(savedFolder);
-			
-			// Remove the temporary folder
-			app.removeTemporaryFolder(tempId);
-			
-			// Clear editing state
-			if (app.editingTempFolderId === tempId) {
-				app.setEditingTempFolderId(null);
-			}
-			
-			// Add the new folder to childFolders to show it immediately
-			const updatedChildFolders = [...childFolders, savedFolder];
-			// Sort by creation date, newest first
-			updatedChildFolders.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-			childFolders = updatedChildFolders;
-			
+			// Use ExplorerService to save the list
+			await explorerService.list.save(folderName, tempId, currentFolderId);
 		} catch (error) {
 			console.error('Failed to create folder:', error);
 		}
+	}
+
+	function handleNewFolder() {
+		// Use ExplorerService to create temporary list
+		explorerService.list.new();
 	}
 
 	async function handleCharacterCreate(characterName: string, tempId: string) {
@@ -270,22 +256,6 @@
 	
 	function handleBack() {
 		window.location.href = '/explorer';
-	}
-
-	function handleNewFolder() {
-		// Create a temporary folder using appState (consistent with root explorer)
-		const tempId = `temp-${crypto.randomUUID()}`;
-		const tempFolder: ExplorerItem = {
-			id: tempId,
-			name: 'New List',
-			type: 'list',
-			icon: '/icons/folder.png',
-			isTemp: true,
-			isEditing: true
-		};
-		
-		app.addTemporaryFolder(tempFolder);
-		app.setEditingTempFolderId(tempId);
 	}
 
 	function handleSelectionToggle(enabled: boolean) {

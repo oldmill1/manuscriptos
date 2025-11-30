@@ -7,6 +7,8 @@
  * - document.update(field: string, id: string, value: any): Promise<void>
  * 
  * List Operations:
+ * - list.new(): void
+ * - list.save(listName: string, tempId: string, parentId?: string): Promise<void>
  * - list.update(field: string, id: string, value: any): Promise<void>
  * 
  * TODO: Add delete operations for both documents and lists
@@ -43,6 +45,52 @@ export class ExplorerService {
 
 	// List operations
 	list = {
+		// Create temporary list
+		new: (): void => {
+			const tempId = `temp-${crypto.randomUUID()}`;
+			const tempFolder: ExplorerItem = {
+				id: tempId,
+				name: 'New List',
+				type: 'list',
+				icon: '/icons/folder.png',
+				isTemp: true,
+				isEditing: true
+			};
+			
+			this.app.addTemporaryFolder(tempFolder);
+			this.app.setEditingTempFolderId(tempId);
+		},
+
+		// Save temporary list
+		save: async (listName: string, tempId: string, parentId?: string): Promise<void> => {
+			try {
+				// Create the real list using ListService with parentId
+				const { List } = await import('$lib/models/List');
+				const { ListService } = await import('$lib/services/ListService');
+				
+				const newList = new List('custom', listName, parentId);
+				if (!this.app.listService) {
+					throw new Error('ListService not available');
+				}
+				const savedList = await this.app.listService.create(newList);
+				
+				// Add the new list to centralized state
+				await this.app.updateList(savedList);
+				
+				// Remove the temporary list
+				this.app.removeTemporaryFolder(tempId);
+				
+				// Clear editing state
+				if (this.app.editingTempFolderId === tempId) {
+					this.app.setEditingTempFolderId(null);
+				}
+				
+			} catch (error) {
+				console.error('Failed to create list:', error);
+				throw error;
+			}
+		},
+
 		// Update list property
 		update: async (property: 'name', id: string, newName: string): Promise<void> => {
 			await this.renameList(id, newName);

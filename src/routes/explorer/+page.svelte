@@ -80,19 +80,8 @@
 	}
 
 	function handleNewFolder() {
-		// Create a temporary folder with a unique ID and "New List" name
-		const tempId = `temp-${crypto.randomUUID()}`;
-		const tempFolder: ExplorerItem = {
-			id: tempId,
-			name: 'New List',
-			type: 'list',
-			icon: '/icons/folder.png',
-			isTemp: true,
-			isEditing: true
-		};
-		
-		app.addTemporaryFolder(tempFolder);
-		app.setEditingTempFolderId(tempId);
+		// Use ExplorerService to create temporary list
+		explorerService.list.new();
 	}
 
 	function handleNewCharacter() {
@@ -206,15 +195,8 @@
 
 	async function handleFolderCreate(folderName: string, tempId: string) {
 		try {
-			// Create the actual folder
-			const savedFolder = await app.createList(folderName, undefined);
-			
-			// Remove the temporary folder
-			app.removeTemporaryFolder(tempId);
-			if (app.editingTempFolderId === tempId) {
-				app.setEditingTempFolderId(null);
-			}
-			
+			// Use ExplorerService to save the list (root level has no parentId)
+			await explorerService.list.save(folderName, tempId, undefined);
 		} catch (error) {
 			console.error('Failed to create folder:', error);
 		}
