@@ -393,47 +393,11 @@
 	}
 
 	async function handleFolderRename(folderId: string, newName: string) {
-		try {
-			const currentList = await listService.read(folderId);
-			if (!currentList) {
-				console.error('List not found for renaming:', folderId);
-				return;
-			}
-			
-			currentList.name = newName;
-			await listService.update(currentList);
-			
-			// Update just the renamed folder in the local array
-			const updatedChildFolders = childFolders.map(folder => {
-				if (folder.id === folderId) {
-					folder.name = newName;
-					return folder;
-				}
-				return folder;
-			});
-			childFolders = updatedChildFolders;
-			
-		} catch (error) {
-			console.error('Failed to rename folder:', error);
-		}
+		await explorerService.rename('list', folderId, newName);
 	}
 
 	async function handleDocumentRename(documentId: string, newName: string) {
-		try {
-			const currentDocument = await documentService.read(documentId);
-			if (!currentDocument) {
-				console.error('Document not found for renaming:', documentId);
-				return;
-			}
-			
-			currentDocument.title = newName;
-			await documentService.update(currentDocument);
-			
-			// Documents are now computed from app state, will update automatically when renamed
-			
-		} catch (error) {
-			console.error('Failed to rename document:', error);
-		}
+		await explorerService.rename('document', documentId, newName);
 	}
 
 	

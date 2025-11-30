@@ -132,55 +132,11 @@
 	}
 
 	async function handleFolderRename(folderId: string, newName: string) {
-		try {
-			const folder = app.lists.find((f: List) => f.id === folderId);
-			if (!folder) {
-				console.error('Folder not found for renaming:', folderId);
-				return;
-			}
-			
-			// Update the folder name
-			folder.name = newName;
-			await app.updateList(folder);
-			
-		} catch (error) {
-			console.error('Failed to rename folder:', error);
-		}
+		await explorerService.rename('list', folderId, newName);
 	}
 
 	async function handleDocumentRename(documentId: string, newName: string) {
-		try {
-			// Check if documentService is available (SSR compatibility)
-			if (!app.documentService) {
-				console.error('Document service not available');
-				return;
-			}
-			
-			// Get the latest version of the document from the database
-			const currentDocument = await app.documentService.read(documentId);
-			if (!currentDocument) {
-				console.error('Document not found for renaming:', documentId);
-				return;
-			}
-			
-			// Update the document title on the fresh object
-			currentDocument.title = newName;
-			
-			try {
-				await app.updateDocument(currentDocument);
-			} catch (updateError: any) {
-				// If there's a conflict but the rename worked, just log it and continue
-				if (updateError.message?.includes('conflict')) {
-					console.log('Document rename completed despite conflict');
-					return; // Exit early since the rename worked
-				} else {
-					throw updateError;
-				}
-			}
-			
-		} catch (error) {
-			console.error('Failed to rename document:', error);
-		}
+		await explorerService.rename('document', documentId, newName);
 	}
 
 	
