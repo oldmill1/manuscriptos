@@ -229,6 +229,7 @@
 							slate={true}
 							disabled={false}
 							type="button"
+							textSize="16px"
 						/>
 					</div>
 				{/if}

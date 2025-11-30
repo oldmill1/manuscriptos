@@ -12,6 +12,7 @@
 		type?: 'button' | 'submit' | 'reset';
 		size?: 'small' | 'medium' | 'large';
 		variant?: 'solid' | 'outline' | 'ghost';
+		textSize?: string;
 		customClass?: string;
 		fullWidth?: boolean;
 	}
@@ -26,6 +27,7 @@
 		type = 'button',
 		size = 'medium',
 		variant = 'solid',
+		textSize = '14px',
 		customClass = '',
 		fullWidth = false
 	}: Props = $props();
@@ -64,6 +66,7 @@
 			${customClass}
 			${disabled ? styles['disabled'] : ''}
 		`.trim()}
+		style="font-size: {textSize};"
 		use:motion
 		{type}
 		{disabled}
