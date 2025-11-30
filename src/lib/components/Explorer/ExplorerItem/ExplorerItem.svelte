@@ -122,11 +122,9 @@
 	}
 
 	function startEditing() {
-		// Allow editing for both folders and documents
-		if (item.icon === '/icons/folder.png' || !item.isFolder) {
-			isEditing = true;
-			editingValue = item.name;
-		}
+		// Allow editing for all items (folders, documents, temporary items)
+		isEditing = true;
+		editingValue = item.name;
 	}
 
 	function handleClick(event: MouseEvent) {
@@ -270,7 +268,7 @@
 			</div>
 		{/if}
 		<img src={displayIcon} alt={item.name} class={styles.icon} />
-		{#if isEditing && (item.isTemp || !item.isFolder)}
+		{#if isEditing}
 			<input 
 				type="text" 
 				bind:this={inputElement}
