@@ -1,4 +1,16 @@
 // ExplorerService - Centralized explorer operations
+/**
+ * API for centralized explorer operations
+ * 
+ * Document Operations:
+ * - document.new(title?: string, tempId?: string, parentId?: string): Promise<void>
+ * - document.update(field: string, id: string, value: any): Promise<void>
+ * 
+ * List Operations:
+ * - list.update(field: string, id: string, value: any): Promise<void>
+ * 
+ * TODO: Add delete operations for both documents and lists
+ */
 import type { ExplorerItem } from '$lib/components/Explorer/types';
 import { useAppState } from '$lib/stores/appState.svelte';
 
